@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Home, FileText, MessageSquare, User, MapPin, Calendar, DollarSign, Package, Award, TrendingUp, Bell } from 'lucide-react';
 
 export default function FarmerDashboard() {
   const [activeTab, setActiveTab] = useState('My Listings');
+  const navigate = useNavigate();
 
   const farmerListings = [
     {
@@ -108,7 +110,28 @@ export default function FarmerDashboard() {
     }
   ];
 
-  // consumerRequests and marketplaceItems removed — marketplace will be a dedicated page
+  const handleNavigation = (tabName) => {
+    setActiveTab(tabName);
+    switch (tabName) {
+      case 'My Listings':
+        navigate('/farmer');
+        break;
+      case 'Marketplace':
+        navigate('/marketplace');
+        break;
+      case 'Messages':
+        navigate('/messages');
+        break;
+      case 'Notifications':
+        navigate('/notifications');
+        break;
+      case 'Profile':
+        navigate('/profile');
+        break;
+      default:
+        break;
+    }
+  };
 
   const sidebarItems = [
     { name: 'My Listings', icon: Home },
@@ -133,7 +156,7 @@ export default function FarmerDashboard() {
             return (
               <button
                 key={item.name}
-                onClick={() => setActiveTab(item.name)}
+                onClick={() => handleNavigation(item.name)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
                   activeTab === item.name
                     ? 'bg-green-50 text-green-600 font-medium'

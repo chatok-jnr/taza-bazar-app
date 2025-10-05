@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, MessageSquare, User, FileText, Edit2, Trash2, MapPin, Calendar, Package, DollarSign, TrendingUp, Bell } from 'lucide-react';
 
 export default function ConsumerDashboard() {
   const [activeTab, setActiveTab] = useState('My Requests');
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([
     {
       id: 1,
@@ -123,6 +124,29 @@ export default function ConsumerDashboard() {
     setEditForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
+  const handleNavigation = (tabName) => {
+    setActiveTab(tabName);
+    switch (tabName) {
+      case 'My Requests':
+        navigate('/consumer');
+        break;
+      case 'Marketplace':
+        navigate('/marketplace');
+        break;
+      case 'Notifications':
+        navigate('/notifications');
+        break;
+      case 'Messages':
+        navigate('/messages');
+        break;
+      case 'Profile':
+        navigate('/profile');
+        break;
+      default:
+        break;
+    }
+  };
+
   const sidebarItems = [
     { name: 'My Requests', icon: FileText },
     { name: 'Marketplace', icon: TrendingUp },
@@ -145,7 +169,7 @@ export default function ConsumerDashboard() {
             return (
               <button
                 key={item.name}
-                onClick={() => setActiveTab(item.name)}
+                onClick={() => handleNavigation(item.name)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
                   activeTab === item.name
                     ? 'bg-green-500 text-white shadow-md'

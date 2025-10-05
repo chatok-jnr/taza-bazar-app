@@ -99,11 +99,11 @@ export default function Landing() {
               <Leaf className="h-8 w-8 text-green-600" />
               <span className="ml-2 text-2xl font-bold text-gray-900">TazaBazar</span>
             </div>
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex items-center space-x-8">
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">Browse</a>
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">How it Works</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900 transition">Sign In</a>
-              <a href="#" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Join Now</a>
+              <Link to="/login" className="text-gray-600 hover:text-gray-900 transition">Sign In</Link>
+              <Link to="/signup" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Join Now</Link>
             </nav>
           </div>
         </div>
