@@ -110,35 +110,22 @@ export default function FarmerDashboard() {
     }
   ];
 
-  const handleNavigation = (tabName) => {
-    setActiveTab(tabName);
-    switch (tabName) {
-      case 'My Listings':
-        navigate('/farmer');
-        break;
-      case 'Marketplace':
-        navigate('/marketplace');
-        break;
-      case 'Messages':
-        navigate('/messages');
-        break;
-      case 'Notifications':
-        navigate('/notifications');
-        break;
-      case 'Profile':
-        navigate('/profile');
-        break;
-      default:
-        break;
-    }
+  const handleNavigation = (item) => {
+    setActiveTab(item.name);
+    navigate(item.path);
+  };
+
+  const handleLogout = () => {
+    // You can add any cleanup logic here
+    navigate('/');
   };
 
   const sidebarItems = [
-    { name: 'My Listings', icon: Home },
-    { name: 'Marketplace', icon: TrendingUp },
-    { name: 'Messages', icon: MessageSquare },
-    { name: 'Notifications', icon: Bell },
-    { name: 'Profile', icon: User }
+    { name: 'My Listings', icon: Home, path: '/farmer' },
+    { name: 'Marketplace', icon: TrendingUp, path: '/farmer/marketplace' },
+    { name: 'Messages', icon: MessageSquare, path: '/farmer/messages' },
+    { name: 'Notifications', icon: Bell, path: '/farmer/notifications' },
+    { name: 'Profile', icon: User, path: '/farmer/profile' }
   ];
 
   return (
@@ -156,7 +143,7 @@ export default function FarmerDashboard() {
             return (
               <button
                 key={item.name}
-                onClick={() => handleNavigation(item.name)}
+                onClick={() => handleNavigation(item)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
                   activeTab === item.name
                     ? 'bg-green-50 text-green-600 font-medium'
@@ -171,11 +158,18 @@ export default function FarmerDashboard() {
         </nav>
 
         <div className="p-4 border-t border-gray-200">
-          <div className="bg-green-50 rounded-lg p-4">
+          <div className="bg-green-50 rounded-lg p-4 mb-4">
             <Award className="text-green-600 mb-2" size={24} />
             <p className="text-sm font-medium text-gray-800">Pro Seller</p>
             <p className="text-xs text-gray-600 mt-1">Level 2 Farmer</p>
           </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+          >
+            <User size={20} />
+            <span>Logout</span>
+          </button>
         </div>
       </div>
 
