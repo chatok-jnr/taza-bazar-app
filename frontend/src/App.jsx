@@ -8,6 +8,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import FarmerProfile from "./pages/FarmerProfile";
 import FarmerMarketPlace from "./pages/FarmerMarketplace";
+import FarmerMessage from "./pages/FarmerMessage";
+import FarmerNotification from "./pages/FarmerNotification";
 
 export default function App() {
   return (
@@ -23,8 +25,8 @@ export default function App() {
           <Route index element={<FarmerDashboard />} />
           <Route path="profile" element={<FarmerProfile />} />
           <Route path="marketplace" element={<FarmerMarketPlace />} />
-          <Route path="messages" element={<div>Messages Coming Soon</div>} />
-          <Route path="notifications" element={<div>Notifications Coming Soon</div>} />
+          <Route path="messages" element={<FarmerMessage />} />
+          <Route path="notifications" element={<FarmerNotification />} />
         </Route>
       </Routes>
     </div>

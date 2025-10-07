@@ -1,185 +1,157 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Home, FileText, MessageSquare, User, MapPin, Calendar, DollarSign, Package, Award, TrendingUp, Bell } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Home,
+  FileText,
+  MessageSquare,
+  User,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Package,
+  Award,
+  TrendingUp,
+  Bell,
+} from "lucide-react";
+
+import FarmerSidebar from "./FarmerSidebar";
 
 export default function FarmerDashboard() {
-  const [activeTab, setActiveTab] = useState('My Listings');
-  const navigate = useNavigate();
+  const [activeTab] = useState("My Listings");
 
   const farmerListings = [
     {
       id: 1,
-      productName: 'Organic Tomatoes',
-      quantity: '500 kg',
-      price: '₹50/kg',
-      location: 'Punjab, India',
-      dateRange: 'Oct 5 - Oct 20',
+      productName: "Organic Tomatoes",
+      quantity: "500 kg",
+      price: "₹50/kg",
+      location: "Punjab, India",
+      dateRange: "Oct 5 - Oct 20",
       adminDeal: true,
-      image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=250&fit=crop",
     },
     {
       id: 2,
-      productName: 'Fresh Wheat',
-      quantity: '1000 kg',
-      price: '₹30/kg',
-      location: 'Haryana, India',
-      dateRange: 'Oct 1 - Oct 15',
+      productName: "Fresh Wheat",
+      quantity: "1000 kg",
+      price: "₹30/kg",
+      location: "Haryana, India",
+      dateRange: "Oct 1 - Oct 15",
       adminDeal: false,
-      image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=250&fit=crop",
     },
     {
       id: 3,
-      productName: 'Premium Rice',
-      quantity: '750 kg',
-      price: '₹45/kg',
-      location: 'West Bengal, India',
-      dateRange: 'Oct 10 - Oct 25',
+      productName: "Premium Rice",
+      quantity: "750 kg",
+      price: "₹45/kg",
+      location: "West Bengal, India",
+      dateRange: "Oct 10 - Oct 25",
       adminDeal: true,
-      image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=250&fit=crop",
     },
     {
       id: 4,
-      productName: 'Fresh Potatoes',
-      quantity: '2000 kg',
-      price: '₹25/kg',
-      location: 'Uttar Pradesh, India',
-      dateRange: 'Oct 3 - Oct 18',
+      productName: "Fresh Potatoes",
+      quantity: "2000 kg",
+      price: "₹25/kg",
+      location: "Uttar Pradesh, India",
+      dateRange: "Oct 3 - Oct 18",
       adminDeal: false,
-      image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=250&fit=crop'
-    }
-    ,
+      image:
+        "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=250&fit=crop",
+    },
     {
       id: 5,
-      productName: 'Organic Spinach',
-      quantity: '300 kg',
-      price: '₹40/kg',
-      location: 'Kerala, India',
-      dateRange: 'Oct 7 - Oct 14',
+      productName: "Organic Spinach",
+      quantity: "300 kg",
+      price: "₹40/kg",
+      location: "Kerala, India",
+      dateRange: "Oct 7 - Oct 14",
       adminDeal: false,
-      image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=250&fit=crop",
     },
     {
       id: 6,
-      productName: 'Local Fish (Rui)',
-      quantity: '120 kg',
-      price: '₹220/kg',
-      location: 'Bengal, India',
-      dateRange: 'Oct 6 - Oct 12',
+      productName: "Local Fish (Rui)",
+      quantity: "120 kg",
+      price: "₹220/kg",
+      location: "Bengal, India",
+      dateRange: "Oct 6 - Oct 12",
       adminDeal: true,
-      image: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&h=250&fit=crop",
     },
     {
       id: 7,
-      productName: 'Seasonal Mangoes',
-      quantity: '1500 kg',
-      price: '₹60/kg',
-      location: 'Maharashtra, India',
-      dateRange: 'Oct 10 - Oct 30',
+      productName: "Seasonal Mangoes",
+      quantity: "1500 kg",
+      price: "₹60/kg",
+      location: "Maharashtra, India",
+      dateRange: "Oct 10 - Oct 30",
       adminDeal: true,
-      image: 'https://images.unsplash.com/photo-1605027990121-cbae9e0642df?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1605027990121-cbae9e0642df?w=400&h=250&fit=crop",
     },
     {
       id: 8,
-      productName: 'Citrus Oranges',
-      quantity: '800 kg',
-      price: '₹35/kg',
-      location: 'Nagpur, India',
-      dateRange: 'Oct 2 - Oct 20',
+      productName: "Citrus Oranges",
+      quantity: "800 kg",
+      price: "₹35/kg",
+      location: "Nagpur, India",
+      dateRange: "Oct 2 - Oct 20",
       adminDeal: false,
-      image: 'https://images.unsplash.com/photo-1502741126161-b048400d3d9d?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1502741126161-b048400d3d9d?w=400&h=250&fit=crop",
     },
     {
       id: 9,
-      productName: 'Honey (Raw)',
-      quantity: '200 kg',
-      price: '₹450/kg',
-      location: 'Assam, India',
-      dateRange: 'Oct 1 - Oct 31',
+      productName: "Honey (Raw)",
+      quantity: "200 kg",
+      price: "₹450/kg",
+      location: "Assam, India",
+      dateRange: "Oct 1 - Oct 31",
       adminDeal: false,
-      image: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?w=400&h=250&fit=crop'
+      image:
+        "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?w=400&h=250&fit=crop",
     },
     {
       id: 10,
-      productName: 'Organic Eggs',
-      quantity: '500 dozen',
-      price: '₹250/dozen',
-      location: 'Tamil Nadu, India',
-      dateRange: 'Oct 5 - Oct 20',
+      productName: "Organic Eggs",
+      quantity: "500 dozen",
+      price: "₹250/dozen",
+      location: "Tamil Nadu, India",
+      dateRange: "Oct 5 - Oct 20",
       adminDeal: false,
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=250&fit=crop'
-    }
+      image:
+        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=250&fit=crop",
+    },
   ];
-
-  const handleNavigation = (item) => {
-    setActiveTab(item.name);
-    navigate(item.path);
-  };
 
   const handleLogout = () => {
     // You can add any cleanup logic here
-    navigate('/');
+    navigate("/");
   };
-
-  const sidebarItems = [
-    { name: 'My Listings', icon: Home, path: '/farmer' },
-    { name: 'Marketplace', icon: TrendingUp, path: '/farmer/marketplace' },
-    { name: 'Messages', icon: MessageSquare, path: '/farmer/messages' },
-    { name: 'Notifications', icon: Bell, path: '/farmer/notifications' },
-    { name: 'Profile', icon: User, path: '/farmer/profile' }
-  ];
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-green-600">FarmConnect</h1>
-          <p className="text-sm text-gray-500 mt-1">Farmer Dashboard</p>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
-                  activeTab === item.name
-                    ? 'bg-green-50 text-green-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon size={20} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-gray-200">
-          <div className="bg-green-50 rounded-lg p-4 mb-4">
-            <Award className="text-green-600 mb-2" size={24} />
-            <p className="text-sm font-medium text-gray-800">Pro Seller</p>
-            <p className="text-xs text-gray-600 mt-1">Level 2 Farmer</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-          >
-            <User size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <FarmerSidebar activeTab={activeTab} />
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-7xl mx-auto p-8">
           {/* Header */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome back, Farmer!</h2>
-            <p className="text-gray-600">Manage your listings and connect with buyers</p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Welcome back, Farmer!
+            </h2>
+            <p className="text-gray-600">
+              Manage your listings and connect with buyers
+            </p>
           </div>
 
           {/* Stats */}
@@ -188,7 +160,9 @@ export default function FarmerDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Active Listings</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">{farmerListings.length}</p>
+                  <p className="text-2xl font-bold text-gray-800 mt-1">
+                    {farmerListings.length}
+                  </p>
                 </div>
                 <FileText className="text-green-600" size={32} />
               </div>
@@ -230,7 +204,7 @@ export default function FarmerDashboard() {
                 + New Listing
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {farmerListings.map((listing) => (
                 <div
@@ -250,10 +224,12 @@ export default function FarmerDashboard() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="p-4">
-                    <h4 className="font-bold text-lg text-gray-800 mb-2">{listing.productName}</h4>
-                    
+                    <h4 className="font-bold text-lg text-gray-800 mb-2">
+                      {listing.productName}
+                    </h4>
+
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <Package size={16} className="mr-2 text-green-600" />
@@ -261,7 +237,9 @@ export default function FarmerDashboard() {
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <DollarSign size={16} className="mr-2 text-green-600" />
-                        <span className="font-semibold text-gray-800">{listing.price}</span>
+                        <span className="font-semibold text-gray-800">
+                          {listing.price}
+                        </span>
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <MapPin size={16} className="mr-2 text-green-600" />
