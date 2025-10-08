@@ -20,6 +20,16 @@ import ConsumerSidebar from "./ConsumerSidebar";
 export default function ConsumerDashboard() {
   const [activeTab, setActiveTab] = useState("My Requests");
   const navigate = useNavigate();
+  const [showNewRequestModal, setShowNewRequestModal] = useState(false);
+  const [newRequestForm, setNewRequestForm] = useState({
+    productName: "",
+    quantity: "",
+    unit: "kg",
+    pricePerUnit: "",
+    dateNeeded: "",
+    location: "",
+    adminDeal: false,
+  });
   const [requests, setRequests] = useState([
     {
       id: 1,
@@ -171,6 +181,34 @@ export default function ConsumerDashboard() {
     }));
   };
 
+  const handleNewRequestChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setNewRequestForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleNewRequestSubmit = () => {
+    const newRequest = {
+      id: requests.length + 1,
+      ...newRequestForm,
+      pricePerUnit: `৳${newRequestForm.pricePerUnit}/${newRequestForm.unit}`,
+      bids: [],
+    };
+    setRequests([newRequest, ...requests]);
+    setNewRequestForm({
+      productName: "",
+      quantity: "",
+      unit: "kg",
+      pricePerUnit: "",
+      dateNeeded: "",
+      location: "",
+      adminDeal: false,
+    });
+    setShowNewRequestModal(false);
+  };
+
   return (
     <DashboardLayout sidebar={<ConsumerSidebar activeTab={activeTab} />}>
       <div className="mb-8 flex items-center justify-between">
@@ -178,10 +216,103 @@ export default function ConsumerDashboard() {
           <h2 className="text-3xl font-bold text-gray-800">{activeTab}</h2>
           <p className="text-gray-600 mt-2">Manage your product requests</p>
         </div>
-        <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+        <button
+          onClick={() => setShowNewRequestModal(true)}
+          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+        >
           + New Request
         </button>
       </div>
+
+      {/* New Request Modal */}
+      {showNewRequestModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-xl p-6">
+            <h3 className="text-lg font-semibold mb-4">New Request</h3>
+            <div className="grid grid-cols-1 gap-3">
+              <input
+                name="productName"
+                value={newRequestForm.productName}
+                onChange={handleNewRequestChange}
+                className="border p-2 rounded"
+                placeholder="Product name"
+              />
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  name="quantity"
+                  value={newRequestForm.quantity}
+                  onChange={handleNewRequestChange}
+                  type="number"
+                  className="border p-2 rounded col-span-2"
+                  placeholder="Quantity"
+                />
+                <select
+                  name="unit"
+                  value={newRequestForm.unit}
+                  onChange={handleNewRequestChange}
+                  className="border p-2 rounded"
+                >
+                  <option value="kg">kg</option>
+                  <option value="gm">gm</option>
+                  <option value="pieces">pieces</option>
+                </select>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  ৳
+                </span>
+                <input
+                  name="pricePerUnit"
+                  value={newRequestForm.pricePerUnit}
+                  onChange={handleNewRequestChange}
+                  type="number"
+                  className="border p-2 pl-8 rounded w-full"
+                  placeholder="Price per unit (BDT)"
+                />
+              </div>
+              <input
+                name="dateNeeded"
+                value={newRequestForm.dateNeeded}
+                onChange={handleNewRequestChange}
+                type="date"
+                className="border p-2 rounded"
+                placeholder="Date needed"
+              />
+              <input
+                name="location"
+                value={newRequestForm.location}
+                onChange={handleNewRequestChange}
+                className="border p-2 rounded"
+                placeholder="Location"
+              />
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="adminDeal"
+                  checked={newRequestForm.adminDeal}
+                  onChange={handleNewRequestChange}
+                  className="rounded text-green-600"
+                />
+                <span>Mark as Admin Deal</span>
+              </label>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={() => setShowNewRequestModal(false)}
+                  className="px-4 py-2 bg-gray-100 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleNewRequestSubmit}
+                  className="px-4 py-2 bg-green-600 text-white rounded"
+                >
+                  Create Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Request Cards */}
       <div className="space-y-6">
