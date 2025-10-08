@@ -11,5 +11,6 @@ router
 router
   .route('/:id')
   .get(farmerController.getProductByUser)
-
+  .patch(farmerController.updateProduct)
+  .delete(farmerController.deleteProduct)
 module.exports = router;

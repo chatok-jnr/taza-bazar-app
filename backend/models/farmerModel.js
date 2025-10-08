@@ -30,6 +30,14 @@ const farmerSchema = new mongoose.Schema({
     type:String,
     default:'BDT'
   },
+  from:{
+    type:Date,
+    required:[true, 'A product must have a date which will indicate From when this product can be deliverd']
+  },
+  to:{
+    type:Date,
+    required:[true, 'A product must have a date which will indicate till when this product can be deliverd']
+  },
   product_description:{
     type:String,
     trim:true

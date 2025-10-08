@@ -1,6 +1,6 @@
 const Farmer_product = require('./../models/farmerModel');
 
-// Green Light
+// Create a new product
 exports.createProduct = async (req, res) => {
   try{
     const newProduct = await Farmer_product.create(req.body);
@@ -18,7 +18,7 @@ exports.createProduct = async (req, res) => {
   }
 }
 
-//Green Light
+//List of all prodcut
 exports.getAllProduct = async(req, res) => {
   try{
     const allProduct = await Farmer_product.find();
@@ -36,6 +36,7 @@ exports.getAllProduct = async(req, res) => {
   }
 }
 
+//List of all product of user x
 exports.getProductByUser = async(req, res) => {
   try{
     const products = await Farmer_product.find({user_id:req.params.id});
@@ -52,5 +53,43 @@ exports.getProductByUser = async(req, res) => {
       status:"failed",
       message:err.message
     });
+  }
+}
+
+//Update a product
+exports.updateProduct = async(req, res) => {
+
+  try{
+
+    const updProd = await Farmer_product.findByIdAndUpdate(req.params.id, req.body, {
+      new:true,
+      runValidators:true
+    });
+
+    res.status(201).json({
+      status:"Success",
+      data:updProd
+    });
+  } catch(err) {
+    res.status(400).json({
+      status:"Failed",
+      message:err.message
+    })
+  }
+}
+
+exports.deleteProduct = async (req, res) => {
+  try{
+    const dltProd = await Farmer_product.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      status:"successs",
+    });
+
+  } catch(err) {
+    res.status(400).json({
+      status:"Failed",
+      message:err.message
+    })
   }
 }
