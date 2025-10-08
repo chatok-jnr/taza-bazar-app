@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -21,10 +21,80 @@ export default function FarmerMarketplace() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showBidForm, setShowBidForm] = useState(false);
+  const [bidFormData, setBidFormData] = useState({
+    quantity: "",
+    location: "",
+    deliveryDate: "",
+  });
 
-  // No need for navigation handling as it's moved to the sidebar component
+  const [consumerRequests, setConsumerRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const consumerRequests = [
+  useEffect(() => {
+    fetchConsumerRequests();
+  }, []);
+
+  const fetchConsumerRequests = async () => {
+    try {
+      // Try to fetch from API first
+      try {
+        console.log("Attempting to fetch data from backend API...");
+        const response = await fetch(
+          "http://localhost:3000/api/consumer/requests"
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch consumer requests");
+        }
+        const data = await response.json();
+        setConsumerRequests(data);
+        console.log("Successfully fetched data from backend API");
+      } catch (apiError) {
+        // If API fails, use example data
+        console.log(
+          "Backend API not available (this is expected during development)"
+        );
+        console.log("Using example data for development...");
+        setConsumerRequests(exampleRequests);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error("Error setting consumer requests:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePlaceBid = async (formData) => {
+    try {
+      const response = await fetch("http://localhost:3000/api/farmer/bids", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization header if needed
+        },
+        body: JSON.stringify({
+          requestId: selectedRequest.id,
+          ...formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit bid");
+      }
+
+      // Show success message or handle successful bid
+      alert("Bid submitted successfully!");
+      setShowBidForm(false);
+    } catch (err) {
+      console.error("Error submitting bid:", err);
+      alert("Failed to submit bid. Please try again.");
+    }
+  };
+
+  // Dummy consumer requests for development
+  const exampleRequests = [
     {
       id: 1,
       product: "Tomato",
@@ -32,13 +102,13 @@ export default function FarmerMarketplace() {
       unit: "KG",
       pricePerUnit: 100,
       currency: "TK",
-      neededBy: "2025-02-15",
+      neededBy: "2025-12-15",
       location: "Dhaka, Bangladesh",
       isAdminDeal: true,
       description:
         "Need fresh, organic tomatoes for my restaurant. Quality must be premium with no bruises or damage.",
       consumer: "Restaurant Dhaka Central",
-      postedDate: "2025-02-01",
+      postedDate: "2025-10-01",
     },
     {
       id: 2,
@@ -47,17 +117,96 @@ export default function FarmerMarketplace() {
       unit: "KG",
       pricePerUnit: 55,
       currency: "TK",
-      neededBy: "2025-02-20",
+      neededBy: "2025-12-20",
       location: "Chittagong, Bangladesh",
       isAdminDeal: false,
       description:
         "Looking for high-quality basmati rice for wholesale distribution.",
       consumer: "Wholesale Traders Co",
-      postedDate: "2025-01-28",
+      postedDate: "2025-10-05",
+    },
+    {
+      id: 3,
+      product: "Potato",
+      quantity: 100,
+      unit: "KG",
+      pricePerUnit: 35,
+      currency: "TK",
+      neededBy: "2025-11-30",
+      location: "Sylhet, Bangladesh",
+      isAdminDeal: false,
+      description:
+        "Need fresh potatoes for chips production. Medium to large size preferred.",
+      consumer: "Sylhet Snacks Ltd",
+      postedDate: "2025-10-07",
+    },
+    {
+      id: 4,
+      product: "Mango",
+      quantity: 50,
+      unit: "KG",
+      pricePerUnit: 150,
+      currency: "TK",
+      neededBy: "2025-11-15",
+      location: "Rajshahi, Bangladesh",
+      isAdminDeal: true,
+      description:
+        "Looking for premium quality Himsagar mangoes for export. Must be properly ripened.",
+      consumer: "Fresh Fruit Exports",
+      postedDate: "2025-10-03",
+    },
+    {
+      id: 5,
+      product: "Onion",
+      quantity: 200,
+      unit: "KG",
+      pricePerUnit: 45,
+      currency: "TK",
+      neededBy: "2025-12-10",
+      location: "Khulna, Bangladesh",
+      isAdminDeal: false,
+      description:
+        "Bulk order for restaurant supply chain. Need medium-sized onions.",
+      consumer: "Khulna Restaurant Association",
+      postedDate: "2025-10-06",
+    },
+    {
+      id: 6,
+      product: "Carrots",
+      quantity: 75,
+      unit: "KG",
+      pricePerUnit: 60,
+      currency: "TK",
+      neededBy: "2025-11-25",
+      location: "Barisal, Bangladesh",
+      isAdminDeal: true,
+      description:
+        "Fresh carrots needed for juice production. Must be organic certified.",
+      consumer: "Healthy Juice Co",
+      postedDate: "2025-10-04",
+    },
+    {
+      id: 7,
+      product: "Cauliflower",
+      quantity: 150,
+      unit: "KG",
+      pricePerUnit: 40,
+      currency: "TK",
+      neededBy: "2025-12-05",
+      location: "Rangpur, Bangladesh",
+      isAdminDeal: false,
+      description:
+        "Looking for fresh cauliflower for hotel supply. Regular weekly order possible.",
+      consumer: "Rangpur Grand Hotel",
+      postedDate: "2025-10-02",
     },
   ];
 
-  const filteredRequests = consumerRequests.filter(
+  // Use consumerRequests if available, otherwise use exampleRequests
+  const requestsToShow =
+    consumerRequests.length > 0 ? consumerRequests : exampleRequests;
+
+  const filteredRequests = requestsToShow.filter(
     (req) =>
       req.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -258,8 +407,8 @@ export default function FarmerMarketplace() {
                 <button
                   className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
                   onClick={() => {
-                    // TODO: Implement bid submission
-                    console.log("Place bid clicked");
+                    setShowBidForm(true);
+                    setShowDetailsModal(false);
                   }}
                 >
                   Place Bid
@@ -274,6 +423,122 @@ export default function FarmerMarketplace() {
                   Message Consumer
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bid Form Modal */}
+      {showBidForm && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Place Bid for {selectedRequest.product}
+                </h2>
+                <button
+                  onClick={() => setShowBidForm(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handlePlaceBid(bidFormData);
+                  setBidFormData({
+                    quantity: "",
+                    location: "",
+                    deliveryDate: "",
+                  });
+                }}
+              >
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Quantity ({selectedRequest.unit})
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={bidFormData.quantity}
+                      onChange={(e) =>
+                        setBidFormData((prev) => ({
+                          ...prev,
+                          quantity: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder={`Enter quantity in ${selectedRequest.unit}`}
+                      max={selectedRequest.quantity}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Your Location
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={bidFormData.location}
+                      onChange={(e) =>
+                        setBidFormData((prev) => ({
+                          ...prev,
+                          location: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Enter your location"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Delivery Date
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={bidFormData.deliveryDate}
+                      onChange={(e) =>
+                        setBidFormData((prev) => ({
+                          ...prev,
+                          deliveryDate: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      min={new Date().toISOString().split("T")[0]}
+                      max={selectedRequest.neededBy}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <button
+                    type="submit"
+                    className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Request for deal
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

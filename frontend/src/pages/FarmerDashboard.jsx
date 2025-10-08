@@ -1,20 +1,13 @@
 import React, { useState } from "react";
 
 import {
-  Home,
   FileText,
-  MessageSquare,
-  User,
   MapPin,
   Calendar,
-  DollarSign,
   Package,
   Award,
-  TrendingUp,
-  Bell,
-  Pencil,
-  Trash2,
   X,
+  DollarSign,
 } from "lucide-react";
 
 import FarmerSidebar from "./FarmerSidebar";
@@ -30,21 +23,25 @@ export default function FarmerDashboard() {
       id: 1,
       productName: "Organic Tomatoes",
       quantity: "500 kg",
-      price: "₹50/kg",
-      location: "Punjab, India",
+      price: "BDT 50/unit",
+      location: "Dhaka, Bangladesh",
       dateRange: "Oct 5 - Oct 20",
       adminDeal: true,
       image:
         "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=250&fit=crop",
+      description:
+        "Fresh, organically grown tomatoes perfect for salads and cooking. Rich in flavor and nutrients. Locally sourced from our sustainable farms.",
     },
     {
       id: 2,
       productName: "Fresh Wheat",
       quantity: "1000 kg",
-      price: "₹30/kg",
-      location: "Haryana, India",
+      price: "BDT 30/unit",
+      location: "Chittagong, Bangladesh",
       dateRange: "Oct 1 - Oct 15",
       adminDeal: false,
+      description:
+        "Premium quality wheat grains, perfect for flour production and baking. Hand-harvested and naturally processed.",
       image:
         "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=250&fit=crop",
     },
@@ -52,10 +49,12 @@ export default function FarmerDashboard() {
       id: 3,
       productName: "Premium Rice",
       quantity: "750 kg",
-      price: "₹45/kg",
-      location: "West Bengal, India",
+      price: "BDT 45/unit",
+      location: "Sylhet, Bangladesh",
       dateRange: "Oct 10 - Oct 25",
       adminDeal: true,
+      description:
+        "Premium quality Bangladeshi rice, known for its aromatic fragrance and perfect texture. Directly from local farmers.",
       image:
         "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=250&fit=crop",
     },
@@ -63,10 +62,12 @@ export default function FarmerDashboard() {
       id: 4,
       productName: "Fresh Potatoes",
       quantity: "2000 kg",
-      price: "₹25/kg",
-      location: "Uttar Pradesh, India",
+      price: "BDT 25/unit",
+      location: "Rajshahi, Bangladesh",
       dateRange: "Oct 3 - Oct 18",
       adminDeal: false,
+      description:
+        "Fresh, locally grown potatoes. Perfect for cooking and long-term storage. Naturally grown without harmful pesticides.",
       image:
         "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=250&fit=crop",
     },
@@ -74,10 +75,12 @@ export default function FarmerDashboard() {
       id: 5,
       productName: "Organic Spinach",
       quantity: "300 kg",
-      price: "₹40/kg",
-      location: "Kerala, India",
+      price: "BDT 40/unit",
+      location: "Khulna, Bangladesh",
       dateRange: "Oct 7 - Oct 14",
       adminDeal: false,
+      description:
+        "Fresh organic spinach leaves, rich in iron and vitamins. Perfect for salads and cooking. Harvested daily.",
       image:
         "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=250&fit=crop",
     },
@@ -85,10 +88,12 @@ export default function FarmerDashboard() {
       id: 6,
       productName: "Local Fish (Rui)",
       quantity: "120 kg",
-      price: "₹220/kg",
-      location: "Bengal, India",
+      price: "BDT 220/unit",
+      location: "Barisal, Bangladesh",
       dateRange: "Oct 6 - Oct 12",
       adminDeal: true,
+      description:
+        "Fresh Rui fish from local waters. Caught daily and maintained in hygienic conditions. High in protein and omega-3.",
       image:
         "https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&h=250&fit=crop",
     },
@@ -96,62 +101,72 @@ export default function FarmerDashboard() {
       id: 7,
       productName: "Seasonal Mangoes",
       quantity: "1500 kg",
-      price: "₹60/kg",
-      location: "Maharashtra, India",
+      price: "BDT 60/unit",
+      location: "Rangpur, Bangladesh",
       dateRange: "Oct 10 - Oct 30",
       adminDeal: true,
+      description:
+        "Sweet and juicy seasonal mangoes. Handpicked at perfect ripeness. Various premium varieties available.",
       image:
         "https://images.unsplash.com/photo-1605027990121-cbae9e0642df?w=400&h=250&fit=crop",
     },
     {
       id: 8,
-      productName: "Citrus Oranges",
+      productName: "Fresh Oranges",
       quantity: "800 kg",
-      price: "₹35/kg",
-      location: "Nagpur, India",
+      price: "BDT 35/unit",
+      location: "Comilla, Bangladesh",
       dateRange: "Oct 2 - Oct 20",
       adminDeal: false,
+      description:
+        "Sweet and tangy oranges, rich in Vitamin C. Perfect for juicing or eating fresh. Naturally ripened.",
       image:
         "https://images.unsplash.com/photo-1502741126161-b048400d3d9d?w=400&h=250&fit=crop",
     },
     {
       id: 9,
-      productName: "Honey (Raw)",
+      productName: "Pure Honey",
       quantity: "200 kg",
-      price: "₹450/kg",
-      location: "Assam, India",
+      price: "BDT 450/unit",
+      location: "Mymensingh, Bangladesh",
       dateRange: "Oct 1 - Oct 31",
       adminDeal: false,
+      description:
+        "100% pure, raw honey from Sundarban's flowers. No additives or preservatives. Rich in antioxidants.",
       image:
         "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?w=400&h=250&fit=crop",
     },
     {
       id: 10,
-      productName: "Organic Eggs",
+      productName: "Farm Fresh Eggs",
       quantity: "500 dozen",
-      price: "₹250/dozen",
-      location: "Tamil Nadu, India",
+      price: "BDT 250/unit",
+      location: "Gazipur, Bangladesh",
       dateRange: "Oct 5 - Oct 20",
       adminDeal: false,
+      description:
+        "Farm-fresh eggs from free-range chickens. Rich in protein and naturally organic. Available in bulk.",
       image:
         "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=250&fit=crop",
     },
   ]);
 
   const handleNewListing = (newListing) => {
-    const currentDate = new Date();
     setListings([
       {
         id: listings.length + 1,
         ...newListing,
-        adminDeal: false,
-        dateRange: `${currentDate.toLocaleDateString("en-US", {
+        adminDeal: newListing.adminDeal || false,
+        dateRange: `${new Date(newListing.startDate).toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "numeric",
+          }
+        )} - ${new Date(newListing.endDate).toLocaleDateString("en-US", {
           month: "short",
-        })} ${currentDate.getDate()} - ${new Date(
-          currentDate.setDate(currentDate.getDate() + 15)
-        ).toLocaleDateString("en-US", {
-          month: "short",
-        })} ${currentDate.getDate()}`,
+          day: "numeric",
+        })}`,
       },
       ...listings,
     ]);
@@ -161,7 +176,28 @@ export default function FarmerDashboard() {
   const handleEditListing = (editedListing) => {
     setListings(
       listings.map((listing) =>
-        listing.id === editedListing.id ? editedListing : listing
+        listing.id === editedListing.id
+          ? {
+              ...editedListing,
+              description: editedListing.description || listing.description,
+              adminDeal:
+                editedListing.adminDeal !== undefined
+                  ? editedListing.adminDeal
+                  : listing.adminDeal,
+              dateRange: `${new Date(
+                editedListing.startDate
+              ).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })} - ${new Date(editedListing.endDate).toLocaleDateString(
+                "en-US",
+                {
+                  month: "short",
+                  day: "numeric",
+                }
+              )}`,
+            }
+          : listing
       )
     );
     setShowManageModal(false);
@@ -179,8 +215,6 @@ export default function FarmerDashboard() {
     setShowManageModal(true);
   };
 
-  
-
   return (
     <DashboardLayout sidebar={<FarmerSidebar activeTab={activeTab} />}>
       <div className="max-w-7xl mx-auto">
@@ -195,43 +229,26 @@ export default function FarmerDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-8 border border-green-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Active Listings</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">
-                  {listings.length}
+                <p className="text-lg text-green-600 font-semibold mb-2">
+                  Active Listings
+                </p>
+                <div className="flex items-center gap-3">
+                  <p className="text-4xl font-bold text-gray-800">
+                    {listings.length}
+                  </p>
+                  <p className="text-green-600 text-lg">Products</p>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
+                  Manage your agricultural products in the marketplace
                 </p>
               </div>
-              <FileText className="text-green-600" size={32} />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Bids Placed</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">12</p>
+              <div className="bg-white p-4 rounded-full shadow-md">
+                <FileText className="text-green-600" size={40} />
               </div>
-              <TrendingUp className="text-blue-600" size={32} />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Messages</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">8</p>
-              </div>
-              <MessageSquare className="text-purple-600" size={32} />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">₹45k</p>
-              </div>
-              <DollarSign className="text-green-600" size={32} />
             </div>
           </div>
         </div>
@@ -251,8 +268,8 @@ export default function FarmerDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {/* New Listing Modal */}
             {showNewListingModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg w-96">
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold">Add New Listing</h3>
                     <button onClick={() => setShowNewListingModal(false)}>
@@ -263,12 +280,18 @@ export default function FarmerDashboard() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       const formData = new FormData(e.target);
+                      const imageFile = formData.get("image");
+                      const imageUrl = imageFile
+                        ? URL.createObjectURL(imageFile)
+                        : "";
                       handleNewListing({
                         productName: formData.get("productName"),
                         quantity: formData.get("quantity"),
-                        price: `₹${formData.get("price")}/kg`,
+                        price: `BDT ${formData.get("price")}/unit`,
                         location: formData.get("location"),
-                        image: formData.get("image"),
+                        description: formData.get("description"),
+                        adminDeal: formData.get("adminDeal") === "on",
+                        image: imageUrl,
                       });
                     }}
                   >
@@ -285,7 +308,7 @@ export default function FarmerDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Quantity (kg)
+                          Product Quantity
                         </label>
                         <input
                           required
@@ -296,12 +319,23 @@ export default function FarmerDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Price per kg (₹)
+                          Price per unit (BDT)
                         </label>
                         <input
                           required
                           name="price"
                           type="number"
+                          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Product Description
+                        </label>
+                        <textarea
+                          required
+                          name="description"
+                          rows="3"
                           className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                         />
                       </div>
@@ -315,15 +349,59 @@ export default function FarmerDashboard() {
                           className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                         />
                       </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            From
+                          </label>
+                          <input
+                            required
+                            name="startDate"
+                            type="date"
+                            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            To
+                          </label>
+                          <input
+                            required
+                            name="endDate"
+                            type="date"
+                            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          name="adminDeal"
+                          id="adminDeal"
+                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <label
+                          htmlFor="adminDeal"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Mark as Admin Deal
+                        </label>
+                      </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Image URL
+                          Choose Image
                         </label>
                         <input
                           required
                           name="image"
-                          type="url"
-                          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                          type="file"
+                          accept="image/*"
+                          className="mt-1 block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-green-50 file:text-green-700
+                            hover:file:bg-green-100"
                         />
                       </div>
                       <button
@@ -340,8 +418,8 @@ export default function FarmerDashboard() {
 
             {/* Manage Listing Modal */}
             {showManageModal && selectedListing && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg w-96">
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold">Manage Listing</h3>
                     <button
@@ -357,16 +435,19 @@ export default function FarmerDashboard() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       const formData = new FormData(e.target);
+                      const imageFile = formData.get("image");
+                      const imageUrl = imageFile
+                        ? URL.createObjectURL(imageFile)
+                        : selectedListing.image;
                       handleEditListing({
                         ...selectedListing,
                         productName: formData.get("productName"),
                         quantity: formData.get("quantity"),
-                        price: `₹${formData
-                          .get("price")
-                          .replace("₹", "")
-                          .replace("/kg", "")}`,
+                        price: `BDT ${formData.get("price")}/unit`,
                         location: formData.get("location"),
-                        image: formData.get("image"),
+                        description: formData.get("description"),
+                        adminDeal: formData.get("adminDeal") === "on",
+                        image: imageUrl,
                       });
                     }}
                   >
@@ -384,30 +465,39 @@ export default function FarmerDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Quantity (kg)
+                          Product Quantity
                         </label>
                         <input
                           required
                           name="quantity"
                           type="text"
-                          defaultValue={selectedListing.quantity.replace(
-                            " kg",
-                            ""
-                          )}
+                          defaultValue={selectedListing.quantity}
                           className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Price per kg (₹)
+                          Price per unit (BDT)
                         </label>
                         <input
                           required
                           name="price"
                           type="number"
                           defaultValue={selectedListing.price
-                            .replace("₹", "")
+                            .replace("BDT ", "")
                             .replace("/kg", "")}
+                          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Product Description
+                        </label>
+                        <textarea
+                          required
+                          name="description"
+                          rows="3"
+                          defaultValue={selectedListing.description}
                           className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                         />
                       </div>
@@ -422,17 +512,69 @@ export default function FarmerDashboard() {
                           className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                         />
                       </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Start Date
+                          </label>
+                          <input
+                            required
+                            name="startDate"
+                            type="date"
+                            defaultValue={
+                              selectedListing.dateRange.split(" - ")[0]
+                            }
+                            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            End Date
+                          </label>
+                          <input
+                            required
+                            name="endDate"
+                            type="date"
+                            defaultValue={
+                              selectedListing.dateRange.split(" - ")[1]
+                            }
+                            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          name="adminDeal"
+                          id="editAdminDeal"
+                          defaultChecked={selectedListing.adminDeal}
+                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <label
+                          htmlFor="editAdminDeal"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Mark as Admin Deal
+                        </label>
+                      </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Image URL
+                          Change Picture
                         </label>
                         <input
-                          required
                           name="image"
-                          type="url"
-                          defaultValue={selectedListing.image}
-                          className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                          type="file"
+                          accept="image/*"
+                          className="mt-1 block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-green-50 file:text-green-700
+                            hover:file:bg-green-100"
                         />
+                        <p className="mt-1 text-sm text-gray-500">
+                          Current image: {selectedListing.image}
+                        </p>
                       </div>
                       <div className="flex gap-2">
                         <button
