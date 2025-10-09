@@ -78,6 +78,7 @@ exports.updateProduct = async(req, res) => {
   }
 }
 
+// Delete a product
 exports.deleteProduct = async (req, res) => {
   try{
     const dltProd = await Farmer_product.findByIdAndDelete(req.params.id);

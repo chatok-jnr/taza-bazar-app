@@ -203,8 +203,7 @@ export default function FarmerMarketplace() {
   ];
 
   // Use consumerRequests if available, otherwise use exampleRequests
-  const requestsToShow =
-    consumerRequests.length > 0 ? consumerRequests : exampleRequests;
+  const requestsToShow = consumerRequests.length > 0 ? consumerRequests : exampleRequests;
 
   const filteredRequests = requestsToShow.filter(
     (req) =>

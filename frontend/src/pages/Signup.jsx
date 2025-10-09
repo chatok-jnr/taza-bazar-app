@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Mail, Lock, User, Phone, Upload, X } from "lucide-react";
+import { Mail, Lock, User, Phone, Upload, X, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -8,6 +9,7 @@ export default function AuthPage() {
     name: "",
     email: "",
     phone: "",
+    birth_date: "",
     gender: "",
     password: "",
     image: null,
@@ -35,11 +37,34 @@ export default function AuthPage() {
     setImagePreview(null);
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    // Navigate to the landing page after form submission
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Convert date from "YYYY-MM-DD" → "DD-MMM-YYYY"
+  const formattedDate = new Date(formData.birth_date).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).replace(/ /g, '-').toLowerCase(); // e.g., "10-feb-2003"
+
+  try {
+    const response = await axios.post("http://127.0.0.1:8000/api/v1/users", {
+      user_name: formData.name,
+      user_email: formData.email,
+      user_no: formData.phone,
+      user_birth_date: formattedDate,
+      gender: formData.gender === "male" ? "Male" : "Female",
+      user_password: formData.password,
+    });
+
+    console.log("✅ User created:", response.data);
+    alert("Account created successfully!");
     navigate("/");
-  };
+  } catch (error) {
+    console.error("❌ Signup error:", error.response?.data || error.message);
+    alert("Signup failed: " + (error.response?.data?.message || error.message));
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
@@ -51,7 +76,10 @@ export default function AuthPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl shadow-xl p-8"
+        >
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
             Create Account
           </h2>
@@ -73,6 +101,7 @@ export default function AuthPage() {
                       />
                       <button
                         onClick={removeImage}
+                        type="button"
                         className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                       >
                         <X className="w-4 h-4" />
@@ -155,6 +184,24 @@ export default function AuthPage() {
               </div>
             </div>
 
+            {/* Birth Date Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Birth Date
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="date"
+                  name="birth_date"
+                  value={formData.birth_date}
+                  onChange={handleInputChange}
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                  required
+                />
+              </div>
+            </div>
+
             {/* Gender Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -207,7 +254,7 @@ export default function AuthPage() {
 
             {/* Submit Button */}
             <button
-              onClick={handleSubmit}
+              type="submit"
               className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95"
             >
               Sign Up
@@ -224,7 +271,7 @@ export default function AuthPage() {
               Log in
             </a>
           </p>
-        </div>
+        </form>
 
         {/* Footer Text */}
         <p className="text-center text-xs text-gray-500 mt-6">
