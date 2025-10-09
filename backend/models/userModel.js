@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   user_name: {
@@ -49,6 +50,18 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
 });
+
+
+userSchema.pre('save', async function (next) {
+  if(!this.isModified('user_password')) return next();
+
+  this.user_password = await bcrypt.hash(this.user_password, 12);
+  next();
+});
+
+userSchema.methods.correctPassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.user_password);
+};
 
 const User_infos = mongoose.model('User_infos', userSchema);
 

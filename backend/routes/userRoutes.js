@@ -10,6 +10,10 @@ router
   .delete(userController.deleteUser)
 
 router
+  .route('/login')
+  .post(userController.loginUser);
+
+router
   .route('/:id')
   .get(userController.getUser)
   .patch(userController.updateUser)
