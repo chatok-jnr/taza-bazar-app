@@ -9,6 +9,7 @@ export function useUser() {
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   // Check for stored auth data on app load
   useEffect(() => {
@@ -19,6 +20,8 @@ export function UserProvider({ children }) {
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     }
+    
+    setIsLoading(false); // Set loading to false after checking localStorage
   }, []);
 
   const login = (userData, token) => {
@@ -55,6 +58,7 @@ export function UserProvider({ children }) {
   const value = {
     user,
     isAuthenticated,
+    isLoading,
     login,
     logout,
     getToken,
