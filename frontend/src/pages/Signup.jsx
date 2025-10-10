@@ -45,7 +45,7 @@ const handleSubmit = async (e) => {
     day: "2-digit",
     month: "short",
     year: "numeric"
-  }).replace(/ /g, '-').toLowerCase(); // e.g., "10-feb-2003"
+  }).replace(/ /g, '-').toLowerCase();
 
   try {
     const response = await axios.post("http://127.0.0.1:8000/api/v1/users", {
@@ -58,6 +58,22 @@ const handleSubmit = async (e) => {
     });
 
     console.log("✅ User created:", response.data);
+    
+    // ✅ NEW: Auto-login after signup by storing token
+    if (response.data.token) {
+      const userData = {
+        id: response.data.data.user._id,
+        name: response.data.data.user.user_name,
+        email: response.data.data.user.user_email,
+      };
+
+      // Save to context (if you have a login function)
+      // login(userData); // Uncomment if you have this function
+      
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", response.data.token); // ✅ Store token
+    }
+
     alert("Account created successfully!");
     navigate("/");
   } catch (error) {

@@ -1,9 +1,50 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp, LogOut } from 'lucide-react';
 
 export default function Landing() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (user && token) {
+      try {
+        const userData = JSON.parse(user);
+        setIsLoggedIn(true);
+        setUserName(userData.name);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        // Clear invalid data
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+  }, []);
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setUserName('');
+    navigate('/');
+  };
+
+  // Handle protected navigation
+  const handleProtectedNavigation = (path) => {
+    if (!isLoggedIn) {
+      alert('Please login first to access this feature');
+      navigate('/login');
+    } else {
+      navigate(path);
+    }
+  };
 
   const categories = [
     { name: 'Vegetables', icon: Leaf, color: 'bg-green-100 text-green-600' },
@@ -102,8 +143,24 @@ export default function Landing() {
             <nav className="hidden md:flex items-center space-x-8">
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">Browse</a>
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">How it Works</a>
-              <Link to="/login" className="text-gray-600 hover:text-gray-900 transition">Sign In</Link>
-              <Link to="/signup" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Join Now</Link>
+              
+              {isLoggedIn ? (
+                <>
+                  <span className="text-gray-700 font-medium">Welcome, {userName}</span>
+                  <button 
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition flex items-center gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="text-gray-600 hover:text-gray-900 transition">Sign In</Link>
+                  <Link to="/signup" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Join Now</Link>
+                </>
+              )}
             </nav>
           </div>
         </div>
@@ -136,17 +193,30 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Protected */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/consumer" className="px-8 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transform hover:scale-105 transition flex items-center gap-2 w-64">
+              <button 
+                onClick={() => handleProtectedNavigation('/consumer')}
+                className="px-8 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transform hover:scale-105 transition flex items-center gap-2 w-64"
+              >
                 <ShoppingBag className="h-5 w-5" />
                 I'm a Consumer
-              </Link>
-              <Link to="/farmer" className="px-8 py-4 bg-white text-green-600 border-2 border-green-600 rounded-lg text-lg font-semibold hover:bg-green-50 transform hover:scale-105 transition flex items-center gap-2 w-64">
+              </button>
+              <button 
+                onClick={() => handleProtectedNavigation('/farmer')}
+                className="px-8 py-4 bg-white text-green-600 border-2 border-green-600 rounded-lg text-lg font-semibold hover:bg-green-50 transform hover:scale-105 transition flex items-center gap-2 w-64"
+              >
                 <User className="h-5 w-5" />
                 I'm a Farmer
-              </Link>
+              </button>
             </div>
+
+            {/* Login reminder for non-authenticated users */}
+            {!isLoggedIn && (
+              <p className="mt-4 text-sm text-gray-600">
+                Please <Link to="/login" className="text-green-600 font-semibold hover:underline">login</Link> to access farmer and consumer features
+              </p>
+            )}
           </div>
         </div>
       </section>

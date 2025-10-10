@@ -18,7 +18,8 @@ export default function LoginPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+// In your frontend login handler
+const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
   setError("");
@@ -41,15 +42,16 @@ export default function LoginPage() {
       throw new Error(data.message || "Login failed. Please try again.");
     }
 
-    // Save user info (id, name, email) in context and localStorage
+    // ✅ FIXED: Access user data directly from data.data
     const userData = {
       id: data.data._id,
       name: data.data.user_name,
       email: data.data.user_email,
     };
 
-    login(userData); // save in context
-    localStorage.setItem("user", JSON.stringify(userData)); // persist across refresh
+    login(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", data.token); // Store the JWT token
 
     navigate("/"); // redirect to homepage
   } catch (err) {
@@ -58,7 +60,6 @@ export default function LoginPage() {
     setLoading(false);
   }
 };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
