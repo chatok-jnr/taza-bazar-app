@@ -61,5 +61,8 @@ module.exports = Farmer_product;
   "quantity_unit":"piece",
   "price_per_unit":69,
   "product_descriptionn":"Bery big kola"
+  "from":"2025-10-15",
+  "to":"2025-10-15",
+
 }
 */

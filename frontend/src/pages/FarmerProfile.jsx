@@ -1,33 +1,18 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Edit2,
-  X,
-  Save,
-  FileText,
-  TrendingUp,
-  Bell,
-  MessageSquare,
-  ShoppingCart,
-  Repeat,
-} from "lucide-react";
-
-import FarmerSidebar from "./FarmerSidebar";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, Phone, MapPin, Edit2, X, Save, FileText, TrendingUp, Bell, MessageSquare, ShoppingCart, Repeat } from 'lucide-react';
 
 export default function FarmerProfile() {
-  const [activeTab] = useState("Profile");
+  const [activeTab, setActiveTab] = useState('Profile');
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
   const [profile, setProfile] = useState({
-    name: "John Anderson",
-    email: "john.anderson@example.com",
-    phone: "+1 (555) 123-4567",
-    userId: "USR-2024-001",
-    location: "Green Valley, CA",
+    name: 'John Anderson',
+    email: 'john.anderson@example.com',
+    phone: '+1 (555) 123-4567',
+    userId: 'USR-2024-001',
+    location: 'Green Valley, CA'
   });
 
   const [editForm, setEditForm] = useState({ ...profile });
@@ -51,11 +36,56 @@ export default function FarmerProfile() {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
 
-  // Navigation is now handled by the sidebar component
+  const handleNavigation = (item) => {
+    setActiveTab(item.name);
+    navigate(item.path);
+  };
+
+  const sidebarItems = [
+    { name: 'My Listings', icon: FileText, path: '/farmer' },
+    { name: 'Marketplace', icon: TrendingUp, path: '/farmer/marketplace' },
+    { name: 'Messages', icon: MessageSquare, path: '/farmer/messages' },
+    { name: 'Notifications', icon: Bell, path: '/farmer/notifications' },
+    { name: 'Profile', icon: User, path: '/farmer/profile' }
+  ];
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <FarmerSidebar activeTab={activeTab} />
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-lg">
+        <div className="p-6 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
+          <p className="text-sm text-gray-500 mt-1">Profile</p>
+        </div>
+        <nav className="p-4">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.name}
+                onClick={() => handleNavigation(item)}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
+                  activeTab === item.name
+                    ? 'bg-green-500 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Icon size={20} />
+                <span className="font-medium">{item.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="p-4 mt-auto border-t border-gray-200">
+          <button
+            onClick={() => navigate('/')}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+          >
+            <User size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
@@ -63,9 +93,7 @@ export default function FarmerProfile() {
           {/* Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800">My Profile</h2>
-            <p className="text-gray-600 mt-2">
-              Manage your account information
-            </p>
+            <p className="text-gray-600 mt-2">Manage your account information</p>
           </div>
 
           {/* Profile Header Card */}
@@ -76,12 +104,8 @@ export default function FarmerProfile() {
                   {profile.name.charAt(0)}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {profile.name}
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-2">
-                    User ID: {profile.userId}
-                  </p>
+                  <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
+                  <p className="text-sm text-gray-500 mt-2">User ID: {profile.userId}</p>
                 </div>
               </div>
               {!isEditing && (
@@ -107,9 +131,7 @@ export default function FarmerProfile() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-500 font-medium">User ID</p>
-                    <p className="text-gray-800 font-semibold mt-1">
-                      {profile.userId}
-                    </p>
+                    <p className="text-gray-800 font-semibold mt-1">{profile.userId}</p>
                   </div>
                 </div>
               </div>
@@ -121,12 +143,8 @@ export default function FarmerProfile() {
                     <Mail className="text-green-600" size={24} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500 font-medium">
-                      Email Address
-                    </p>
-                    <p className="text-gray-800 font-semibold mt-1">
-                      {profile.email}
-                    </p>
+                    <p className="text-sm text-gray-500 font-medium">Email Address</p>
+                    <p className="text-gray-800 font-semibold mt-1">{profile.email}</p>
                   </div>
                 </div>
               </div>
@@ -138,12 +156,8 @@ export default function FarmerProfile() {
                     <Phone className="text-green-600" size={24} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500 font-medium">
-                      Phone Number
-                    </p>
-                    <p className="text-gray-800 font-semibold mt-1">
-                      {profile.phone}
-                    </p>
+                    <p className="text-sm text-gray-500 font-medium">Phone Number</p>
+                    <p className="text-gray-800 font-semibold mt-1">{profile.phone}</p>
                   </div>
                 </div>
               </div>
@@ -155,12 +169,8 @@ export default function FarmerProfile() {
                     <MapPin className="text-green-600" size={24} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500 font-medium">
-                      Location
-                    </p>
-                    <p className="text-gray-800 font-semibold mt-1">
-                      {profile.location}
-                    </p>
+                    <p className="text-sm text-gray-500 font-medium">Location</p>
+                    <p className="text-gray-800 font-semibold mt-1">{profile.location}</p>
                   </div>
                 </div>
               </div>
@@ -168,9 +178,7 @@ export default function FarmerProfile() {
           ) : (
             /* Edit Form */
             <div className="bg-white rounded-xl shadow-sm border border-green-100 p-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-6">
-                Edit Profile Information
-              </h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-6">Edit Profile Information</h3>
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -183,9 +191,7 @@ export default function FarmerProfile() {
                     disabled
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    User ID cannot be changed
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">User ID cannot be changed</p>
                 </div>
 
                 <div>

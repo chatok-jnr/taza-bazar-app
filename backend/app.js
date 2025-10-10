@@ -10,7 +10,7 @@ const app = express();
 app.use(
   cors({
     origin: 'http://localhost:5173', // Allow requests from your frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
@@ -24,4 +24,3 @@ app.use('/api/v1/farmer', farmerRouter);
 app.use('/api/v1/consumer', consumerRouter);
 
 module.exports = app;
-

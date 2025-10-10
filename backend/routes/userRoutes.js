@@ -1,18 +1,24 @@
 const express = require('express');
 const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
-
+const {protect} = require('./../middleware/authMiddleware');
 const router = express.Router();
+
+
 
 router
   .route('/')
-  .get(userController.getAllUser)
   .post(authController.createUser)
-  .delete(userController.deleteUser)
 
 router
   .route('/login')
   .post(authController.loginUser);
+
+router.use(protect);
+
+router
+  .route('/')
+  .get(userController.getAllUser)
 
 router
   .route('/:id')

@@ -1,7 +1,9 @@
 const express = require('express');
 const farmerController = require('./../controllers/farmerController');
-
+const {protect} = require('./../middleware/authMiddleware');
 const router = express.Router();
+
+router.use(protect);
 
 router
   .route('/')

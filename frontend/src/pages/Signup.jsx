@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Mail, Lock, User, Phone, Upload, X, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useUser } from "../context/UserContext";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const { login } = useUser();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,9 +16,12 @@ export default function AuthPage() {
     image: null,
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(''); // Clear error when user types
   };
 
   const handleImageChange = (e) => {
@@ -40,45 +44,56 @@ export default function AuthPage() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Convert date from "YYYY-MM-DD" → "DD-MMM-YYYY"
-  const formattedDate = new Date(formData.birth_date).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  }).replace(/ /g, '-').toLowerCase();
+  if (!formData.name || !formData.email || !formData.phone || !formData.birth_date || !formData.gender || !formData.password) {
+    setError('Please fill in all fields');
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+
+  // Format date from "YYYY-MM-DD" to "DD-MMM-YYYY" format
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", 
+                       "jul", "aug", "sep", "oct", "nov", "dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
   try {
-    const response = await axios.post("http://127.0.0.1:8000/api/v1/users", {
-      user_name: formData.name,
-      user_email: formData.email,
-      user_no: formData.phone,
-      user_birth_date: formattedDate,
-      gender: formData.gender === "male" ? "Male" : "Female",
-      user_password: formData.password,
+    const response = await fetch("http://127.0.0.1:8000/api/v1/users", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_name: formData.name,
+        user_email: formData.email,
+        user_no: formData.phone,
+        user_birth_date: formatDate(formData.birth_date),
+        gender: formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1), // Capitalize first letter
+        user_password: formData.password,
+      }),
     });
 
-    console.log("✅ User created:", response.data);
-    
-    // ✅ NEW: Auto-login after signup by storing token
-    if (response.data.token) {
-      const userData = {
-        id: response.data.data.user._id,
-        name: response.data.data.user.user_name,
-        email: response.data.data.user.user_email,
-      };
+    const data = await response.json();
 
-      // Save to context (if you have a login function)
-      // login(userData); // Uncomment if you have this function
-      
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("token", response.data.token); // ✅ Store token
+    if (response.ok) {
+      // Signup successful - auto login
+      login(data.data, data.token);
+      navigate('/'); // Redirect to landing page
+    } else {
+      // Signup failed
+      setError(data.message || 'Signup failed. Please try again.');
     }
-
-    alert("Account created successfully!");
-    navigate("/");
   } catch (error) {
-    console.error("❌ Signup error:", error.response?.data || error.message);
-    alert("Signup failed: " + (error.response?.data?.message || error.message));
+    console.error("❌ Signup error:", error);
+    setError('Network error. Please try again.');
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -101,6 +116,13 @@ const handleSubmit = async (e) => {
           </h2>
 
           <div className="space-y-5">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
+
             {/* Profile Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -271,21 +293,22 @@ const handleSubmit = async (e) => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95"
+              disabled={loading}
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              Sign Up
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </button>
           </div>
 
           {/* Footer */}
           <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
-            <a
-              href="/login"
+            <button
+              onClick={() => navigate('/login')}
               className="text-green-600 font-semibold hover:text-green-700 hover:underline transition-colors"
             >
               Log in
-            </a>
+            </button>
           </p>
         </form>
 

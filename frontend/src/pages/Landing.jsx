@@ -1,48 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp, LogOut } from 'lucide-react';
+import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp } from 'lucide-react';
+import { useUser } from '../context/UserContext';
 
 export default function Landing() {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
+  const { isAuthenticated, user, logout } = useUser();
+  const navigate = useNavigate();
 
-  // Check if user is logged in on component mount
-  useEffect(() => {
-    const user = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    
-    if (user && token) {
-      try {
-        const userData = JSON.parse(user);
-        setIsLoggedIn(true);
-        setUserName(userData.name);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        // Clear invalid data
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
+  const handleConsumerClick = () => {
+    if (isAuthenticated) {
+      navigate('/consumer');
+    } else {
+      navigate('/login');
     }
-  }, []);
-
-  // Handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    setUserName('');
-    navigate('/');
   };
 
-  // Handle protected navigation
-  const handleProtectedNavigation = (path) => {
-    if (!isLoggedIn) {
-      alert('Please login first to access this feature');
-      navigate('/login');
+  const handleFarmerClick = () => {
+    if (isAuthenticated) {
+      navigate('/farmer');
     } else {
-      navigate(path);
+      navigate('/login');
     }
   };
 
@@ -143,15 +121,13 @@ export default function Landing() {
             <nav className="hidden md:flex items-center space-x-8">
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">Browse</a>
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">How it Works</a>
-              
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
-                  <span className="text-gray-700 font-medium">Welcome, {userName}</span>
+                  <span className="text-gray-600">Welcome, {user?.user_name}!</span>
                   <button 
-                    onClick={handleLogout}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition flex items-center gap-2"
+                    onClick={logout}
+                    className="text-gray-600 hover:text-gray-900 transition"
                   >
-                    <LogOut className="h-4 w-4" />
                     Logout
                   </button>
                 </>
@@ -193,28 +169,27 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* CTA Buttons - Protected */}
+            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button 
-                onClick={() => handleProtectedNavigation('/consumer')}
+                onClick={handleConsumerClick}
                 className="px-8 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transform hover:scale-105 transition flex items-center gap-2 w-64"
               >
                 <ShoppingBag className="h-5 w-5" />
                 I'm a Consumer
               </button>
               <button 
-                onClick={() => handleProtectedNavigation('/farmer')}
+                onClick={handleFarmerClick}
                 className="px-8 py-4 bg-white text-green-600 border-2 border-green-600 rounded-lg text-lg font-semibold hover:bg-green-50 transform hover:scale-105 transition flex items-center gap-2 w-64"
               >
                 <User className="h-5 w-5" />
                 I'm a Farmer
               </button>
             </div>
-
-            {/* Login reminder for non-authenticated users */}
-            {!isLoggedIn && (
-              <p className="mt-4 text-sm text-gray-600">
-                Please <Link to="/login" className="text-green-600 font-semibold hover:underline">login</Link> to access farmer and consumer features
+            
+            {!isAuthenticated && (
+              <p className="text-sm text-gray-600 mt-4">
+                Please login to access Consumer or Farmer features
               </p>
             )}
           </div>
