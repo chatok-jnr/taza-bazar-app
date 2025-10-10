@@ -1,7 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, MapPin, Edit2, X, Save, FileText, TrendingUp, Bell, MessageSquare, ShoppingCart, Repeat, Calendar, DollarSign } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit2, X, Save, FileText, TrendingUp, Bell, MessageSquare, ShoppingCart, Repeat, Calendar, DollarSign, Clock } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+
+// Utility function to format date (remove time)
+const formatDate = (dateString) => {
+  if (!dateString) return 'Not specified';
+  
+  try {
+    const date = new Date(dateString);
+    // Format as YYYY-MM-DD for input fields
+    return date.toISOString().split('T')[0];
+  } catch (error) {
+    return 'Invalid date';
+  }
+};
+
+// Utility function to format date for display (more readable)
+const formatDisplayDate = (dateString) => {
+  if (!dateString) return 'Not specified';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (error) {
+    return 'Invalid date';
+  }
+};
 
 export default function FarmerProfile() {
   const [activeTab, setActiveTab] = useState('Profile');
@@ -20,7 +49,8 @@ export default function FarmerProfile() {
     date_of_birth: '',
     gender: '',
     total_revenue: '',
-    user_password: ''
+    user_password: '',
+    createdAt: ''
   });
 
   const [editForm, setEditForm] = useState({ ...profile });
@@ -75,10 +105,11 @@ export default function FarmerProfile() {
             user_no: userData.user_no || '',
             user_id: userData.user_id || user.user_id,
             user_location: userData.user_location || '',
-            date_of_birth: userData.user_birth_date || '',
+            date_of_birth: formatDate(userData.user_birth_date) || '',
             gender: userData.gender || '',
             total_revenue: userData.total_revenue || '0',
-            user_password: '' // Don't show password for security
+            user_password: '', // Don't show password for security
+            createdAt: userData.createdAt || ''
           };
 
           setProfile(profileData);
@@ -130,6 +161,15 @@ export default function FarmerProfile() {
       // Prepare data for PATCH request (exclude user_id and empty password)
       const updateData = { ...editForm };
       delete updateData.user_id; // Don't send user_id in body
+      
+      // Map frontend field names to backend field names
+      if (updateData.date_of_birth) {
+        updateData.user_birth_date = updateData.date_of_birth;
+        delete updateData.date_of_birth;
+      }
+      
+      // Remove read-only fields
+      delete updateData.createdAt;
       
       // Only include password if it's not empty
       if (!updateData.user_password || updateData.user_password.trim() === '') {
@@ -385,7 +425,7 @@ export default function FarmerProfile() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-500 font-medium">Date of Birth</p>
-                    <p className="text-gray-800 font-semibold mt-1">{profile.date_of_birth || 'Not specified'}</p>
+                    <p className="text-gray-800 font-semibold mt-1">{formatDisplayDate(profile.date_of_birth)}</p>
                   </div>
                 </div>
               </div>
@@ -412,6 +452,19 @@ export default function FarmerProfile() {
                   <div className="flex-1">
                     <p className="text-sm text-gray-500 font-medium">Total Revenue</p>
                     <p className="text-gray-800 font-semibold mt-1">৳{profile.total_revenue || '0'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Created Card */}
+              <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Clock className="text-green-600" size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 font-medium">Account Created</p>
+                    <p className="text-gray-800 font-semibold mt-1">{formatDisplayDate(profile.createdAt)}</p>
                   </div>
                 </div>
               </div>

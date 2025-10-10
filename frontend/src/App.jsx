@@ -1,6 +1,7 @@
 import { Routes, Route, Link } from "react-router-dom";
 import Landing from "./pages/Landing";
 import ConsumerDashboard from "./pages/ConsumerDashboard";
+import ConsumerMarketplace from "./pages/ConsumerMarketplace";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import ProductDetails from "./pages/ProductDetails";
 import RequestDetails from "./pages/RequestDetails";
@@ -15,6 +16,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/consumer" element={<ConsumerDashboard />} />
+        <Route path="/marketplace" element={<ConsumerMarketplace />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/request/:id" element={<RequestDetails />} />
         <Route path="/login" element={<Login />} />

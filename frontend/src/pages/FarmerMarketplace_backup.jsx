@@ -182,10 +182,7 @@ export default function FarmerMarketplace() {
 
         <div className="p-4 border-t border-gray-200">
           <button
-            onClick={() => {
-              logout();
-              navigate('/');
-            }}
+            onClick={() => navigate('/')}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
           >
             <User size={20} />
@@ -208,7 +205,7 @@ export default function FarmerMarketplace() {
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by product name or description..."
+                placeholder="Search by product name or location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -277,6 +274,17 @@ export default function FarmerMarketplace() {
               </div>
             )}
           </div>
+                                    </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Details Modal */}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -286,7 +294,7 @@ export default function FarmerMarketplace() {
           <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">{selectedRequest.product_name}</h2>
+                <h2 className="text-2xl font-bold text-gray-800">{selectedRequest.product}</h2>
                 <button 
                   onClick={() => setShowDetailsModal(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -303,32 +311,33 @@ export default function FarmerMarketplace() {
                   <div className="space-y-3">
                     <div className="flex items-center text-gray-600">
                       <Package className="w-4 h-4 mr-2 text-green-600" />
-                      <span>Quantity: {selectedRequest.product_quantity} {selectedRequest.quantity_unit}</span>
+                      <span>Quantity: {selectedRequest.quantity} {selectedRequest.unit}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <DollarSign className="w-4 h-4 mr-2 text-green-600" />
-                      <span>Price: {selectedRequest.price_per_unit} {selectedRequest.currency || 'BDT'}/{selectedRequest.quantity_unit}</span>
+                      <span>Price: {selectedRequest.pricePerUnit} {selectedRequest.currency}/{selectedRequest.unit}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Calendar className="w-4 h-4 mr-2 text-green-600" />
-                      <span>Needed by: {new Date(selectedRequest.when).toLocaleDateString()}</span>
+                      <span>Needed by: {new Date(selectedRequest.neededBy).toLocaleDateString()}</span>
                     </div>
-                    {selectedRequest.admin_deal && (
-                      <div className="flex items-center text-green-600">
-                        <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                          Admin Deal
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">Request Details</h3>
+                  <h3 className="font-semibold text-gray-700 mb-2">Consumer Details</h3>
                   <div className="space-y-3">
                     <div className="flex items-center text-gray-600">
+                      <User className="w-4 h-4 mr-2 text-green-600" />
+                      <span>Consumer: {selectedRequest.consumer}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="w-4 h-4 mr-2 text-green-600" />
+                      <span>Location: {selectedRequest.location}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
                       <Calendar className="w-4 h-4 mr-2 text-green-600" />
-                      <span>Posted: {new Date(selectedRequest.createdAt).toLocaleDateString()}</span>
+                      <span>Posted: {new Date(selectedRequest.postedDate).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -336,7 +345,7 @@ export default function FarmerMarketplace() {
 
               <div className="mb-6">
                 <h3 className="font-semibold text-gray-700 mb-2">Description</h3>
-                <p className="text-gray-600">{selectedRequest.request_description}</p>
+                <p className="text-gray-600">{selectedRequest.description}</p>
               </div>
 
               <div className="flex gap-4">
@@ -344,7 +353,7 @@ export default function FarmerMarketplace() {
                   className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
                   onClick={() => {
                     // TODO: Implement bid submission
-                    console.log('Place bid clicked for request:', selectedRequest._id);
+                    console.log('Place bid clicked');
                   }}
                 >
                   Place Bid
@@ -353,7 +362,7 @@ export default function FarmerMarketplace() {
                   className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
                   onClick={() => {
                     // TODO: Implement message functionality
-                    console.log('Message consumer clicked for request:', selectedRequest._id);
+                    console.log('Message consumer clicked');
                   }}
                 >
                   Message Consumer

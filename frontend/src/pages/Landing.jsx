@@ -5,21 +5,37 @@ import { useUser } from '../context/UserContext';
 
 export default function Landing() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { isAuthenticated, user, logout } = useUser();
+  const { isAuthenticated, user, logout, isLoading } = useUser();
   const navigate = useNavigate();
 
   const handleConsumerClick = () => {
+    console.log('Consumer click - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
+    if (isLoading) {
+      console.log('Still loading, waiting...');
+      return; // Don't navigate while loading
+    }
+    
     if (isAuthenticated) {
+      console.log('Authenticated, navigating to /consumer');
       navigate('/consumer');
     } else {
+      console.log('Not authenticated, navigating to /login');
       navigate('/login');
     }
   };
 
   const handleFarmerClick = () => {
+    console.log('Farmer click - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
+    if (isLoading) {
+      console.log('Still loading, waiting...');
+      return; // Don't navigate while loading
+    }
+    
     if (isAuthenticated) {
+      console.log('Authenticated, navigating to /farmer');
       navigate('/farmer');
     } else {
+      console.log('Not authenticated, navigating to /login');
       navigate('/login');
     }
   };
