@@ -1,79 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Calendar, Package, DollarSign, Eye, FileText, TrendingUp, Bell, User, MessageSquare } from 'lucide-react';
-import { useUser } from '../context/UserContext';
-import FarmerSidebar from '../components/FarmerSidebar';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Search,
+  MapPin,
+  Calendar,
+  Package,
+  DollarSign,
+  Eye,
+  FileText,
+  TrendingUp,
+  Bell,
+  User,
+  MessageSquare,
+} from "lucide-react";
+import { useUser } from "../context/UserContext";
+import FarmerSidebar from "./FarmerSidebar";
 
 export default function FarmerMarketplace() {
   const navigate = useNavigate();
   const { user, getToken, logout, isLoading: userLoading } = useUser();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [consumerRequests, setConsumerRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [proposalForm, setProposalForm] = useState({
-    quantity: '',
-    price_per_unit: '',
-    farm_location: '',
-    message: ''
+    quantity: "",
+    price_per_unit: "",
+    farm_location: "",
+    message: "",
   });
   const [proposalLoading, setProposalLoading] = useState(false);
-  const [proposalError, setProposalError] = useState('');
+  const [proposalError, setProposalError] = useState("");
 
   // Fetch consumer requests from API
   const fetchConsumerRequests = async () => {
-
     console.log("Hola");
 
     try {
       setLoading(true);
       const token = getToken();
-      
+
       if (!token) {
-        setError('No authentication token found. Please login again.');
-        navigate('/login');
+        setError("No authentication token found. Please login again.");
+        navigate("/login");
         return;
       }
 
-      console.log('Fetching consumer requests from API...');
+      console.log("Fetching consumer requests from API...");
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/consumer', {
-        method: 'GET',
+      const response = await fetch("http://127.0.0.1:8000/api/v1/consumer", {
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
-      console.log('Response status:', response.status);
+      console.log("Response status:", response.status);
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Consumer requests data received:', data);
-        
+        console.log("Consumer requests data received:", data);
+
         // The API returns data.req
         const requestsArray = data.data?.req || [];
-        console.log('Extracted requests array:', requestsArray);
-        
+        console.log("Extracted requests array:", requestsArray);
+
         setConsumerRequests(requestsArray);
-        setError('');
+        setError("");
       } else {
         const errorData = await response.json();
-        console.error('API Error:', errorData);
-        setError(errorData.message || 'Failed to fetch consumer requests');
-        
+        console.error("API Error:", errorData);
+        setError(errorData.message || "Failed to fetch consumer requests");
+
         // If unauthorized, redirect to login
         if (response.status === 401 || response.status === 403) {
           logout();
-          navigate('/login');
+          navigate("/login");
         }
       }
     } catch (error) {
-      console.error('Error fetching consumer requests:', error);
-      setError('Network error. Please try again.');
+      console.error("Error fetching consumer requests:", error);
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -83,83 +94,87 @@ export default function FarmerMarketplace() {
   const submitProposal = async () => {
     try {
       setProposalLoading(true);
-      setProposalError('');
+      setProposalError("");
 
       // Validate required fields
-      if (!proposalForm.quantity || !proposalForm.price_per_unit || !proposalForm.farm_location) {
-        setProposalError('Please fill in all required fields (marked with *)');
+      if (
+        !proposalForm.quantity ||
+        !proposalForm.price_per_unit ||
+        !proposalForm.farm_location
+      ) {
+        setProposalError("Please fill in all required fields (marked with *)");
         return;
       }
 
       const token = getToken();
       if (!token) {
-        setProposalError('No authentication token found. Please login again.');
-        navigate('/login');
+        setProposalError("No authentication token found. Please login again.");
+        navigate("/login");
         return;
       }
 
       if (!user?.user_id) {
-        setProposalError('User information not available. Please login again.');
-        navigate('/login');
+        setProposalError("User information not available. Please login again.");
+        navigate("/login");
         return;
       }
 
       // Debug user object to see available fields
-      console.log('Current user object:', user);
-      console.log('Available user fields:', Object.keys(user));
-      console.log('User name fields:', {
+      console.log("Current user object:", user);
+      console.log("Available user fields:", Object.keys(user));
+      console.log("User name fields:", {
         user_name: user.user_name,
         name: user.name,
-        username: user.username
+        username: user.username,
       });
 
       const proposalData = {
         request_id: selectedRequest._id,
         consumer_id: selectedRequest.user_id || selectedRequest.consumer_id,
         farmer_id: user.user_id,
-        farmer_name: user.user_name || user.name || user.username || 'Unknown Farmer',
+        farmer_name:
+          user.user_name || user.name || user.username || "Unknown Farmer",
         quantity: parseFloat(proposalForm.quantity),
         price_per_unit: parseFloat(proposalForm.price_per_unit),
         farm_location: proposalForm.farm_location,
-        message: proposalForm.message || ''
+        message: proposalForm.message || "",
       };
 
-      console.log('Submitting proposal:', proposalData);
+      console.log("Submitting proposal:", proposalData);
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/farmerBid', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:8000/api/v1/farmerBid", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(proposalData)
+        body: JSON.stringify(proposalData),
       });
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Proposal submitted successfully:', result);
-        
+        console.log("Proposal submitted successfully:", result);
+
         // Reset form and close modals
         setProposalForm({
-          quantity: '',
-          price_per_unit: '',
-          farm_location: '',
-          message: ''
+          quantity: "",
+          price_per_unit: "",
+          farm_location: "",
+          message: "",
         });
         setShowProposalModal(false);
         setShowDetailsModal(false);
-        
+
         // Show success message (you might want to add a toast notification here)
-        alert('Proposal submitted successfully!');
-        
+        alert("Proposal submitted successfully!");
       } else {
         const errorData = await response.json();
-        console.error('Proposal submission error:', errorData);
-        setProposalError(errorData.message || 'Failed to submit proposal');
+        console.error("Proposal submission error:", errorData);
+        setProposalError(errorData.message || "Failed to submit proposal");
       }
     } catch (error) {
-      console.error('Error submitting proposal:', error);
-      setProposalError('Network error. Please try again.');
+      console.error("Error submitting proposal:", error);
+      setProposalError("Network error. Please try again.");
     } finally {
       setProposalLoading(false);
     }
@@ -167,29 +182,34 @@ export default function FarmerMarketplace() {
 
   // Handle proposal form input changes
   const handleProposalInputChange = (field, value) => {
-    setProposalForm(prev => ({
+    setProposalForm((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (proposalError) {
-      setProposalError('');
+      setProposalError("");
     }
   };
 
   // Authentication check and data fetching
   useEffect(() => {
-    console.log('FarmerMarketplace useEffect - userLoading:', userLoading, 'user:', user);
-    
+    console.log(
+      "FarmerMarketplace useEffect - userLoading:",
+      userLoading,
+      "user:",
+      user
+    );
+
     if (userLoading) {
-      console.log('UserContext is still loading...');
+      console.log("UserContext is still loading...");
       return;
     }
 
     if (!user?.user_id) {
-      console.log('User not authenticated, redirecting to login');
-      navigate('/login');
+      console.log("User not authenticated, redirecting to login");
+      navigate("/login");
       return;
     }
 
@@ -197,9 +217,10 @@ export default function FarmerMarketplace() {
     fetchConsumerRequests();
   }, [user, userLoading, navigate]);
 
-  const filteredRequests = consumerRequests.filter(req => 
-    req.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.request_description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRequests = consumerRequests.filter(
+    (req) =>
+      req.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.request_description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Show loading state
@@ -238,7 +259,7 @@ export default function FarmerMarketplace() {
               {error}
             </div>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
               Go to Login
@@ -258,7 +279,9 @@ export default function FarmerMarketplace() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-7xl mx-auto p-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Consumer Requests Marketplace</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Consumer Requests Marketplace
+            </h1>
             <p className="text-gray-600">Browse and bid on consumer requests</p>
           </div>
 
@@ -278,14 +301,14 @@ export default function FarmerMarketplace() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="flex-1 px-4 py-4 text-gray-900 placeholder-gray-500 bg-transparent border-none outline-none focus:ring-0 text-lg"
-                      style={{ fontSize: '16px' }}
+                      style={{ fontSize: "16px" }}
                     />
                     <div className="flex-shrink-0 pr-2">
                       <button
                         className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                         onClick={() => {
                           // Optional: trigger search action
-                          console.log('Search clicked:', searchTerm);
+                          console.log("Search clicked:", searchTerm);
                         }}
                       >
                         Search
@@ -294,12 +317,18 @@ export default function FarmerMarketplace() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Popular searches */}
               <div className="mt-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">Popular:</p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  {['Fresh Vegetables', 'Organic Fruits', 'Rice & Grains', 'Dairy Products', 'Seasonal Produce'].map((tag) => (
+                  {[
+                    "Fresh Vegetables",
+                    "Organic Fruits",
+                    "Rice & Grains",
+                    "Dairy Products",
+                    "Seasonal Produce",
+                  ].map((tag) => (
                     <button
                       key={tag}
                       onClick={() => setSearchTerm(tag)}
@@ -317,7 +346,7 @@ export default function FarmerMarketplace() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.isArray(filteredRequests) && filteredRequests.length > 0 ? (
               filteredRequests.map((request) => (
-                <div 
+                <div
                   key={request._id}
                   className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
                   onClick={() => {
@@ -360,11 +389,16 @@ export default function FarmerMarketplace() {
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Quantity:</span>
-                        <span className="font-medium text-gray-900">{request.product_quantity} {request.quantity_unit}</span>
+                        <span className="font-medium text-gray-900">
+                          {request.product_quantity} {request.quantity_unit}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Budget:</span>
-                        <span className="font-medium text-gray-900">{request.price_per_unit} {request.currency || 'BDT'}/{request.quantity_unit}</span>
+                        <span className="font-medium text-gray-900">
+                          {request.price_per_unit} {request.currency || "BDT"}/
+                          {request.quantity_unit}
+                        </span>
                       </div>
                     </div>
 
@@ -372,7 +406,9 @@ export default function FarmerMarketplace() {
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center text-xs text-gray-500">
                         <Calendar className="w-3 h-3 mr-1" />
-                        <span>Due {new Date(request.when).toLocaleDateString()}</span>
+                        <span>
+                          Due {new Date(request.when).toLocaleDateString()}
+                        </span>
                       </div>
                       <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
                         <span>View Details</span>
@@ -386,8 +422,12 @@ export default function FarmerMarketplace() {
               // Empty State
               <div className="col-span-full text-center py-16">
                 <FileText size={64} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No consumer requests found</h3>
-                <p className="text-gray-500">Check back later for new requests from consumers</p>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  No consumer requests found
+                </h3>
+                <p className="text-gray-500">
+                  Check back later for new requests from consumers
+                </p>
               </div>
             )}
           </div>
@@ -397,57 +437,72 @@ export default function FarmerMarketplace() {
       {/* Details Modal - Fiverr Style with Glassmorphism */}
       {showDetailsModal && selectedRequest && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div 
+          <div
             className="w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 rounded-2xl"
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+              background: "rgba(255, 255, 255, 0.08)",
+              backdropFilter: "blur(6px)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              boxShadow:
+                "0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset",
             }}
           >
             {/* Modal Header */}
-            <div 
+            <div
               className="sticky top-0 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl border-b"
               style={{
-                background: 'rgba(255, 255, 255, 0.12)',
-                backdropFilter: 'blur(5px)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                background: "rgba(255, 255, 255, 0.12)",
+                backdropFilter: "blur(5px)",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
               }}
             >
-              <h2 className="text-2xl font-bold text-white drop-shadow-lg">{selectedRequest.product_name}</h2>
-              <button 
+              <h2 className="text-2xl font-bold text-white drop-shadow-lg">
+                {selectedRequest.product_name}
+              </h2>
+              <button
                 onClick={() => setShowDetailsModal(false)}
                 className="p-2 hover:bg-white/20 rounded-full transition-all duration-300 backdrop-blur-sm"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)'
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
                 }}
               >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
 
             <div className="p-6">
               {/* Request Image/Banner */}
-              <div className="relative h-48 rounded-lg mb-6 overflow-hidden"
-                   style={{
-                     background: 'rgba(16, 185, 129, 0.06)',
-                     backdropFilter: 'blur(4px)',
-                     border: '1px solid rgba(255, 255, 255, 0.1)'
-                   }}>
+              <div
+                className="relative h-48 rounded-lg mb-6 overflow-hidden"
+                style={{
+                  background: "rgba(16, 185, 129, 0.06)",
+                  backdropFilter: "blur(4px)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                }}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-100/30 to-emerald-100/30 flex items-center justify-center">
                   <Package className="w-16 h-16 text-white/80 drop-shadow-lg" />
                 </div>
                 {selectedRequest.admin_deal && (
                   <div className="absolute top-4 left-4">
-                    <span 
+                    <span
                       className="text-white text-sm font-bold px-3 py-1 rounded-full backdrop-blur-sm"
                       style={{
-                        background: 'rgba(249, 115, 22, 0.6)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)'
+                        background: "rgba(249, 115, 22, 0.6)",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
                       }}
                     >
                       FEATURED
@@ -455,14 +510,15 @@ export default function FarmerMarketplace() {
                   </div>
                 )}
                 <div className="absolute bottom-4 right-4">
-                  <div 
+                  <div
                     className="rounded-lg px-3 py-2 text-sm font-medium text-white backdrop-blur-sm"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.12)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)'
+                      background: "rgba(255, 255, 255, 0.12)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
                     }}
                   >
-                    Posted {new Date(selectedRequest.createdAt).toLocaleDateString()}
+                    Posted{" "}
+                    {new Date(selectedRequest.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
@@ -473,63 +529,95 @@ export default function FarmerMarketplace() {
                 <div className="lg:col-span-2 space-y-6">
                   {/* Description Section */}
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 drop-shadow-lg">Request Description</h3>
-                    <div 
+                    <h3 className="text-lg font-semibold text-white mb-3 drop-shadow-lg">
+                      Request Description
+                    </h3>
+                    <div
                       className="rounded-lg p-4"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        backdropFilter: 'blur(4px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                        background: "rgba(255, 255, 255, 0.06)",
+                        backdropFilter: "blur(4px)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
                       }}
                     >
-                      <p className="text-white/90 leading-relaxed">{selectedRequest.request_description}</p>
+                      <p className="text-white/90 leading-relaxed">
+                        {selectedRequest.request_description}
+                      </p>
                     </div>
                   </div>
 
                   {/* Specifications */}
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 drop-shadow-lg">Specifications</h3>
-                    <div 
+                    <h3 className="text-lg font-semibold text-white mb-3 drop-shadow-lg">
+                      Specifications
+                    </h3>
+                    <div
                       className="rounded-lg p-4"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        backdropFilter: 'blur(4px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                        background: "rgba(255, 255, 255, 0.06)",
+                        backdropFilter: "blur(4px)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
                       }}
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
                           <div>
-                            <p className="text-sm text-white/70">Quantity Required</p>
-                            <p className="font-semibold text-white">{selectedRequest.product_quantity} {selectedRequest.quantity_unit}</p>
+                            <p className="text-sm text-white/70">
+                              Quantity Required
+                            </p>
+                            <p className="font-semibold text-white">
+                              {selectedRequest.product_quantity}{" "}
+                              {selectedRequest.quantity_unit}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
                           <div>
-                            <p className="text-sm text-white/70">Budget per Unit</p>
-                            <p className="font-semibold text-white">{selectedRequest.price_per_unit} {selectedRequest.currency || 'BDT'}</p>
+                            <p className="text-sm text-white/70">
+                              Budget per Unit
+                            </p>
+                            <p className="font-semibold text-white">
+                              {selectedRequest.price_per_unit}{" "}
+                              {selectedRequest.currency || "BDT"}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
                           <div>
                             <p className="text-sm text-white/70">Required By</p>
-                            <p className="font-semibold text-white">{new Date(selectedRequest.when).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            })}</p>
+                            <p className="font-semibold text-white">
+                              {new Date(
+                                selectedRequest.when
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
                           <div>
-                            <p className="text-sm text-white/70">Total Budget</p>
-                            <p className="font-semibold text-green-300 text-lg drop-shadow-lg" style={{
-                              textShadow: '0 0 10px rgba(34, 197, 94, 0.8), 0 0 20px rgba(34, 197, 94, 0.5), 0 0 30px rgba(34, 197, 94, 0.3)'
-                            }}>{(selectedRequest.price_per_unit * selectedRequest.product_quantity).toLocaleString()} {selectedRequest.currency || 'BDT'}</p>
+                            <p className="text-sm text-white/70">
+                              Total Budget
+                            </p>
+                            <p
+                              className="font-semibold text-green-300 text-lg drop-shadow-lg"
+                              style={{
+                                textShadow:
+                                  "0 0 10px rgba(34, 197, 94, 0.8), 0 0 20px rgba(34, 197, 94, 0.5), 0 0 30px rgba(34, 197, 94, 0.3)",
+                              }}
+                            >
+                              {(
+                                selectedRequest.price_per_unit *
+                                selectedRequest.product_quantity
+                              ).toLocaleString()}{" "}
+                              {selectedRequest.currency || "BDT"}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -541,68 +629,94 @@ export default function FarmerMarketplace() {
                 <div className="lg:col-span-1">
                   <div className="sticky top-6">
                     {/* Price Card */}
-                    <div 
+                    <div
                       className="rounded-lg p-6 mb-4"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        backdropFilter: 'blur(5px)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
+                        background: "rgba(255, 255, 255, 0.08)",
+                        backdropFilter: "blur(5px)",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
                       }}
                     >
                       <div className="text-center mb-4">
                         <div className="text-3xl font-bold text-white mb-1 drop-shadow-lg">
-                          {selectedRequest.price_per_unit} {selectedRequest.currency || 'BDT'}
+                          {selectedRequest.price_per_unit}{" "}
+                          {selectedRequest.currency || "BDT"}
                         </div>
-                        <div className="text-sm text-white/70">per {selectedRequest.quantity_unit}</div>
-                        <div className="text-lg font-semibold text-green-300 mt-2 drop-shadow-lg" style={{
-                          textShadow: '0 0 8px rgba(34, 197, 94, 0.8), 0 0 16px rgba(34, 197, 94, 0.5), 0 0 24px rgba(34, 197, 94, 0.3)'
-                        }}>
-                          Total: {(selectedRequest.price_per_unit * selectedRequest.product_quantity).toLocaleString()} {selectedRequest.currency || 'BDT'}
+                        <div className="text-sm text-white/70">
+                          per {selectedRequest.quantity_unit}
+                        </div>
+                        <div
+                          className="text-lg font-semibold text-green-300 mt-2 drop-shadow-lg"
+                          style={{
+                            textShadow:
+                              "0 0 8px rgba(34, 197, 94, 0.8), 0 0 16px rgba(34, 197, 94, 0.5), 0 0 24px rgba(34, 197, 94, 0.3)",
+                          }}
+                        >
+                          Total:{" "}
+                          {(
+                            selectedRequest.price_per_unit *
+                            selectedRequest.product_quantity
+                          ).toLocaleString()}{" "}
+                          {selectedRequest.currency || "BDT"}
                         </div>
                       </div>
 
                       {/* Quick Stats */}
                       <div className="space-y-3 mb-6">
-                        <div 
+                        <div
                           className="flex items-center justify-between py-2 border-b"
-                          style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                          style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
                         >
                           <div className="flex items-center space-x-2">
                             <Calendar className="w-4 h-4 text-white/70" />
-                            <span className="text-sm text-white/70">Delivery</span>
+                            <span className="text-sm text-white/70">
+                              Delivery
+                            </span>
                           </div>
                           <span className="text-sm font-medium text-white">
-                            {Math.ceil((new Date(selectedRequest.when) - new Date()) / (1000 * 60 * 60 * 24))} days
+                            {Math.ceil(
+                              (new Date(selectedRequest.when) - new Date()) /
+                                (1000 * 60 * 60 * 24)
+                            )}{" "}
+                            days
                           </span>
                         </div>
-                        <div 
+                        <div
                           className="flex items-center justify-between py-2 border-b"
-                          style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                          style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
                         >
                           <div className="flex items-center space-x-2">
                             <Package className="w-4 h-4 text-white/70" />
-                            <span className="text-sm text-white/70">Quantity</span>
+                            <span className="text-sm text-white/70">
+                              Quantity
+                            </span>
                           </div>
-                          <span className="text-sm font-medium text-white">{selectedRequest.product_quantity} {selectedRequest.quantity_unit}</span>
+                          <span className="text-sm font-medium text-white">
+                            {selectedRequest.product_quantity}{" "}
+                            {selectedRequest.quantity_unit}
+                          </span>
                         </div>
                       </div>
 
                       {/* Action Buttons */}
                       <div className="space-y-3">
-                        <button 
+                        <button
                           className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 backdrop-blur-sm hover:scale-105 transform"
                           style={{
-                            background: 'rgba(34, 197, 94, 0.6)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            boxShadow: '0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)',
-                            textShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
+                            background: "rgba(34, 197, 94, 0.6)",
+                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                            boxShadow:
+                              "0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)",
+                            textShadow: "0 0 10px rgba(255, 255, 255, 0.8)",
                           }}
                           onMouseEnter={(e) => {
-                            e.target.style.boxShadow = '0 4px 20px rgba(34, 197, 94, 0.4), 0 0 30px rgba(34, 197, 94, 0.6), 0 0 50px rgba(34, 197, 94, 0.3)';
+                            e.target.style.boxShadow =
+                              "0 4px 20px rgba(34, 197, 94, 0.4), 0 0 30px rgba(34, 197, 94, 0.6), 0 0 50px rgba(34, 197, 94, 0.3)";
                           }}
                           onMouseLeave={(e) => {
-                            e.target.style.boxShadow = '0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)';
+                            e.target.style.boxShadow =
+                              "0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)";
                           }}
                           onClick={() => {
                             setShowProposalModal(true);
@@ -611,15 +725,18 @@ export default function FarmerMarketplace() {
                           <DollarSign className="w-5 h-5" />
                           <span>Submit Proposal</span>
                         </button>
-                        <button 
+                        <button
                           className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 backdrop-blur-sm hover:scale-105 transform"
                           style={{
-                            background: 'rgba(255, 255, 255, 0.06)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)'
+                            background: "rgba(255, 255, 255, 0.06)",
+                            border: "1px solid rgba(255, 255, 255, 0.2)",
                           }}
                           onClick={() => {
                             // TODO: Implement message functionality
-                            console.log('Message consumer clicked for request:', selectedRequest._id);
+                            console.log(
+                              "Message consumer clicked for request:",
+                              selectedRequest._id
+                            );
                           }}
                         >
                           <MessageSquare className="w-5 h-5" />
@@ -629,23 +746,37 @@ export default function FarmerMarketplace() {
                     </div>
 
                     {/* Additional Info */}
-                    <div 
+                    <div
                       className="rounded-lg p-4"
                       style={{
-                        background: 'rgba(59, 130, 246, 0.08)',
-                        backdropFilter: 'blur(4px)',
-                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                        background: "rgba(59, 130, 246, 0.08)",
+                        backdropFilter: "blur(4px)",
+                        border: "1px solid rgba(59, 130, 246, 0.2)",
                       }}
                     >
                       <div className="flex items-start space-x-3">
                         <div className="flex-shrink-0">
-                          <svg className="w-5 h-5 text-blue-300 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                          <svg
+                            className="w-5 h-5 text-blue-300 mt-0.5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-sm font-semibold text-blue-200 mb-1">Pro Tip</h4>
-                          <p className="text-sm text-blue-100">Submit a competitive proposal with clear delivery timeline to increase your chances of winning this request.</p>
+                          <h4 className="text-sm font-semibold text-blue-200 mb-1">
+                            Pro Tip
+                          </h4>
+                          <p className="text-sm text-blue-100">
+                            Submit a competitive proposal with clear delivery
+                            timeline to increase your chances of winning this
+                            request.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -660,33 +791,46 @@ export default function FarmerMarketplace() {
       {/* Proposal Modal */}
       {showProposalModal && selectedRequest && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div 
+          <div
             className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 rounded-2xl"
             style={{
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+              background: "rgba(255, 255, 255, 0.95)",
+              backdropFilter: "blur(6px)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              boxShadow:
+                "0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset",
             }}
           >
             {/* Modal Header */}
             <div className="sticky top-0 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl border-b border-gray-200 bg-white/90 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-gray-800">Submit Proposal</h2>
-              <button 
+              <h2 className="text-2xl font-bold text-gray-800">
+                Submit Proposal
+              </h2>
+              <button
                 onClick={() => {
                   setShowProposalModal(false);
                   setProposalForm({
-                    quantity: '',
-                    price_per_unit: '',
-                    farm_location: '',
-                    message: ''
+                    quantity: "",
+                    price_per_unit: "",
+                    farm_location: "",
+                    message: "",
                   });
-                  setProposalError('');
+                  setProposalError("");
                 }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-all duration-300"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -694,23 +838,41 @@ export default function FarmerMarketplace() {
             <div className="p-6">
               {/* Request Summary */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-green-800 mb-2">Request Details</h3>
+                <h3 className="font-semibold text-green-800 mb-2">
+                  Request Details
+                </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-green-600 font-medium">Product:</span>
-                    <p className="text-green-800">{selectedRequest.product_name}</p>
+                    <p className="text-green-800">
+                      {selectedRequest.product_name}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-green-600 font-medium">Required Quantity:</span>
-                    <p className="text-green-800">{selectedRequest.product_quantity} {selectedRequest.quantity_unit}</p>
+                    <span className="text-green-600 font-medium">
+                      Required Quantity:
+                    </span>
+                    <p className="text-green-800">
+                      {selectedRequest.product_quantity}{" "}
+                      {selectedRequest.quantity_unit}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-green-600 font-medium">Budget per Unit:</span>
-                    <p className="text-green-800">{selectedRequest.price_per_unit} {selectedRequest.currency || 'BDT'}</p>
+                    <span className="text-green-600 font-medium">
+                      Budget per Unit:
+                    </span>
+                    <p className="text-green-800">
+                      {selectedRequest.price_per_unit}{" "}
+                      {selectedRequest.currency || "BDT"}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-green-600 font-medium">Required By:</span>
-                    <p className="text-green-800">{new Date(selectedRequest.when).toLocaleDateString()}</p>
+                    <span className="text-green-600 font-medium">
+                      Required By:
+                    </span>
+                    <p className="text-green-800">
+                      {new Date(selectedRequest.when).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -723,21 +885,26 @@ export default function FarmerMarketplace() {
               )}
 
               {/* Proposal Form */}
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                submitProposal();
-              }} className="space-y-6">
-                
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitProposal();
+                }}
+                className="space-y-6"
+              >
                 {/* Quantity */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantity You Can Supply <span className="text-red-500">*</span>
+                    Quantity You Can Supply{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type="number"
                       value={proposalForm.quantity}
-                      onChange={(e) => handleProposalInputChange('quantity', e.target.value)}
+                      onChange={(e) =>
+                        handleProposalInputChange("quantity", e.target.value)
+                      }
                       placeholder={`Enter quantity (max: ${selectedRequest.product_quantity})`}
                       min="0"
                       max={selectedRequest.product_quantity}
@@ -746,7 +913,9 @@ export default function FarmerMarketplace() {
                       required
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 text-sm">{selectedRequest.quantity_unit}</span>
+                      <span className="text-gray-500 text-sm">
+                        {selectedRequest.quantity_unit}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -760,7 +929,12 @@ export default function FarmerMarketplace() {
                     <input
                       type="number"
                       value={proposalForm.price_per_unit}
-                      onChange={(e) => handleProposalInputChange('price_per_unit', e.target.value)}
+                      onChange={(e) =>
+                        handleProposalInputChange(
+                          "price_per_unit",
+                          e.target.value
+                        )
+                      }
                       placeholder={`Enter your price (budget: ${selectedRequest.price_per_unit})`}
                       min="0"
                       step="0.01"
@@ -768,12 +942,19 @@ export default function FarmerMarketplace() {
                       required
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 text-sm">{selectedRequest.currency || 'BDT'}</span>
+                      <span className="text-gray-500 text-sm">
+                        {selectedRequest.currency || "BDT"}
+                      </span>
                     </div>
                   </div>
                   {proposalForm.quantity && proposalForm.price_per_unit && (
                     <p className="text-sm text-gray-600 mt-2">
-                      Total: {(parseFloat(proposalForm.quantity) * parseFloat(proposalForm.price_per_unit)).toLocaleString()} {selectedRequest.currency || 'BDT'}
+                      Total:{" "}
+                      {(
+                        parseFloat(proposalForm.quantity) *
+                        parseFloat(proposalForm.price_per_unit)
+                      ).toLocaleString()}{" "}
+                      {selectedRequest.currency || "BDT"}
                     </p>
                   )}
                 </div>
@@ -786,7 +967,9 @@ export default function FarmerMarketplace() {
                   <input
                     type="text"
                     value={proposalForm.farm_location}
-                    onChange={(e) => handleProposalInputChange('farm_location', e.target.value)}
+                    onChange={(e) =>
+                      handleProposalInputChange("farm_location", e.target.value)
+                    }
                     placeholder="Enter your farm location (e.g., Dhaka, Bangladesh)"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
                     required
@@ -800,7 +983,9 @@ export default function FarmerMarketplace() {
                   </label>
                   <textarea
                     value={proposalForm.message}
-                    onChange={(e) => handleProposalInputChange('message', e.target.value)}
+                    onChange={(e) =>
+                      handleProposalInputChange("message", e.target.value)
+                    }
                     placeholder="Add any additional information about your proposal..."
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all resize-none"
@@ -814,12 +999,12 @@ export default function FarmerMarketplace() {
                     onClick={() => {
                       setShowProposalModal(false);
                       setProposalForm({
-                        quantity: '',
-                        price_per_unit: '',
-                        farm_location: '',
-                        message: ''
+                        quantity: "",
+                        price_per_unit: "",
+                        farm_location: "",
+                        message: "",
                       });
-                      setProposalError('');
+                      setProposalError("");
                     }}
                     className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200"
                   >
@@ -827,7 +1012,12 @@ export default function FarmerMarketplace() {
                   </button>
                   <button
                     type="submit"
-                    disabled={proposalLoading || !proposalForm.quantity || !proposalForm.price_per_unit || !proposalForm.farm_location}
+                    disabled={
+                      proposalLoading ||
+                      !proposalForm.quantity ||
+                      !proposalForm.price_per_unit ||
+                      !proposalForm.farm_location
+                    }
                     className="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
                   >
                     {proposalLoading ? (

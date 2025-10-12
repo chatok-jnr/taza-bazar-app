@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import FarmerProfile from "./pages/FarmerProfile";
 import FarmerMarketPlace from "./pages/FarmerMarketplace";
-import FarmerNewListing from "./pages/FarmerNewListing";
+import FarmerListing from "./pages/FarmerListing";
 
 export default function App() {
   return (
@@ -28,7 +28,7 @@ export default function App() {
         <Route path="/request/:id" element={<RequestDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        
+
         {/* Consumer Routes */}
         <Route path="/consumer/*">
           <Route index element={<ConsumerDashboardSimple />} />
@@ -38,17 +38,20 @@ export default function App() {
           <Route path="messages" element={<ConsumerMessage />} />
           <Route path="notifications" element={<ConsumerNotification />} />
         </Route>
-        
+
         {/* Farmer Routes */}
         <Route path="/farmer/*">
           <Route index element={<FarmerDashboard />} />
           <Route path="profile" element={<FarmerProfile />} />
           <Route path="marketplace" element={<FarmerMarketPlace />} />
-          <Route path="new-listing" element={<FarmerNewListing />} />
+          <Route path="listings" element={<FarmerListing />} />
           <Route path="messages" element={<div>Messages Coming Soon</div>} />
-          <Route path="notifications" element={<div>Notifications Coming Soon</div>} />
+          <Route
+            path="notifications"
+            element={<div>Notifications Coming Soon</div>}
+          />
         </Route>
-        
+
         {/* Legacy marketplace route - redirect to consumer marketplace */}
         <Route path="/marketplace" element={<ConsumerMarketplace />} />
       </Routes>

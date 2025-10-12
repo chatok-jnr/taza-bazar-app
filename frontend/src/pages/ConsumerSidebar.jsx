@@ -18,7 +18,7 @@ export default function ConsumerSidebar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   // Updated sidebar items to match the routing structure used in other components
@@ -44,37 +44,59 @@ export default function ConsumerSidebar() {
     <div className="w-64 min-h-screen bg-white border-r border-gray-200">
       <div className="flex flex-col h-screen p-4">
         <div className="mb-8">
-          <button 
-            onClick={() => navigate('/')}
+          <button
+            onClick={() => navigate("/")}
             className="text-left hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-2xl font-bold text-gray-800">TazaBazar</h2>
-            <p className="text-sm text-gray-500">Consumer Dashboard</p>
+            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
+            <p className="text-sm text-gray-500 mt-1">Consumer Dashboard</p>
           </button>
         </div>
-        <nav className="space-y-2 flex-grow">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => handleNavigation(item)}
-              className={`flex items-center w-full px-4 py-3 text-left rounded-lg transition-all duration-200 ${
-                isActiveTab(item.path)
-                  ? "bg-green-500 text-white shadow-md"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              <item.icon size={20} className="mr-3" />
-              <span className="font-medium">{item.name}</span>
-            </button>
-          ))}
+
+        <nav className="flex-1 space-y-2">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = isActiveTab(item.path);
+            return (
+              <button
+                key={item.name}
+                onClick={() => handleNavigation(item)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                  isActive
+                    ? "bg-green-50 text-green-600 font-medium border border-green-200"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                }`}
+              >
+                <Icon size={20} />
+                <span>{item.name}</span>
+              </button>
+            );
+          })}
         </nav>
-        <div className="mt-auto pt-4 border-t border-gray-200">
+
+        <div className="mt-auto space-y-4">
+          {/* Consumer Badge */}
+          <div className="bg-green-50 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <ShoppingCart className="text-green-600" size={20} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Active Consumer
+                </p>
+                <p className="text-xs text-gray-600">Regular Member</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-left rounded-lg text-red-600 hover:bg-red-50 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
           >
-            <LogOut className="w-5 h-5 mr-3" />
-            <span className="font-medium">Log Out</span>
+            <LogOut size={20} />
+            <span>Logout</span>
           </button>
         </div>
       </div>
