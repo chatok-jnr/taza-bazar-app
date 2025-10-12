@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, MapPin, Edit2, X, Save, FileText, TrendingUp, Bell, MessageSquare, ShoppingCart, Repeat, Calendar, DollarSign, Clock } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import FarmerSidebar from '../components/FarmerSidebar';
 
 // Utility function to format date (remove time)
 const formatDate = (dateString) => {
@@ -33,7 +34,6 @@ const formatDisplayDate = (dateString) => {
 };
 
 export default function FarmerProfile() {
-  const [activeTab, setActiveTab] = useState('Profile');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -231,29 +231,11 @@ export default function FarmerProfile() {
     navigate('/');
   };
 
-  const sidebarItems = [
-    { name: 'My Listings', icon: FileText, path: '/farmer' },
-    { name: 'Marketplace', icon: TrendingUp, path: '/farmer/marketplace' },
-    { name: 'Messages', icon: MessageSquare, path: '/farmer/messages' },
-    { name: 'Notifications', icon: Bell, path: '/farmer/notifications' },
-    { name: 'Profile', icon: User, path: '/farmer/profile' }
-  ];
-
   // Show loading state
   if (userLoading || loading) {
     return (
       <div className="flex h-screen bg-gray-50">
-        <div className="w-64 bg-white shadow-lg">
-          <div className="p-6 border-b border-gray-200">
-            <button 
-              onClick={() => navigate('/')}
-              className="text-left hover:opacity-80 transition-opacity"
-            >
-              <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-              <p className="text-sm text-gray-500 mt-1">Profile</p>
-            </button>
-          </div>
-        </div>
+        <FarmerSidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500"></div>
@@ -268,17 +250,7 @@ export default function FarmerProfile() {
   if (error) {
     return (
       <div className="flex h-screen bg-gray-50">
-        <div className="w-64 bg-white shadow-lg">
-          <div className="p-6 border-b border-gray-200">
-            <button 
-              onClick={() => navigate('/')}
-              className="text-left hover:opacity-80 transition-opacity"
-            >
-              <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-              <p className="text-sm text-gray-500 mt-1">Profile</p>
-            </button>
-          </div>
-        </div>
+        <FarmerSidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
@@ -296,53 +268,10 @@ export default function FarmerProfile() {
     );
   }
 
-  const handleNavigation = (item) => {
-    setActiveTab(item.name);
-    navigate(item.path);
-  };
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg">
-        <div className="p-6 border-b border-gray-200">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-left hover:opacity-80 transition-opacity"
-          >
-            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-            <p className="text-sm text-gray-500 mt-1">Profile</p>
-          </button>
-        </div>
-        <nav className="p-4">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
-                  activeTab === item.name
-                    ? 'bg-green-500 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon size={20} />
-                <span className="font-medium">{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-        <div className="p-4 mt-auto border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-          >
-            <User size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <FarmerSidebar />
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">

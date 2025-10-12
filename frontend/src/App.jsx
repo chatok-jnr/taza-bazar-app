@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import FarmerProfile from "./pages/FarmerProfile";
 import FarmerMarketPlace from "./pages/FarmerMarketplace";
+import FarmerNewListing from "./pages/FarmerNewListing";
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
           <Route index element={<FarmerDashboard />} />
           <Route path="profile" element={<FarmerProfile />} />
           <Route path="marketplace" element={<FarmerMarketPlace />} />
+          <Route path="new-listing" element={<FarmerNewListing />} />
           <Route path="messages" element={<div>Messages Coming Soon</div>} />
           <Route path="notifications" element={<div>Notifications Coming Soon</div>} />
         </Route>

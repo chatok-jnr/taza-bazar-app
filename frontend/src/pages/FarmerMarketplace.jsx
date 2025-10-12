@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Calendar, Package, DollarSign, Eye, FileText, TrendingUp, Bell, User, MessageSquare } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import FarmerSidebar from '../components/FarmerSidebar';
 
 export default function FarmerMarketplace() {
   const navigate = useNavigate();
   const { user, getToken, logout, isLoading: userLoading } = useUser();
-  const [activeTab, setActiveTab] = useState('Marketplace');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -197,19 +197,6 @@ export default function FarmerMarketplace() {
     fetchConsumerRequests();
   }, [user, userLoading, navigate]);
 
-  const handleNavigation = (item) => {
-    setActiveTab(item.name);
-    navigate(item.path);
-  };
-
-  const sidebarItems = [
-    { name: 'My Listings', icon: FileText, path: '/farmer' },
-    { name: 'Marketplace', icon: TrendingUp, path: '/farmer/marketplace' },
-    { name: 'Messages', icon: MessageSquare, path: '/farmer/messages' },
-    { name: 'Notifications', icon: Bell, path: '/farmer/notifications' },
-    { name: 'Profile', icon: User, path: '/farmer/profile' }
-  ];
-
   const filteredRequests = consumerRequests.filter(req => 
     req.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     req.request_description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -265,50 +252,7 @@ export default function FarmerMarketplace() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-left hover:opacity-80 transition-opacity"
-          >
-            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-            <p className="text-sm text-gray-500 mt-1">Farmer Marketplace</p>
-          </button>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
-                  activeTab === item.name
-                    ? 'bg-green-50 text-green-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon size={20} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={() => {
-              logout();
-              navigate('/');
-            }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-          >
-            <User size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <FarmerSidebar />
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">

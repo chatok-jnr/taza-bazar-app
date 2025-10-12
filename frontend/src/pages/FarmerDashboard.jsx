@@ -1,19 +1,223 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Home, FileText, MessageSquare, User, MapPin, Calendar, DollarSign, Package, Award, TrendingUp, Bell } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, FileText, MessageSquare, User, MapPin, Calendar, DollarSign, Package, Award, TrendingUp, Bell, Edit2, Trash2, Mail, Phone, X, Save } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import NewListingModal from '../components/NewListingModal';
+import FarmerSidebar from '../components/FarmerSidebar';
 
 export default function FarmerDashboard() {
-  const [activeTab, setActiveTab] = useState('My Listings');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, getToken, logout, isLoading: userLoading } = useUser();
+  
+  // Get active tab from URL search params, default to 'Dashboard'
+  const getActiveTabFromURL = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get('tab');
+    const validTabs = ['Dashboard', 'My Listings', 'Marketplace', 'Notifications', 'Messages', 'Profile'];
+    return validTabs.includes(tab) ? tab : 'Dashboard';
+  };
+  
+  const [activeTab, setActiveTab] = useState(getActiveTabFromURL());
   const [farmerListings, setFarmerListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isNewListingModalOpen, setIsNewListingModalOpen] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
-  const navigate = useNavigate();
-  const { user, getToken, logout } = useUser();
+  
+  // Marketplace state
+  const [consumerRequests, setConsumerRequests] = useState([]);
+  const [marketplaceLoading, setMarketplaceLoading] = useState(false);
+  const [marketplaceError, setMarketplaceError] = useState('');
 
+  // Profile state
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profile, setProfile] = useState({
+    name: user?.user_name || 'Farmer Name',
+    email: user?.user_email || 'farmer@example.com',
+    phone: user?.user_no || '+1 (555) 123-4567',
+    userId: user?.user_id || 'FARMER-2024-001',
+    location: user?.location || 'Farm Location',
+    gender: user?.gender || 'Not specified',
+    birthDate: user?.user_birth_date ? new Date(user.user_birth_date).toLocaleDateString() : 'Not set',
+    activeListing: farmerListings?.length || 0,
+    totalRevenue: user?.total_revenue || 0,
+    memberSince: user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'
+  });
+  const [editForm, setEditForm] = useState({ ...profile });
+
+  // Tab switching function
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+    // Update URL params
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('tab', tabName);
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    
+    // Fetch data based on tab
+    if (tabName === 'Marketplace' && consumerRequests.length === 0) {
+      fetchConsumerRequests();
+    }
+    
+    if (tabName === 'Profile') {
+      fetchUserProfile();
+    }
+  };
+
+  // Profile management functions
+  const handleEdit = () => {
+    setEditForm({ ...profile });
+    setIsEditing(true);
+    setProfileError('');
+  };
+
+  const handleSave = async () => {
+    if (!user?.user_id) {
+      setProfileError('User not found. Please login again.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setProfileError('');
+      const token = getToken();
+      
+      if (!token) {
+        setProfileError('No authentication token found. Please login again.');
+        navigate('/login');
+        return;
+      }
+
+      // Prepare data for PATCH request
+      const updateData = { ...editForm };
+      delete updateData.userId;
+      
+      // Map frontend field names to backend field names
+      updateData.user_name = updateData.name;
+      updateData.user_email = updateData.email;
+      updateData.user_no = updateData.phone;
+      
+      // Remove frontend field names and read-only fields
+      delete updateData.name;
+      delete updateData.email;
+      delete updateData.phone;
+      delete updateData.birthDate;
+      delete updateData.activeListing;
+      delete updateData.totalRevenue;
+      delete updateData.memberSince;
+
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        setProfile({ ...editForm });
+        setIsEditing(false);
+        setProfileError('');
+        alert('Profile updated successfully!');
+      } else {
+        const errorData = await response.json();
+        setProfileError(errorData.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      setProfileError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditForm({ ...profile });
+    setIsEditing(false);
+    setProfileError('');
+  };
+
+  const handleProfileChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  // Fetch user profile data from API
+  const fetchUserProfile = async () => {
+    if (!user?.user_id) return;
+
+    try {
+      const token = getToken();
+      if (!token) return;
+
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const userData = data.data || {};
+        const apiProfile = {
+          name: userData.user_name || 'Farmer',
+          email: userData.user_email || 'farmer@example.com',
+          phone: userData.user_no || '+1 (555) 123-4567',
+          userId: userData._id || user.user_id,
+          location: userData.location || 'Farm Location',
+          gender: userData.gender || 'Not specified',
+          birthDate: userData.user_birth_date ? new Date(userData.user_birth_date).toLocaleDateString() : 'Not set',
+          activeListing: farmerListings?.length || 0,
+          totalRevenue: userData.total_revenue || 0,
+          memberSince: userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'Unknown'
+        };
+        
+        setProfile(apiProfile);
+        setEditForm(apiProfile);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  // Fetch consumer requests for marketplace
+  const fetchConsumerRequests = async () => {
+    try {
+      setMarketplaceLoading(true);
+      setMarketplaceError('');
+      const token = getToken();
+      
+      if (!token) {
+        setMarketplaceError('No authentication token found. Please login again.');
+        return;
+      }
+
+      const response = await fetch('http://127.0.0.1:8000/api/v1/consumer', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const responseData = data.data || {};
+        const { req: requestsArray = [] } = responseData;
+        setConsumerRequests(requestsArray);
+        setMarketplaceError('');
+      } else {
+        const errorData = await response.json();
+        setMarketplaceError(errorData.message || 'Failed to fetch consumer requests');
+      }
+    } catch (error) {
+      setMarketplaceError('Network error. Please try again.');
+    } finally {
+      setMarketplaceLoading(false);
+    }
+  };
   // Fetch farmer listings from API
   const fetchFarmerListings = async () => {
     if (!user?.user_id) {
@@ -41,8 +245,6 @@ export default function FarmerDashboard() {
       });
 
       const data = await response.json();
-      
-      console.log(data);
 
       if (response.ok) {
         setFarmerListings(data.data.products || []);
@@ -58,9 +260,67 @@ export default function FarmerDashboard() {
     }
   };
 
+  // Check authentication and fetch initial data
   useEffect(() => {
-    fetchFarmerListings();
-  }, [user?.user_id, getToken, navigate]);
+    const checkAuthAndFetchData = async () => {
+      if (userLoading) return;
+      
+      if (!user?.user_id) {
+        setError('Please login to access this page.');
+        navigate('/login');
+        return;
+      }
+
+      await fetchFarmerListings();
+      
+      // Fetch data based on initial tab
+      const currentTab = getActiveTabFromURL();
+      if (currentTab === 'Profile') {
+        fetchUserProfile();
+      }
+      if (currentTab === 'Marketplace') {
+        fetchConsumerRequests();
+      }
+    };
+
+    checkAuthAndFetchData();
+  }, [user?.user_id, getToken, navigate, userLoading]);
+
+  // Effect to sync activeTab with URL changes
+  useEffect(() => {
+    const newActiveTab = getActiveTabFromURL();
+    if (newActiveTab !== activeTab) {
+      setActiveTab(newActiveTab);
+      
+      if (newActiveTab === 'Marketplace' && consumerRequests.length === 0) {
+        fetchConsumerRequests();
+      }
+      
+      if (newActiveTab === 'Profile') {
+        fetchUserProfile();
+      }
+    }
+  }, [location.search]);
+
+  // Effect to update profile when user data changes
+  useEffect(() => {
+    if (user) {
+      const updatedProfile = {
+        name: user.user_name || 'Farmer',
+        email: user.user_email || 'farmer@example.com',
+        phone: user.user_no || '+1 (555) 123-4567',
+        userId: user.user_id || user._id || 'FARMER-2024-001',
+        location: user.location || 'Farm Location',
+        gender: user.gender || 'Not specified',
+        birthDate: user.user_birth_date ? new Date(user.user_birth_date).toLocaleDateString() : 'Not set',
+        activeListing: farmerListings?.length || 0,
+        totalRevenue: user.total_revenue || 0,
+        memberSince: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'
+      };
+      setProfile(updatedProfile);
+      setEditForm(updatedProfile);
+    }
+  }, [user, farmerListings]);
 
   // Function to create a new listing
   const handleCreateListing = async (listingData, isEditMode = false) => {
@@ -215,142 +475,157 @@ export default function FarmerDashboard() {
     setEditingListing(null);
   };
 
-  // Helper function to format date range
-  const formatDateRange = (from, to) => {
-    const fromDate = new Date(from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const toDate = new Date(to).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    return `${fromDate} - ${toDate}`;
-  };
+  // Function to render content based on active tab
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Dashboard':
+        return (
+          <>
+            {/* Header */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                Welcome back, {user?.user_name || 'Farmer'}!
+              </h2>
+              <p className="text-gray-600">Here's what's happening with your farm business today</p>
+            </div>
 
-  // Helper function to format price with currency
-  const formatPrice = (price, currency) => {
-    const currencySymbol = currency === 'BDT' ? '৳' : '₹';
-    return `${currencySymbol}${price}`;
-  };
-
-  const handleNavigation = (item) => {
-    setActiveTab(item.name);
-    navigate(item.path);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const sidebarItems = [
-    { name: 'My Listings', icon: Home, path: '/farmer' },
-    { name: 'Marketplace', icon: TrendingUp, path: '/farmer/marketplace' },
-    { name: 'Messages', icon: MessageSquare, path: '/farmer/messages' },
-    { name: 'Notifications', icon: Bell, path: '/farmer/notifications' },
-    { name: 'Profile', icon: User, path: '/farmer/profile' }
-  ];
-
-  return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-left hover:opacity-80 transition-opacity"
-          >
-            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-            <p className="text-sm text-gray-500 mt-1">Farmer Dashboard</p>
-          </button>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
-                  activeTab === item.name
-                    ? 'bg-green-50 text-green-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon size={20} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-gray-200">
-          <div className="bg-green-50 rounded-lg p-4 mb-4">
-            <Award className="text-green-600 mb-2" size={24} />
-            <p className="text-sm font-medium text-gray-800">Pro Seller</p>
-            <p className="text-xs text-gray-600 mt-1">Level 2 Farmer</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-          >
-            <User size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
-              Welcome back, {user?.user_name || 'Farmer'}!
-            </h2>
-            <p className="text-gray-600">Manage your listings and connect with buyers</p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Active Listings</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">{farmerListings.length}</p>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Active Listings</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1">{farmerListings.length}</p>
+                  </div>
+                  <FileText className="text-green-600" size={32} />
                 </div>
-                <FileText className="text-green-600" size={32} />
+              </div>
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Total Sales</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1">₹{profile.totalRevenue || 0}</p>
+                  </div>
+                  <DollarSign className="text-blue-600" size={32} />
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Messages</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1">8</p>
+                  </div>
+                  <MessageSquare className="text-purple-600" size={32} />
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Performance</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1">92%</p>
+                  </div>
+                  <TrendingUp className="text-green-600" size={32} />
+                </div>
               </div>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Bids Placed</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">12</p>
-                </div>
-                <TrendingUp className="text-blue-600" size={32} />
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Messages</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">8</p>
-                </div>
-                <MessageSquare className="text-purple-600" size={32} />
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">₹45k</p>
-                </div>
-                <DollarSign className="text-green-600" size={32} />
-              </div>
-            </div>
-          </div>
 
-          {/* My Listings Section */}
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">My Listings</h3>
+            {/* Recent Activities */}
+            {/* <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Recent Activities</h3>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4 p-4 bg-green-50 rounded-lg">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <Package className="text-green-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">New listing created</p>
+                    <p className="text-sm text-gray-600">Fresh tomatoes added to marketplace</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <MessageSquare className="text-blue-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">New message received</p>
+                    <p className="text-sm text-gray-600">Customer inquiry about organic vegetables</p>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+
+            {/* What would you like to do today - Quick Actions */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">What would you like to do today?</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  {
+                    title: 'View My Listings',
+                    description: 'Manage and update your product listings',
+                    icon: Package,
+                    color: 'bg-blue-500',
+                    action: () => handleTabChange('My Listings')
+                  },
+                  {
+                    title: 'Browse Marketplace',
+                    description: 'Find consumer requests and potential buyers',
+                    icon: TrendingUp,
+                    color: 'bg-purple-500',
+                    action: () => handleTabChange('Marketplace')
+                  },
+                  {
+                    title: 'Messages',
+                    description: 'Chat with customers and respond to inquiries',
+                    icon: MessageSquare,
+                    color: 'bg-indigo-500',
+                    action: () => handleTabChange('Messages')
+                  },
+                  {
+                    title: 'Profile',
+                    description: 'Update your account and farm information',
+                    icon: User,
+                    color: 'bg-green-500',
+                    action: () => handleTabChange('Profile')
+                  }
+                ].map((action, index) => (
+                  <button
+                    key={index}
+                    onClick={action.action}
+                    className="group relative bg-white rounded-2xl p-8 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 text-left overflow-hidden"
+                  >
+                    {/* Background gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    {/* Content */}
+                    <div className="relative">
+                      <div className={`w-16 h-16 ${action.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-xl`}>
+                        <action.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 mb-3 text-lg group-hover:text-green-600 transition-colors duration-300">{action.title}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">{action.description}</p>
+                      
+                      {/* Arrow indicator */}
+                      <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        );
+
+      case 'My Listings':
+        return (
+          <>
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-800">My Listings</h2>
+                <p className="text-gray-600 mt-2">Manage your product listings</p>
+              </div>
               <button 
                 onClick={() => setIsNewListingModalOpen(true)}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
@@ -358,18 +633,18 @@ export default function FarmerDashboard() {
                 + New Listing
               </button>
             </div>
-            
-            {/* Loading State */}
-            {loading && (
-              <div className="flex justify-center items-center py-12">
-                <div className="text-gray-600">Loading your listings...</div>
-              </div>
-            )}
 
             {/* Error State */}
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
                 {error}
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <div className="flex justify-center items-center py-12">
+                <div className="text-gray-600">Loading your listings...</div>
               </div>
             )}
 
@@ -388,7 +663,7 @@ export default function FarmerDashboard() {
                 {farmerListings.map((listing) => (
                   <div
                     key={listing._id}
-                    className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+                    className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   >
                     <div className="relative">
                       <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
@@ -436,9 +711,339 @@ export default function FarmerDashboard() {
                 ))}
               </div>
             )}
-          </div>
+          </>
+        );
 
-          {/* Marketplace moved to a dedicated page (no inline panel here) */}
+      case 'Marketplace':
+        return (
+          <>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-800">Marketplace</h2>
+              <p className="text-gray-600 mt-2">Browse consumer requests and find potential buyers</p>
+            </div>
+
+            {/* Error State */}
+            {marketplaceError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                {marketplaceError}
+              </div>
+            )}
+
+            {/* Loading State */}
+            {marketplaceLoading && (
+              <div className="flex justify-center items-center py-12">
+                <div className="text-gray-600">Loading consumer requests...</div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!marketplaceLoading && !marketplaceError && consumerRequests.length === 0 && (
+              <div className="text-center py-12">
+                <TrendingUp className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No requests available</h3>
+                <p className="text-gray-600">Check back later for new consumer requests!</p>
+              </div>
+            )}
+
+            {/* Requests Grid */}
+            {!marketplaceLoading && !marketplaceError && consumerRequests.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {consumerRequests.map((request) => (
+                  <div
+                    key={request._id}
+                    className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-300"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-bold text-gray-800">{request.product_name}</h3>
+                      {request.admin_deal && (
+                        <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                          Admin Deal
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Package size={16} className="mr-2 text-green-600" />
+                        <span>{request.product_quantity} {request.quantity_unit}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <DollarSign size={16} className="mr-2 text-green-600" />
+                        <span className="font-semibold text-gray-800">
+                          ₹{request.price_per_unit}/{request.quantity_unit}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar size={16} className="mr-2 text-green-600" />
+                        <span>{request.when}</span>
+                      </div>
+                      {request.request_description && (
+                        <div className="text-sm text-gray-600">
+                          <p className="line-clamp-3">{request.request_description}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <button className="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                      Contact Buyer
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        );
+
+      case 'Messages':
+        return (
+          <div className="text-center py-12">
+            <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Messages</h3>
+            <p className="text-gray-600">Message functionality coming soon!</p>
+          </div>
+        );
+
+      case 'Notifications':
+        return (
+          <div className="text-center py-12">
+            <Bell className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Notifications</h3>
+            <p className="text-gray-600">No new notifications</p>
+          </div>
+        );
+
+      case 'Profile':
+        return (
+          <div>
+            {/* Header */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-800">My Profile</h2>
+              <p className="text-gray-600 mt-2">Manage your account information</p>
+            </div>
+
+            {/* Profile Header Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-green-100 p-8 mb-6 transition-all duration-300 hover:shadow-md">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-6">
+                  <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                    {profile.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
+                    <p className="text-sm text-gray-500 mt-2">Farmer ID: {profile.userId}</p>
+                  </div>
+                </div>
+                {!isEditing && (
+                  <button
+                    onClick={handleEdit}
+                    className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-green-700 hover:shadow-lg hover:scale-105"
+                  >
+                    <Edit2 size={18} />
+                    <span>Edit Profile</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Profile Details Cards */}
+            {!isEditing ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Email Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Mail className="text-green-600" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 font-medium">Email Address</p>
+                      <p className="text-gray-800 font-semibold mt-1">{profile.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phone Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Phone className="text-green-600" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 font-medium">Phone Number</p>
+                      <p className="text-gray-800 font-semibold mt-1">{profile.phone}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <MapPin className="text-green-600" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 font-medium">Location</p>
+                      <p className="text-gray-800 font-semibold mt-1">{profile.location}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Listings Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Package className="text-green-600" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 font-medium">Active Listings</p>
+                      <p className="text-gray-800 font-semibold mt-1">{profile.activeListing}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Member Since Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Calendar className="text-green-600" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 font-medium">Member Since</p>
+                      <p className="text-gray-800 font-semibold mt-1">{profile.memberSince}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Revenue Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6 transition-all duration-300 hover:shadow-md hover:border-green-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <DollarSign className="text-green-600" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 font-medium">Total Revenue</p>
+                      <p className="text-gray-800 font-semibold mt-1">₹{profile.totalRevenue}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Edit Profile Form */
+              <div className="bg-white rounded-xl shadow-sm border border-green-100 p-8">
+                <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={editForm.name}
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={editForm.email}
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={editForm.phone}
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={editForm.location}
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                    <select
+                      name="gender"
+                      value={editForm.gender}
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    >
+                      <option value="Not specified">Not specified</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </form>
+
+                {/* Profile Error */}
+                {profileError && (
+                  <div className="mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                    {profileError}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="mt-8 flex justify-end space-x-4">
+                  <button
+                    onClick={handleCancel}
+                    className="px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium"
+                  >
+                    <Save size={18} />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Helper function to format date range
+  const formatDateRange = (from, to) => {
+    const fromDate = new Date(from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const toDate = new Date(to).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `${fromDate} - ${toDate}`;
+  };
+
+  // Helper function to format price with currency
+  const formatPrice = (price, currency) => {
+    const currencySymbol = currency === 'BDT' ? '৳' : '₹';
+    return `${currencySymbol}${price}`;
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <FarmerSidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-8">
+          {renderTabContent()}
         </div>
       </div>
 
