@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp } from 'lucide-react';
+import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp, Power } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 
 export default function Landing() {
@@ -142,9 +142,10 @@ export default function Landing() {
                   <span className="text-gray-600">Welcome, {user?.user_name}!</span>
                   <button 
                     onClick={logout}
-                    className="text-gray-600 hover:text-gray-900 transition"
+                    className="w-10 h-10 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg hover:shadow-xl"
+                    title="Logout"
                   >
-                    Logout
+                    <Power className="h-5 w-5" />
                   </button>
                 </>
               ) : (

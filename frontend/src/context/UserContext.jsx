@@ -25,13 +25,22 @@ export function UserProvider({ children }) {
   }, []);
 
   const login = (userData, token) => {
+    console.log('Login data received:', userData);
 
-    console.log(userData);
-
+    // Store complete user info for both login and signup scenarios
     const userInfo = {
-      user_id: userData._id,
+      user_id: userData._id || userData.user_id,
       user_name: userData.user_name,
       user_email: userData.user_email,
+      user_no: userData.user_no,
+      user_birth_date: userData.user_birth_date,
+      gender: userData.gender,
+      location: userData.location || userData.user_location,
+      total_revenue: userData.total_revenue || 0,
+      active_listing: userData.active_listing || 0,
+      createdAt: userData.createdAt,
+      // Include any other fields that might be needed
+      ...userData
     };
     
     setUser(userInfo);

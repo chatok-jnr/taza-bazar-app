@@ -27,6 +27,23 @@ export default function ConsumerDashboard() {
   const [marketplaceLoading, setMarketplaceLoading] = useState(false);
   const [marketplaceError, setMarketplaceError] = useState('');
 
+  // Edit Request Modal State
+  const [isEditRequestModalOpen, setIsEditRequestModalOpen] = useState(false);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [editRequestForm, setEditRequestForm] = useState({
+    product_name: '',
+    product_quantity: '',
+    quantity_unit: 'kg',
+    price_per_unit: '',
+    when: '',
+    request_description: '',
+    admin_deal: false
+  });
+
+  // Delete Confirmation Modal State
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState(null);
+
   // Profile state
   const [isEditing, setIsEditing] = useState(false);
   const [profileError, setProfileError] = useState('');
@@ -92,7 +109,8 @@ export default function ConsumerDashboard() {
         console.log('Requests data received:', data);
         
         // The API returns data.req (not data.requests)
-        const requestsArray = data.data?.req || [];
+        const responseData = data.data || {};
+        const { req: requestsArray = [] } = responseData;
         console.log('Extracted requests array:', requestsArray);
         
         setRequests(requestsArray);
@@ -145,7 +163,8 @@ export default function ConsumerDashboard() {
         console.log('Farmer products data received:', data);
         
         // The API returns data.product array
-        const productsArray = data.data?.product || [];
+        const responseData = data.data || {};
+        const { product: productsArray = [] } = responseData;
         console.log('Extracted products array:', productsArray);
         
         setFarmerProducts(productsArray);
@@ -201,17 +220,18 @@ export default function ConsumerDashboard() {
         console.log('User profile data received:', data);
         
         // Update profile with API data - mapping to actual API response structure
+        const userData = data.data || {};
         const apiProfile = {
-          name: data.data?.user_name || 'User',
-          email: data.data?.user_email || 'user@example.com',
-          phone: data.data?.user_no || '+1 (555) 123-4567',
-          userId: data.data?._id || user.user_id,
-          location: data.data?.location || 'Location not set',
-          gender: data.data?.gender || 'Not specified',
-          birthDate: data.data?.user_birth_date ? new Date(data.data.user_birth_date).toLocaleDateString() : 'Not set',
-          activeListing: data.data?.active_listing || 0,
-          totalRevenue: data.data?.total_revenue || 0,
-          memberSince: data.data?.createdAt ? new Date(data.data.createdAt).toLocaleDateString() : 'Unknown'
+          name: userData.user_name || 'User',
+          email: userData.user_email || 'user@example.com',
+          phone: userData.user_no || '+1 (555) 123-4567',
+          userId: userData._id || user.user_id,
+          location: userData.location || 'Location not set',
+          gender: userData.gender || 'Not specified',
+          birthDate: userData.user_birth_date ? new Date(userData.user_birth_date).toLocaleDateString() : 'Not set',
+          activeListing: userData.active_listing || 0,
+          totalRevenue: userData.total_revenue || 0,
+          memberSince: userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'Unknown'
         };
         
         setProfile(apiProfile);
@@ -348,6 +368,11 @@ export default function ConsumerDashboard() {
       if (currentTab === 'Profile') {
         fetchUserProfile();
       }
+      
+      // Fetch farmer products if Marketplace tab is initially active
+      if (currentTab === 'Marketplace') {
+        fetchFarmerProducts();
+      }
     };
 
     checkAuthAndFetchRequests();
@@ -415,6 +440,145 @@ export default function ConsumerDashboard() {
       }
     } catch (error) {
       console.error('Error creating request:', error);
+    }
+  };
+
+  // Edit request function
+  const handleEditRequest = (request) => {
+    setEditingRequest(request);
+    setEditRequestForm({
+      product_name: request.product_name,
+      product_quantity: request.product_quantity.toString(),
+      quantity_unit: request.quantity_unit,
+      price_per_unit: request.price_per_unit.toString(),
+      when: request.when,
+      request_description: request.request_description || '',
+      admin_deal: request.admin_deal || false
+    });
+    setIsEditRequestModalOpen(true);
+  };
+
+  // Delete request function
+  const handleDeleteRequest = async (requestId) => {
+    // Open custom confirmation modal instead of window.confirm
+    setRequestToDelete(requestId);
+    setIsDeleteConfirmModalOpen(true);
+  };
+
+  // Confirm delete function
+  const confirmDeleteRequest = async () => {
+    if (!requestToDelete) {
+      return;
+    }
+
+    try {
+      const token = getToken();
+      
+      if (!token) {
+        setError('No authentication token found. Please login again.');
+        navigate('/login');
+        return;
+      }
+
+      console.log('Deleting request with ID:', requestToDelete);
+
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/consumer/${requestToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        console.log('Request deleted successfully');
+        // Refresh the requests list
+        await fetchConsumerRequests();
+        alert('Request deleted successfully!');
+      } else {
+        const errorData = await response.json();
+        console.error('Error deleting request:', errorData);
+        setError(errorData.message || 'Failed to delete request');
+      }
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      // Close modal and reset state
+      setIsDeleteConfirmModalOpen(false);
+      setRequestToDelete(null);
+    }
+  };
+
+  // Cancel delete function
+  const cancelDeleteRequest = () => {
+    setIsDeleteConfirmModalOpen(false);
+    setRequestToDelete(null);
+  };
+
+  // Update request function
+  const handleUpdateRequest = async (e) => {
+    e.preventDefault();
+    
+    if (!editingRequest?._id) {
+      setError('Request ID not found. Please try again.');
+      return;
+    }
+
+    try {
+      const token = getToken();
+      
+      if (!token) {
+        setError('No authentication token found. Please login again.');
+        navigate('/login');
+        return;
+      }
+
+      // Prepare data for API
+      const requestData = {
+        ...editRequestForm,
+        product_quantity: parseInt(editRequestForm.product_quantity),
+        price_per_unit: parseFloat(editRequestForm.price_per_unit)
+      };
+
+      console.log('Updating request:', requestData);
+
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/consumer/${editingRequest._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Request updated successfully:', data);
+        
+        // Close modal and refresh requests
+        setIsEditRequestModalOpen(false);
+        setEditingRequest(null);
+        setEditRequestForm({
+          product_name: '',
+          product_quantity: '',
+          quantity_unit: 'kg',
+          price_per_unit: '',
+          when: '',
+          request_description: '',
+          admin_deal: false
+        });
+        
+        // Refresh the requests list
+        await fetchConsumerRequests();
+        alert('Request updated successfully!');
+      } else {
+        const errorData = await response.json();
+        console.error('Error updating request:', errorData);
+        setError(errorData.message || 'Failed to update request');
+      }
+    } catch (error) {
+      console.error('Error updating request:', error);
       setError('Network error. Please try again.');
     }
   };
@@ -518,56 +682,87 @@ export default function ConsumerDashboard() {
             {/* Request Cards */}
             <div className="space-y-6">
               {Array.isArray(requests) && requests.length > 0 ? (
-                requests.map((request) => (
-                  <Link to={`/request/${request._id || request.id}`} key={request._id || request.id} className="block">
-                    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                      <div className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <h3 className="text-xl font-bold text-gray-800">{request.product_name}</h3>
-                              {request.admin_deal && (
+                requests.map((requestItem) => (
+                  <div key={requestItem._id || requestItem.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <h3 className="text-xl font-bold text-gray-800">{requestItem.product_name}</h3>
+                              {requestItem.admin_deal && (
                                 <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
                                   Admin Deal
                                 </span>
                               )}
                             </div>
-                          
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              <div className="flex items-center space-x-2 text-gray-700">
-                                <Package size={18} className="text-green-600" />
-                                <div>
-                                  <p className="text-xs text-gray-500">Quantity</p>
-                                  <p className="font-semibold">{request.product_quantity} {request.quantity_unit}</p>
-                                </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditRequest(requestItem);
+                                }}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                                title="Edit Request"
+                              >
+                                <Edit2 size={18} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteRequest(requestItem._id || requestItem.id);
+                                }}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                title="Delete Request"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                              <Link 
+                                to={`/request/${requestItem._id || requestItem.id}`}
+                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                                title="View Details"
+                              >
+                                <FileText size={18} />
+                              </Link>
+                            </div>
+                          </div>
+                        
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="flex items-center space-x-2 text-gray-700">
+                              <Package size={18} className="text-green-600" />
+                              <div>
+                                <p className="text-xs text-gray-500">Quantity</p>
+                                <p className="font-semibold">{requestItem.product_quantity} {requestItem.quantity_unit}</p>
                               </div>
-                              <div className="flex items-center space-x-2 text-gray-700">
-                                <DollarSign size={18} className="text-green-600" />
-                                <div>
-                                  <p className="text-xs text-gray-500">Price per Unit</p>
-                                  <p className="font-semibold">৳{request.price_per_unit}/{request.quantity_unit}</p>
-                                </div>
+                            </div>
+                            <div className="flex items-center space-x-2 text-gray-700">
+                              <DollarSign size={18} className="text-green-600" />
+                              <div>
+                                <p className="text-xs text-gray-500">Price per Unit</p>
+                                <p className="font-semibold">৳{requestItem.price_per_unit}/{requestItem.quantity_unit}</p>
                               </div>
-                              <div className="flex items-center space-x-2 text-gray-700">
-                                <Calendar size={18} className="text-green-600" />
-                                <div>
-                                  <p className="text-xs text-gray-500">When Needed</p>
-                                  <p className="font-semibold">{request.when}</p>
-                                </div>
+                            </div>
+                            <div className="flex items-center space-x-2 text-gray-700">
+                              <Calendar size={18} className="text-green-600" />
+                              <div>
+                                <p className="text-xs text-gray-500">When Needed</p>
+                                <p className="font-semibold">{requestItem.when}</p>
                               </div>
-                              <div className="flex items-center space-x-2 text-gray-700">
-                                <FileText size={18} className="text-green-600" />
-                                <div>
-                                  <p className="text-xs text-gray-500">Description</p>
-                                  <p className="font-semibold text-sm">{request.request_description || 'No description'}</p>
-                                </div>
+                            </div>
+                            <div className="flex items-center space-x-2 text-gray-700">
+                              <FileText size={18} className="text-green-600" />
+                              <div>
+                                <p className="text-xs text-gray-500">Description</p>
+                                <p className="font-semibold text-sm">{requestItem.request_description || 'No description'}</p>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               ) : (
                 <div className="text-center py-16">
@@ -1034,8 +1229,13 @@ export default function ConsumerDashboard() {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800">TazaBazar</h1>
-          <p className="text-sm text-gray-500 mt-1">Consumer Dashboard</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-left hover:opacity-80 transition-opacity"
+          >
+            <h1 className="text-2xl font-bold text-gray-800">TazaBazar</h1>
+            <p className="text-sm text-gray-500 mt-1">Consumer Dashboard</p>
+          </button>
         </div>
         <nav className="p-4">
           {sidebarItems.map((item) => {
@@ -1193,6 +1393,165 @@ export default function ConsumerDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Request Modal */}
+      {isEditRequestModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800">Edit Request</h3>
+              <button
+                onClick={() => setIsEditRequestModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateRequest} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                  <input
+                    type="text"
+                    value={editRequestForm.product_name}
+                    onChange={(e) => setEditRequestForm({...editRequestForm, product_name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                  <input
+                    type="number"
+                    value={editRequestForm.product_quantity}
+                    onChange={(e) => setEditRequestForm({...editRequestForm, product_quantity: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                  <select
+                    value={editRequestForm.quantity_unit}
+                    onChange={(e) => setEditRequestForm({...editRequestForm, quantity_unit: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="kg">kg</option>
+                    <option value="piece">piece</option>
+                    <option value="liter">liter</option>
+                    <option value="dozen">dozen</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Price per Unit (৳)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editRequestForm.price_per_unit}
+                    onChange={(e) => setEditRequestForm({...editRequestForm, price_per_unit: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">When Needed</label>
+                  <input
+                    type="text"
+                    value={editRequestForm.when}
+                    onChange={(e) => setEditRequestForm({...editRequestForm, when: e.target.value})}
+                    placeholder="e.g., ASAP, Next week, etc."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <textarea
+                    value={editRequestForm.request_description}
+                    onChange={(e) => setEditRequestForm({...editRequestForm, request_description: e.target.value})}
+                    rows="3"
+                    placeholder="Additional details about your request..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={editRequestForm.admin_deal}
+                      onChange={(e) => setEditRequestForm({...editRequestForm, admin_deal: e.target.checked})}
+                      className="rounded text-green-600 focus:ring-green-500"
+                    />
+                    <span className="text-sm text-gray-700">Admin Deal (Priority Request)</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditRequestModalOpen(false)}
+                  className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  Update Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                  <Trash2 className="text-red-600" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Delete Request</h3>
+                  <p className="text-sm text-gray-600">This action cannot be undone</p>
+                </div>
+              </div>
+              
+              <p className="text-gray-700 mb-6">
+                Are you sure you want to delete this request? This will permanently remove the request and cannot be undone.
+              </p>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={cancelDeleteRequest}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteRequest}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

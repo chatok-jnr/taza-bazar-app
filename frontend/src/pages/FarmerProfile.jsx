@@ -245,8 +245,13 @@ export default function FarmerProfile() {
       <div className="flex h-screen bg-gray-50">
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-            <p className="text-sm text-gray-500 mt-1">Profile</p>
+            <button 
+              onClick={() => navigate('/')}
+              className="text-left hover:opacity-80 transition-opacity"
+            >
+              <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
+              <p className="text-sm text-gray-500 mt-1">Profile</p>
+            </button>
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -265,8 +270,13 @@ export default function FarmerProfile() {
       <div className="flex h-screen bg-gray-50">
         <div className="w-64 bg-white shadow-lg">
           <div className="p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-            <p className="text-sm text-gray-500 mt-1">Profile</p>
+            <button 
+              onClick={() => navigate('/')}
+              className="text-left hover:opacity-80 transition-opacity"
+            >
+              <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
+              <p className="text-sm text-gray-500 mt-1">Profile</p>
+            </button>
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -296,8 +306,13 @@ export default function FarmerProfile() {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
-          <p className="text-sm text-gray-500 mt-1">Profile</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-left hover:opacity-80 transition-opacity"
+          >
+            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
+            <p className="text-sm text-gray-500 mt-1">Profile</p>
+          </button>
         </div>
         <nav className="p-4">
           {sidebarItems.map((item) => {

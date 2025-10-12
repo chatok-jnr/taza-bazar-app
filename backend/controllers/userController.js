@@ -61,10 +61,18 @@ exports.deleteUser = async (req, res) => {
 exports.updateUser = async(req, res) => {
   try{
 
-    const updUser = await User_infos.findByIdAndUpdate(req.params.id, req.body, {
-      new:true,
-      runValidators:true
-    });
+    const updUser = await User_infos.findById(req.params.id);
+
+    if(!updUser) {
+      return res.status(400).json({
+        status:"failed",
+        message:"User not found"
+      });
+    }
+
+    Object.assign(updUser, req.body);
+    await updUser.save();
+    
 
     res.status(200).json({
       status:"Success",

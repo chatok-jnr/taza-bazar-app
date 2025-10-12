@@ -251,8 +251,13 @@ export default function FarmerDashboard() {
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-green-600">FarmConnect</h1>
-          <p className="text-sm text-gray-500 mt-1">Farmer Dashboard</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-left hover:opacity-80 transition-opacity"
+          >
+            <h1 className="text-2xl font-bold text-green-600">TazaBazar</h1>
+            <p className="text-sm text-gray-500 mt-1">Farmer Dashboard</p>
+          </button>
         </div>
         
         <nav className="flex-1 p-4">

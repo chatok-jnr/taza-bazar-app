@@ -7,9 +7,16 @@ import {
   LogOut,
 } from "react-feather";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 export default function FarmerSidebar({ activeTab }) {
   const navigate = useNavigate();
+  const { logout } = useUser();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const sidebarItems = [
     { name: "My Listings", icon: FileText, path: "/farmer" },
@@ -27,8 +34,13 @@ export default function FarmerSidebar({ activeTab }) {
     <div className="w-64 min-h-screen bg-white border-r border-gray-200">
       <div className="flex flex-col h-screen p-4">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-green-600">TazaBazar</h2>
-          <p className="text-sm text-gray-600">Farmer Dashboard</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-left hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-2xl font-bold text-green-600">TazaBazar</h2>
+            <p className="text-sm text-gray-600">Farmer Dashboard</p>
+          </button>
         </div>
         <nav className="space-y-2 flex-grow">
           {sidebarItems.map((item) => (
@@ -48,7 +60,7 @@ export default function FarmerSidebar({ activeTab }) {
         </nav>
         <div className="mt-auto pt-4 border-t border-gray-200">
           <button
-            onClick={() => navigate("/")}
+            onClick={handleLogout}
             className="flex items-center w-full px-4 py-2 text-left rounded-lg text-red-600 hover:bg-red-50"
           >
             <LogOut className="w-5 h-5 mr-3" />

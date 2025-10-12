@@ -14,5 +14,5 @@ router
   .route('/:id')
   .get(consumerController.getUserReq)
   .patch(consumerController.updateReq)
-
+  .delete(consumerController.deleteReq)
 module.exports = router;

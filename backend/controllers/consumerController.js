@@ -81,10 +81,11 @@ exports.updateReq = async (req, res) => {
 //delete req
 exports.deleteReq = async (req, res) => {
   try {
-    const updReq = await Consumer_request.findByIdAndDelete(req.params.id);
+    const Req = await Consumer_request.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
       status:"Success",
+      message:"The request has been deleted successfully",
       data:null
     });
   } catch(err) {

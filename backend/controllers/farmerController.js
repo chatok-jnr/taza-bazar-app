@@ -94,3 +94,18 @@ exports.deleteProduct = async (req, res) => {
     })
   }
 }
+
+// exports.gerProduct = async(req, res) => {
+//   try{
+//     const prod = await 
+//     res.status(200).json({
+//       status:"success",
+//       message:
+//     })
+//   } catch(err) {
+//     res.status(400).json({
+//       status:"failed",
+//       message:err.message
+//     })
+//   } 
+// }

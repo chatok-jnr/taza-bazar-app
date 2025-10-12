@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import DashboardLayout from "../components/DashboardLayout";
 import ConsumerSidebar from "./ConsumerSidebar";
 
 const NotificationItem = ({ notification, onMarkAsRead }) => (
@@ -93,32 +92,35 @@ export default function ConsumerNotification() {
   };
 
   return (
-    <DashboardLayout sidebar={<ConsumerSidebar activeTab={activeTab} />}>
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
-          <button
-            onClick={handleMarkAllAsRead}
-            className="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors duration-200"
-          >
-            Mark all as read
-          </button>
+    <div className="flex h-screen bg-gray-50">
+      <ConsumerSidebar activeTab="Notifications" />
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="px-8 py-6 flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
+            <button
+              onClick={handleMarkAllAsRead}
+              className="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors duration-200"
+            >
+              Mark all as read
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Notifications List */}
-      <div className="overflow-y-auto">
-        <div className="max-w-4xl mx-auto">
-          {notifications.map((notification) => (
-            <NotificationItem
-              key={notification.id}
-              notification={notification}
-              onMarkAsRead={handleMarkAsRead}
-            />
-          ))}
+        {/* Notifications List */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            {notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onMarkAsRead={handleMarkAsRead}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

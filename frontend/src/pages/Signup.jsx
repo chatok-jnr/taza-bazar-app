@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Lock, User, Phone, Upload, X, Calendar } from "lucide-react";
+import { Mail, Lock, User, Phone, Upload, X, Calendar, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 
@@ -18,6 +18,7 @@ export default function AuthPage() {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -80,11 +81,48 @@ const handleSubmit = async (e) => {
     });
 
     const data = await response.json();
+    console.log('Signup API response:', data);
 
     if (response.ok) {
-      // Signup successful - auto login
-      login(data.data, data.token);
-      navigate('/'); // Redirect to landing page
+      // Signup successful - now login automatically
+      console.log('Signup successful, attempting automatic login...');
+      
+      try {
+        // Make a login API call with the same credentials
+        const loginResponse = await fetch('http://127.0.0.1:8000/api/v1/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_email: formData.email,
+            user_password: formData.password,
+          }),
+        });
+
+        const loginData = await loginResponse.json();
+        console.log('Auto-login API response:', loginData);
+
+        if (loginResponse.ok) {
+          // Auto-login successful
+          login(loginData.data, loginData.token);
+          console.log('Auto-login successful, redirecting to landing page...');
+          navigate('/');
+        } else {
+          // Auto-login failed - redirect to login page
+          console.error('Auto-login failed:', loginData);
+          setError('Account created successfully! Please login to continue.');
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        }
+      } catch (loginError) {
+        console.error('Auto-login error:', loginError);
+        setError('Account created successfully! Please login to continue.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
     } else {
       // Signup failed
       setError(data.message || 'Signup failed. Please try again.');
@@ -279,14 +317,21 @@ const handleSubmit = async (e) => {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Create a password"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-5 h-5"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 

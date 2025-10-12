@@ -26,7 +26,6 @@ const consumerSchema = new mongoose.Schema({
     required:[true, 'A Prodcut must have a price'],
     min:[1, 'Product price cant  be negative']
   },
-
   currency:{
     type:String,
     default:'BDT'
