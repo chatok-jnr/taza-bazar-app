@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, MessageSquare, User, FileText, Edit2, Trash2, MapPin, Calendar, Package, DollarSign, TrendingUp, Bell, X, Save, Mail, Phone } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import ConsumerSidebar from './ConsumerSidebar';
 
 export default function ConsumerDashboard() {
   console.log('ConsumerDashboard component mounted');
@@ -1226,48 +1227,7 @@ export default function ConsumerDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg">
-        <div className="p-6 border-b border-gray-200">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-left hover:opacity-80 transition-opacity"
-          >
-            <h1 className="text-2xl font-bold text-gray-800">TazaBazar</h1>
-            <p className="text-sm text-gray-500 mt-1">Consumer Dashboard</p>
-          </button>
-        </div>
-        <nav className="p-4">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item.name)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
-                  activeTab === item.name
-                    ? 'bg-green-500 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon size={20} />
-                <span className="font-medium">{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-        
-        {/* Logout Button */}
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-          >
-            <User size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <ConsumerSidebar />
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">

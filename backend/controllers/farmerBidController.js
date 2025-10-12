@@ -22,7 +22,9 @@ exports.placeBid = async (req, res) => {
 exports.getAllBid = async(req, res) => {
   try{
 
-    const allBid = await Farmer_bid.find({post_id:req.params.id});
+    console.log(`This is the ID = ${req.params.id}`);
+
+    const allBid = await Farmer_bid.find({request_id:req.params.id});
 
     if(!allBid) {
       return res.status(400).json({
@@ -46,7 +48,7 @@ exports.getAllBid = async(req, res) => {
 // PATCH Update a bid by consumer
 exports.consumerDecession = async (req, res) => {
 
-  const updBid = await Farmer_bid.findOneById(req.body, {
+  const updBid = await Farmer_bid.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators:true
   });

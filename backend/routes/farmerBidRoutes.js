@@ -15,7 +15,7 @@ router
 router
   .route('/:id')
   .get(bidController.getAllBid)
-  .patch(bidController.consumerDecession)
+  .patch(bidController.consumerDecession) //http://127.0.0.1:8000/api/v1/farmerBid/paste_the_bid_id_here
 
 module.exports = router;
 

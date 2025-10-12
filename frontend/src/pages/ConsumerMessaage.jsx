@@ -107,7 +107,7 @@ export default function ConsumerMessage() {
 
   return (
     <div className="flex h-screen font-sans antialiased text-gray-800 bg-gray-50">
-      <ConsumerSidebar activeTab="Messages" />
+      <ConsumerSidebar />
       <ChatList chats={chats} />
 
       {/* Chat Window */}

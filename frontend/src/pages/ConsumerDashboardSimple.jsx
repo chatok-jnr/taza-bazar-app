@@ -25,10 +25,10 @@ export default function ConsumerDashboardSimple() {
   useEffect(() => {
     if (user) {
       setStats({
-        totalRequests: 12,
-        activeRequests: 3,
-        completedOrders: 8,
-        unreadNotifications: 2
+        totalRequests: "!available yet",
+        activeRequests: "!available yet",
+        completedOrders: "!available yet",
+        unreadNotifications: "!available yet"
       });
     }
   }, [user]);
@@ -85,124 +85,125 @@ export default function ConsumerDashboardSimple() {
       
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="px-8 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {user.user_name}!
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+          <div className="px-8 py-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Welcome back, {user.user_name}! 👋
             </h1>
-            <p className="mt-1 text-gray-600">Here's what's happening with your orders and requests</p>
+            <p className="text-lg text-gray-600">Find the perfect fresh produce for your needs</p>
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-green-100">
-                  <ShoppingCart className="w-6 h-6 text-green-600" />
+          {/* Beautiful Stats Cards - Fiverr Style */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            {/* Total Requests Card */}
+            <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full -mr-10 -mt-10 opacity-20"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <ShoppingCart className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{stats.totalRequests}</p>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Requests</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalRequests}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-blue-100">
-                  <TrendingUp className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Requests</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.activeRequests}</p>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Total Requests</h3>
+                  <p className="text-sm text-gray-500">All time requests made</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-purple-100">
-                  <Package className="w-6 h-6 text-purple-600" />
+            {/* Active Requests Card */}
+            <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full -mr-10 -mt-10 opacity-20"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{stats.activeRequests}</p>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Completed Orders</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.completedOrders}</p>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Active Requests</h3>
+                  <p className="text-sm text-gray-500">Currently pending requests</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center">
-                <div className="p-3 rounded-full bg-red-100">
-                  <Bell className="w-6 h-6 text-red-600" />
+            {/* Completed Orders Card */}
+            <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full -mr-10 -mt-10 opacity-20"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Package className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">{stats.completedOrders}</p>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Notifications</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.unreadNotifications}</p>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Completed Orders</h3>
+                  <p className="text-sm text-gray-500">Successfully completed</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Notifications Card */}
+            <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full -mr-10 -mt-10 opacity-20"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Bell className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300">{stats.unreadNotifications}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Notifications</h3>
+                  <p className="text-sm text-gray-500">Unread notifications</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Beautiful Quick Actions - Fiverr Style */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">What would you like to do today?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {quickActions.map((action, index) => (
                 <button
                   key={index}
                   onClick={() => navigate(action.path)}
-                  className="bg-white rounded-lg shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow duration-200 text-left group"
+                  className="group relative bg-white rounded-2xl p-8 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 text-left overflow-hidden"
                 >
-                  <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200`}>
-                    <action.icon className="w-6 h-6 text-white" />
+                  {/* Background gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* Content */}
+                  <div className="relative">
+                    <div className={`w-16 h-16 ${action.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-xl`}>
+                      <action.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-3 text-lg group-hover:text-green-600 transition-colors duration-300">{action.title}</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">{action.description}</p>
+                    
+                    {/* Arrow indicator */}
+                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{action.title}</h3>
-                  <p className="text-sm text-gray-600">{action.description}</p>
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <Package className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">New product request created</p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Message from Green Farm</p>
-                    <p className="text-xs text-gray-500">5 hours ago</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <Bell className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Order #123 confirmed</p>
-                    <p className="text-xs text-gray-500">1 day ago</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -2,146 +2,140 @@ import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import { Link, useLocation } from 'react-router-dom';
 import { FileText, TrendingUp, Bell, MessageSquare, User, MapPin, Calendar, Package } from 'lucide-react';
+import ConsumerSidebar from './ConsumerSidebar';
 
 // Posts will be loaded from an API; start with an empty array
 // TODO: Replace with actual data fetching from backend API
 
-
-// Sidebar Component
-function Sidebar() {
-  const location = useLocation();
-  
-  const sidebarItems = [
-    { name: 'My Requests', icon: FileText, path: '/consumer' },
-    { name: 'Marketplace', icon: TrendingUp, path: '/consumer/marketplace' },
-    { name: 'Notifications', icon: Bell, path: '/consumer/notifications' },
-    { name: 'Messages', icon: MessageSquare, path: '/consumer/messages' },
-    { name: 'Profile', icon: User, path: '/consumer/profile' }
-  ];
-
-  return (
-    <div className="w-64 bg-white shadow-lg">
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-800">TazaBazar</h1>
-        <p className="text-sm text-gray-500 mt-1">Consumer Dashboard</p>
-      </div>
-      <nav className="p-4">
-        {sidebarItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
-                isActive
-                  ? 'bg-green-500 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Icon size={20} />
-              <span className="font-medium">{item.name}</span>
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
-  );
-}
-
-// Product Card Component - Compact Fiverr Style
+// Product Card Component - Enhanced with Cool Hover Effects
 function ProductCard({ post, onViewDetails, hasUserBid, hasAcceptedBid }) {
   // Temporary test - make first product show as already bid
   const testHasUserBid = hasUserBid || post.productName === "Test Product";
   
   return (
-    <div className={`group relative bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer ${
-      testHasUserBid ? 'ring-1 ring-yellow-400' : ''
-    } ${hasAcceptedBid ? 'ring-1 ring-green-500' : ''}`}
+    <div className={`group relative bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-700 overflow-hidden cursor-pointer transform hover:-translate-y-4 hover:rotate-1 ${
+      testHasUserBid ? 'ring-2 ring-yellow-400 ring-opacity-60' : ''
+    } ${hasAcceptedBid ? 'ring-2 ring-green-500 ring-opacity-60' : ''}`}
     onClick={() => onViewDetails(post)}>
       
-      {/* Compact Image Section */}
-      <div className="relative h-32 bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500"></div>
+      {/* Enhanced Image Section with Dynamic Effects */}
+      <div className="relative h-32 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 overflow-hidden group-hover:from-purple-400 group-hover:via-pink-400 group-hover:to-red-400 transition-all duration-700">
+        {/* Dynamic background with multiple layers */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-300 via-emerald-300 to-teal-300 group-hover:animate-pulse"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-10 transform rotate-12 scale-150 group-hover:rotate-45 group-hover:scale-200 transition-transform duration-1000"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-white bg-opacity-20 rounded-full group-hover:scale-300 transition-transform duration-700"></div>
         </div>
         
-        {/* Product Icon */}
+        {/* Product Icon with enhanced 3D effects */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 bg-white bg-opacity-30 backdrop-blur-sm rounded-full flex items-center justify-center">
-            <Package className="w-6 h-6 text-green-700" />
+          <div className="relative">
+            <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-2xl border border-white border-opacity-30 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:bg-opacity-30">
+              <Package className="w-6 h-6 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            {/* Dynamic floating particles */}
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-yellow-300 rounded-full animate-bounce delay-100 group-hover:bg-pink-300 group-hover:scale-150 transition-all duration-500"></div>
+            <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-blue-300 rounded-full animate-bounce delay-300 group-hover:bg-purple-300 group-hover:scale-150 transition-all duration-500"></div>
+            <div className="absolute top-0 left-6 w-1.5 h-1.5 bg-green-300 rounded-full animate-ping group-hover:bg-orange-300 transition-colors duration-500"></div>
           </div>
-        </div>
+        )</div>
 
-        {/* Status Badge */}
+        {/* Enhanced Status Badge with glow effect */}
         {(testHasUserBid || hasAcceptedBid) && (
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-3 left-3 group-hover:scale-110 transition-transform duration-300">
             {hasAcceptedBid ? (
-              <div className="bg-green-500 text-white px-2 py-1 text-xs font-bold rounded-full shadow-sm">
-                ✓ Accepted
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:shadow-green-500/50 group-hover:shadow-xl">
+                <span className="animate-pulse">✓</span>
+                <span>Accepted</span>
               </div>
             ) : testHasUserBid ? (
-              <div className="bg-yellow-500 text-white px-2 py-1 text-xs font-bold rounded-full shadow-sm">
-                ⏳ Pending
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:shadow-yellow-500/50 group-hover:shadow-xl">
+                <span className="animate-spin">⏳</span>
+                <span>Pending</span>
               </div>
             ) : null}
           </div>
         )}
 
-        {/* Price Badge */}
-        <div className="absolute bottom-2 right-2">
-          <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-2 py-1 shadow-sm">
-            <span className="text-sm font-bold text-green-600">{post.price}</span>
+        {/* Enhanced Price Badge with magnetic effect */}
+        <div className="absolute bottom-3 right-3 group-hover:bottom-4 group-hover:right-4 transition-all duration-500">
+          <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-xl px-3 py-1.5 shadow-xl border border-white border-opacity-50 group-hover:scale-125 group-hover:rotate-3 transition-all duration-500 group-hover:shadow-2xl">
+            <span className="text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-600 transition-all duration-500">
+              {post.price}
+            </span>
           </div>
         </div>
+
+        {/* Cool overlay effect on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       </div>
 
-      {/* Compact Content */}
-      <div className="p-4">
-        {/* Title */}
-        <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 group-hover:text-green-600 transition-colors">
+      {/* Enhanced Content Section with slide-up effect */}
+      <div className="p-4 group-hover:transform group-hover:-translate-y-1 transition-transform duration-500">
+        {/* Title with cool text effect */}
+        <h3 className="font-bold text-gray-900 text-base mb-2 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-purple-600 transition-all duration-500 leading-tight">
           {post.productName}
         </h3>
         
-        {/* Farmer */}
-        <p className="text-xs text-gray-500 mb-3">by {post.farmer}</p>
+        {/* Farmer info with enhanced styling */}
+        <div className="flex items-center space-x-2 mb-3 group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
+          <div className="w-5 h-5 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+            <User size={12} className="text-blue-600" />
+          </div>
+          <p className="text-xs text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300">by {post.farmer}</p>
+        </div>
         
-        {/* Key Info - Better Layout */}
-        <div className="space-y-2 mb-3">
-          <div className="flex items-center justify-between text-xs text-gray-600">
-            <div className="flex items-center space-x-1">
-              <Package size={12} />
-              <span>Qty: {post.quantity}</span>
+        {/* Enhanced Key Info with stagger animation */}
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between group-hover:transform group-hover:translate-x-2 transition-transform duration-300 delay-75">
+            <div className="flex items-center space-x-1.5 text-xs text-gray-600">
+              <div className="w-4 h-4 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 group-hover:scale-110 transition-all duration-300">
+                <Package size={10} className="text-green-600" />
+              </div>
+              <span className="font-medium">Qty: {post.quantity}</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <MapPin size={12} />
-              <span className="truncate max-w-20">{post.location}</span>
+            <div className="flex items-center space-x-1.5 text-xs text-gray-600">
+              <div className="w-4 h-4 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-300">
+                <MapPin size={10} className="text-blue-600" />
+              </div>
+              <span className="truncate max-w-20 font-medium">{post.location}</span>
             </div>
           </div>
           
-          {/* Availability Period - Full Text */}
+          {/* Availability Period with slide effect */}
           {post.dateRange && (
-            <div className="flex items-start space-x-1 text-xs text-gray-600">
-              <Calendar size={12} className="mt-0.5 flex-shrink-0" />
-              <span className="leading-tight break-words">
+            <div className="flex items-start space-x-1.5 text-xs text-gray-600 bg-gray-50 rounded-lg p-2 group-hover:bg-gradient-to-r group-hover:from-gray-50 group-hover:to-blue-50 group-hover:transform group-hover:translate-x-1 transition-all duration-300 delay-100">
+              <div className="w-4 h-4 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+                <Calendar size={10} className="text-orange-600" />
+              </div>
+              <span className="leading-relaxed break-words font-medium">
                 {post.dateRange}
               </span>
             </div>
           )}
         </div>
 
-        {/* View Details Button */}
+        {/* Enhanced View Details Button with magnetic effect */}
         <button 
-          className="w-full bg-gray-50 hover:bg-green-50 text-gray-700 hover:text-green-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-green-300 group-hover:shadow-sm"
+          className="w-full bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-500 hover:to-emerald-500 text-gray-700 hover:text-white px-3 py-3 rounded-xl text-xs font-bold transition-all duration-500 border border-gray-200 hover:border-transparent group-hover:shadow-xl transform hover:-translate-y-2 hover:scale-105 flex items-center justify-center space-x-2 group-hover:animate-pulse"
           onClick={(e) => {
             e.stopPropagation();
             onViewDetails(post);
           }}
         >
-          View Details
+          <span>View Details</span>
+          <svg className="w-3 h-3 group-hover:translate-x-2 group-hover:scale-125 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
         </button>
       </div>
+      
+      {/* Enhanced card glow with rainbow effect */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 opacity-0 group-hover:opacity-30 transition-opacity duration-700 -z-10 blur-2xl group-hover:animate-pulse"></div>
+      
+      {/* Sparkle effects */}
+      <div className="absolute top-4 right-4 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-300 delay-200"></div>
+      <div className="absolute bottom-8 left-4 w-1 h-1 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-all duration-300 delay-400"></div>
     </div>
   );
 }
@@ -909,7 +903,7 @@ export default function MarketplacePage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <ConsumerSidebar />
       
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
@@ -927,49 +921,7 @@ export default function MarketplacePage() {
             </div>
           </div>
 
-          {/* Search Section - Fiverr Style */}
-          <div className="mb-8">
-            <div className="relative max-w-4xl mx-auto">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-20"></div>
-                <div className="relative bg-white border border-gray-200 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                  <div className="flex items-center p-2">
-                    <div className="flex-shrink-0 pl-6">
-                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search for fresh vegetables, fruits, grains..."
-                      className="flex-1 px-6 py-4 text-gray-900 placeholder-gray-500 bg-transparent border-none outline-none focus:ring-0 text-lg"
-                      style={{ fontSize: '18px' }}
-                    />
-                    <div className="flex-shrink-0 pr-2">
-                      <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                        Search
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Popular categories */}
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-500 mb-3">Popular categories:</p>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {['🥬 Vegetables', '🍎 Fruits', '🌾 Grains', '🥛 Dairy', '🌿 Herbs', '🥕 Organic'].map((category) => (
-                    <button
-                      key={category}
-                      className="px-4 py-2 text-sm text-gray-600 hover:text-green-600 bg-white hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           {/* Already Bid Alert - Prominent */}
           {showAlreadyBidAlert && (
@@ -1130,11 +1082,11 @@ export default function MarketplacePage() {
             </div>
           )}
 
-          {/* Products Grid */}
+          {/* Products Grid - Optimized for smaller cards */}
           {!marketplaceLoading && !marketplaceError && 
            !(acceptedBidsLoading && activeFilter === 'accepted') && 
            !acceptedBidsError && filteredPosts.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
               {filteredPosts.map(post => (
                 <ProductCard 
                   key={post.id} 
