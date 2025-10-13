@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Calendar, Package, Eye, Edit, Trash2 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import FarmerSidebar from "./FarmerSidebar";
 import NewListingModal from "../components/NewListingModal";
@@ -400,148 +401,95 @@ export default function FarmerListing() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
                 {farmerListings.map((listing) => (
                   <div
                     key={listing._id}
-                    className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                    className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
                     onClick={() => handleViewListing(listing)}
                   >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 pr-2">
-                            {listing.product_name}
-                          </h3>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
-                              listing.admin_deal
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {listing.admin_deal ? "Admin Deal" : "Regular"}
+                    {/* Card Header with Image Placeholder */}
+                    <div className="relative h-40 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                        <Package className="w-12 h-12 text-green-600" />
+                      </div>
+                      {listing.admin_deal && (
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            Admin deal
                           </span>
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+                          {new Date(listing.from).toLocaleDateString()}
                         </div>
                       </div>
+                    </div>
 
-                      <div className="space-y-3">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <svg
-                            className="w-4 h-4 mr-2 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <span className="truncate">
-                            {formatDateRange(listing.from, listing.to)}
-                          </span>
-                        </div>
+                    {/* Card Content */}
+                    <div className="p-4">
+                      {/* Title */}
+                      <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
+                        {listing.product_name}
+                      </h3>
 
-                        <div className="flex items-center text-sm text-gray-600">
-                          <svg
-                            className="w-4 h-4 mr-2 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
-                            />
-                          </svg>
-                          <span className="truncate">
+                      {/* Description */}
+                      {listing.product_description && (
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                          {listing.product_description}
+                        </p>
+                      )}
+
+                      {/* Key Details */}
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Quantity:</span>
+                          <span className="font-medium text-gray-900">
                             {listing.product_quantity} {listing.quantity_unit}
                           </span>
                         </div>
-
-                        <div className="flex items-center text-sm">
-                          <svg
-                            className="w-4 h-4 mr-2 text-green-600 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <span className="font-semibold text-green-600 text-base">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Price:</span>
+                          <span className="font-medium text-gray-900">
                             ৳{listing.price_per_unit}/{listing.quantity_unit}
                           </span>
                         </div>
-
-                        {listing.product_description && (
-                          <div className="text-sm text-gray-600 mt-2">
-                            <p className="line-clamp-2">
-                              {listing.product_description}
-                            </p>
-                          </div>
-                        )}
                       </div>
 
-                      <div
-                        className="mt-6 flex items-center justify-between pt-4 border-t border-gray-100"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleManageListing(listing);
-                          }}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors focus:outline-none"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          <span>
+                            {formatDateRange(listing.from, listing.to)}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleManageListing(listing);
+                            }}
+                            className="p-1.5 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors"
+                            title="Edit"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            initiateDelete(listing);
-                          }}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors focus:outline-none"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              initiateDelete(listing);
+                            }}
+                            className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                            title="Delete"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                          Delete
-                        </button>
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
+                            <Eye className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
