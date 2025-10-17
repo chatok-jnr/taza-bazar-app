@@ -16,6 +16,8 @@ import Signup from "./pages/Signup";
 import FarmerProfile from "./pages/FarmerProfile";
 import FarmerMarketPlace from "./pages/FarmerMarketplace";
 import FarmerListing from "./pages/FarmerListing";
+import FarmerMessage from "./pages/FarmerMessage";
+import FarmerNotification from "./pages/FarmerNotification";
 
 export default function App() {
   return (
@@ -45,10 +47,10 @@ export default function App() {
           <Route path="profile" element={<FarmerProfile />} />
           <Route path="marketplace" element={<FarmerMarketPlace />} />
           <Route path="listings" element={<FarmerListing />} />
-          <Route path="messages" element={<div>Messages Coming Soon</div>} />
+          <Route path="messages" element={<FarmerMessage />} />
           <Route
             path="notifications"
-            element={<div>Notifications Coming Soon</div>}
+            element={<FarmerNotification />}
           />
         </Route>
 
