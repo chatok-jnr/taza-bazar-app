@@ -362,7 +362,7 @@ export default function FarmerMarketplace() {
                     {request.admin_deal && (
                       <div className="absolute top-3 left-3">
                         <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          FEATURED
+                          Admin deal
                         </span>
                       </div>
                     )}
@@ -434,41 +434,21 @@ export default function FarmerMarketplace() {
         </div>
       </div>
 
-      {/* Details Modal - Fiverr Style with Glassmorphism */}
+      {/* Details Modal */}
       {showDetailsModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div
-            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 rounded-2xl"
-            style={{
-              background: "rgba(255, 255, 255, 0.08)",
-              backdropFilter: "blur(6px)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              boxShadow:
-                "0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset",
-            }}
-          >
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
             {/* Modal Header */}
-            <div
-              className="sticky top-0 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl border-b"
-              style={{
-                background: "rgba(255, 255, 255, 0.12)",
-                backdropFilter: "blur(5px)",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-              }}
-            >
-              <h2 className="text-2xl font-bold text-white drop-shadow-lg">
+            <div className="sticky top-0 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl border-b border-gray-200 bg-white">
+              <h2 className="text-2xl font-bold text-gray-800">
                 {selectedRequest.product_name}
               </h2>
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="p-2 hover:bg-white/20 rounded-full transition-all duration-300 backdrop-blur-sm"
-                style={{
-                  background: "rgba(255, 255, 255, 0.06)",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-all duration-300"
               >
                 <svg
-                  className="w-5 h-5 text-white"
+                  className="w-5 h-5 text-gray-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -485,38 +465,19 @@ export default function FarmerMarketplace() {
 
             <div className="p-6">
               {/* Request Image/Banner */}
-              <div
-                className="relative h-48 rounded-lg mb-6 overflow-hidden"
-                style={{
-                  background: "rgba(16, 185, 129, 0.06)",
-                  backdropFilter: "blur(4px)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-green-100/30 to-emerald-100/30 flex items-center justify-center">
-                  <Package className="w-16 h-16 text-white/80 drop-shadow-lg" />
+              <div className="relative h-48 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg mb-6 overflow-hidden border border-gray-200">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Package className="w-16 h-16 text-green-600" />
                 </div>
                 {selectedRequest.admin_deal && (
                   <div className="absolute top-4 left-4">
-                    <span
-                      className="text-white text-sm font-bold px-3 py-1 rounded-full backdrop-blur-sm"
-                      style={{
-                        background: "rgba(249, 115, 22, 0.6)",
-                        border: "1px solid rgba(255, 255, 255, 0.2)",
-                      }}
-                    >
+                    <span className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full">
                       FEATURED
                     </span>
                   </div>
                 )}
                 <div className="absolute bottom-4 right-4">
-                  <div
-                    className="rounded-lg px-3 py-2 text-sm font-medium text-white backdrop-blur-sm"
-                    style={{
-                      background: "rgba(255, 255, 255, 0.12)",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
-                    }}
-                  >
+                  <div className="bg-white/90 rounded-lg px-3 py-2 text-sm font-medium text-gray-700">
                     Posted{" "}
                     {new Date(selectedRequest.createdAt).toLocaleDateString()}
                   </div>
@@ -529,18 +490,11 @@ export default function FarmerMarketplace() {
                 <div className="lg:col-span-2 space-y-6">
                   {/* Description Section */}
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 drop-shadow-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
                       Request Description
                     </h3>
-                    <div
-                      className="rounded-lg p-4"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.06)",
-                        backdropFilter: "blur(4px)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                      }}
-                    >
-                      <p className="text-white/90 leading-relaxed">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <p className="text-gray-700 leading-relaxed">
                         {selectedRequest.request_description}
                       </p>
                     </div>
@@ -548,47 +502,40 @@ export default function FarmerMarketplace() {
 
                   {/* Specifications */}
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 drop-shadow-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
                       Specifications
                     </h3>
-                    <div
-                      className="rounded-lg p-4"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.06)",
-                        backdropFilter: "blur(4px)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                      }}
-                    >
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                           <div>
-                            <p className="text-sm text-white/70">
+                            <p className="text-sm text-gray-600">
                               Quantity Required
                             </p>
-                            <p className="font-semibold text-white">
+                            <p className="font-semibold text-gray-800">
                               {selectedRequest.product_quantity}{" "}
                               {selectedRequest.quantity_unit}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                           <div>
-                            <p className="text-sm text-white/70">
+                            <p className="text-sm text-gray-600">
                               Budget per Unit
                             </p>
-                            <p className="font-semibold text-white">
+                            <p className="font-semibold text-gray-800">
                               {selectedRequest.price_per_unit}{" "}
                               {selectedRequest.currency || "BDT"}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                           <div>
-                            <p className="text-sm text-white/70">Required By</p>
-                            <p className="font-semibold text-white">
+                            <p className="text-sm text-gray-600">Required By</p>
+                            <p className="font-semibold text-gray-800">
                               {new Date(
                                 selectedRequest.when
                               ).toLocaleDateString("en-US", {
@@ -600,18 +547,12 @@ export default function FarmerMarketplace() {
                           </div>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shadow-lg"></div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                           <div>
-                            <p className="text-sm text-white/70">
+                            <p className="text-sm text-gray-600">
                               Total Budget
                             </p>
-                            <p
-                              className="font-semibold text-green-300 text-lg drop-shadow-lg"
-                              style={{
-                                textShadow:
-                                  "0 0 10px rgba(34, 197, 94, 0.8), 0 0 20px rgba(34, 197, 94, 0.5), 0 0 30px rgba(34, 197, 94, 0.3)",
-                              }}
-                            >
+                            <p className="font-semibold text-green-600 text-lg">
                               {(
                                 selectedRequest.price_per_unit *
                                 selectedRequest.product_quantity
@@ -629,30 +570,16 @@ export default function FarmerMarketplace() {
                 <div className="lg:col-span-1">
                   <div className="sticky top-6">
                     {/* Price Card */}
-                    <div
-                      className="rounded-lg p-6 mb-4"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.08)",
-                        backdropFilter: "blur(5px)",
-                        border: "1px solid rgba(255, 255, 255, 0.12)",
-                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
-                      }}
-                    >
+                    <div className="bg-white border border-gray-200 rounded-lg p-6 mb-4 shadow-lg">
                       <div className="text-center mb-4">
-                        <div className="text-3xl font-bold text-white mb-1 drop-shadow-lg">
+                        <div className="text-3xl font-bold text-gray-800 mb-1">
                           {selectedRequest.price_per_unit}{" "}
                           {selectedRequest.currency || "BDT"}
                         </div>
-                        <div className="text-sm text-white/70">
+                        <div className="text-sm text-gray-600">
                           per {selectedRequest.quantity_unit}
                         </div>
-                        <div
-                          className="text-lg font-semibold text-green-300 mt-2 drop-shadow-lg"
-                          style={{
-                            textShadow:
-                              "0 0 8px rgba(34, 197, 94, 0.8), 0 0 16px rgba(34, 197, 94, 0.5), 0 0 24px rgba(34, 197, 94, 0.3)",
-                          }}
-                        >
+                        <div className="text-lg font-semibold text-green-600 mt-2">
                           Total:{" "}
                           {(
                             selectedRequest.price_per_unit *
@@ -664,17 +591,14 @@ export default function FarmerMarketplace() {
 
                       {/* Quick Stats */}
                       <div className="space-y-3 mb-6">
-                        <div
-                          className="flex items-center justify-between py-2 border-b"
-                          style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
-                        >
+                        <div className="flex items-center justify-between py-2 border-b border-gray-200">
                           <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4 text-white/70" />
-                            <span className="text-sm text-white/70">
+                            <Calendar className="w-4 h-4 text-gray-600" />
+                            <span className="text-sm text-gray-600">
                               Delivery
                             </span>
                           </div>
-                          <span className="text-sm font-medium text-white">
+                          <span className="text-sm font-medium text-gray-800">
                             {Math.ceil(
                               (new Date(selectedRequest.when) - new Date()) /
                                 (1000 * 60 * 60 * 24)
@@ -682,17 +606,14 @@ export default function FarmerMarketplace() {
                             days
                           </span>
                         </div>
-                        <div
-                          className="flex items-center justify-between py-2 border-b"
-                          style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
-                        >
+                        <div className="flex items-center justify-between py-2 border-b border-gray-200">
                           <div className="flex items-center space-x-2">
-                            <Package className="w-4 h-4 text-white/70" />
-                            <span className="text-sm text-white/70">
+                            <Package className="w-4 h-4 text-gray-600" />
+                            <span className="text-sm text-gray-600">
                               Quantity
                             </span>
                           </div>
-                          <span className="text-sm font-medium text-white">
+                          <span className="text-sm font-medium text-gray-800">
                             {selectedRequest.product_quantity}{" "}
                             {selectedRequest.quantity_unit}
                           </span>
@@ -702,22 +623,7 @@ export default function FarmerMarketplace() {
                       {/* Action Buttons */}
                       <div className="space-y-3">
                         <button
-                          className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 backdrop-blur-sm hover:scale-105 transform"
-                          style={{
-                            background: "rgba(34, 197, 94, 0.6)",
-                            border: "1px solid rgba(255, 255, 255, 0.2)",
-                            boxShadow:
-                              "0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)",
-                            textShadow: "0 0 10px rgba(255, 255, 255, 0.8)",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.boxShadow =
-                              "0 4px 20px rgba(34, 197, 94, 0.4), 0 0 30px rgba(34, 197, 94, 0.6), 0 0 50px rgba(34, 197, 94, 0.3)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.boxShadow =
-                              "0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.2)";
-                          }}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
                           onClick={() => {
                             setShowProposalModal(true);
                           }}
@@ -726,11 +632,7 @@ export default function FarmerMarketplace() {
                           <span>Submit Proposal</span>
                         </button>
                         <button
-                          className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 backdrop-blur-sm hover:scale-105 transform"
-                          style={{
-                            background: "rgba(255, 255, 255, 0.06)",
-                            border: "1px solid rgba(255, 255, 255, 0.2)",
-                          }}
+                          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 border border-gray-300"
                           onClick={() => {
                             // TODO: Implement message functionality
                             console.log(
@@ -746,18 +648,11 @@ export default function FarmerMarketplace() {
                     </div>
 
                     {/* Additional Info */}
-                    <div
-                      className="rounded-lg p-4"
-                      style={{
-                        background: "rgba(59, 130, 246, 0.08)",
-                        backdropFilter: "blur(4px)",
-                        border: "1px solid rgba(59, 130, 246, 0.2)",
-                      }}
-                    >
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <div className="flex items-start space-x-3">
                         <div className="flex-shrink-0">
                           <svg
-                            className="w-5 h-5 text-blue-300 mt-0.5"
+                            className="w-5 h-5 text-blue-600 mt-0.5"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -769,10 +664,10 @@ export default function FarmerMarketplace() {
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-sm font-semibold text-blue-200 mb-1">
+                          <h4 className="text-sm font-semibold text-blue-800 mb-1">
                             Pro Tip
                           </h4>
-                          <p className="text-sm text-blue-100">
+                          <p className="text-sm text-blue-700">
                             Submit a competitive proposal with clear delivery
                             timeline to increase your chances of winning this
                             request.
