@@ -9,7 +9,7 @@ const farmerBidSchema = new mongoose.Schema({
   },
   consumer_id:{
     type:mongoose.Schema.ObjectId,
-    require:[true, 'The request owner must have an id'],
+    required:[true, 'The request owner must have an id'],
     ref:'User_infos'
   },
   farmer_id:{
@@ -19,7 +19,7 @@ const farmerBidSchema = new mongoose.Schema({
   },
   farmer_name:{
     type:String,
-    require:[true,'A bidder must have a name'],
+    required:[true,'A bidder must have a name'],
     ref:'User_infos'
   },
   quantity:{
