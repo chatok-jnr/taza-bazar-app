@@ -1,15 +1,5 @@
 import { useState } from "react";
-import {
-  Mail,
-  Lock,
-  User,
-  Phone,
-  Upload,
-  X,
-  Calendar,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { Mail, Lock, User, Phone, Upload, X, Calendar, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { getApiUrl } from "../config/api";
@@ -28,12 +18,12 @@ export default function AuthPage() {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // Clear error when user types
+    setError(''); // Clear error when user types
   };
 
   const handleImageChange = (e) => {
@@ -53,120 +43,98 @@ export default function AuthPage() {
     setImagePreview(null);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.birth_date ||
-      !formData.gender ||
-      !formData.password
-    ) {
-      setError("Please fill in all fields");
-      return;
-    }
+  if (!formData.name || !formData.email || !formData.phone || !formData.birth_date || !formData.gender || !formData.password) {
+    setError('Please fill in all fields');
+    return;
+  }
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError('');
 
-    // Format date from "YYYY-MM-DD" to "DD-MMM-YYYY" format
-    const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      const day = date.getDate().toString().padStart(2, "0");
-      const monthNames = [
-        "jan",
-        "feb",
-        "mar",
-        "apr",
-        "may",
-        "jun",
-        "jul",
-        "aug",
-        "sep",
-        "oct",
-        "nov",
-        "dec",
-      ];
-      const month = monthNames[date.getMonth()];
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    };
+  // Format date from "YYYY-MM-DD" to "DD-MMM-YYYY" format
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", 
+                       "jul", "aug", "sep", "oct", "nov", "dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
-    try {
-      const response = await fetch(getApiUrl("api/v1/users"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_name: formData.name,
-          user_email: formData.email,
-          user_no: formData.phone,
-          user_birth_date: formatDate(formData.birth_date),
-          gender:
-            formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1), // Capitalize first letter
-          user_password: formData.password,
-        }),
-      });
+  try {
+    const response = await fetch(getApiUrl("api/v1/users"), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_name: formData.name,
+        user_email: formData.email,
+        user_no: formData.phone,
+        user_birth_date: formatDate(formData.birth_date),
+        gender: formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1), // Capitalize first letter
+        user_password: formData.password,
+      }),
+    });
 
-      const data = await response.json();
-      console.log("Signup API response:", data);
+    const data = await response.json();
+    console.log('Signup API response:', data);
 
-      if (response.ok) {
-        // Signup successful - now login automatically
-        console.log("Signup successful, attempting automatic login...");
+    if (response.ok) {
+      // Signup successful - now login automatically
+      console.log('Signup successful, attempting automatic login...');
+      
+      try {
+        // Make a login API call with the same credentials
+        const loginResponse = await fetch(getApiUrl('api/v1/users/login'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_email: formData.email,
+            user_password: formData.password,
+          }),
+        });
 
-        try {
-          // Make a login API call with the same credentials
-          const loginResponse = await fetch(getApiUrl("api/v1/users/login"), {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              user_email: formData.email,
-              user_password: formData.password,
-            }),
-          });
+        const loginData = await loginResponse.json();
+        console.log('Auto-login API response:', loginData);
 
-          const loginData = await loginResponse.json();
-          console.log("Auto-login API response:", loginData);
-
-          if (loginResponse.ok) {
-            // Auto-login successful
-            login(loginData.data, loginData.token);
-            console.log(
-              "Auto-login successful, redirecting to landing page..."
-            );
-            navigate("/");
-          } else {
-            // Auto-login failed - redirect to login page
-            console.error("Auto-login failed:", loginData);
-            setError("Account created successfully! Please login to continue.");
-            setTimeout(() => {
-              navigate("/login");
-            }, 2000);
-          }
-        } catch (loginError) {
-          console.error("Auto-login error:", loginError);
-          setError("Account created successfully! Please login to continue.");
+        if (loginResponse.ok) {
+          // Auto-login successful
+          login(loginData.data, loginData.token);
+          console.log('Auto-login successful, redirecting to landing page...');
+          navigate('/');
+        } else {
+          // Auto-login failed - redirect to login page
+          console.error('Auto-login failed:', loginData);
+          setError('Account created successfully! Please login to continue.');
           setTimeout(() => {
-            navigate("/login");
+            navigate('/login');
           }, 2000);
         }
-      } else {
-        // Signup failed
-        setError(data.message || "Signup failed. Please try again.");
+      } catch (loginError) {
+        console.error('Auto-login error:', loginError);
+        setError('Account created successfully! Please login to continue.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       }
-    } catch (error) {
-      console.error("❌ Signup error:", error);
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
+    } else {
+      // Signup failed
+      setError(data.message || 'Signup failed. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error("❌ Signup error:", error);
+    setError('Network error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
@@ -363,11 +331,7 @@ export default function AuthPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-5 h-5"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -378,7 +342,7 @@ export default function AuthPage() {
               disabled={loading}
               className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {loading ? "Creating Account..." : "Sign Up"}
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </button>
           </div>
 
@@ -386,7 +350,7 @@ export default function AuthPage() {
           <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate('/login')}
               className="text-green-600 font-semibold hover:text-green-700 hover:underline transition-colors"
             >
               Log in

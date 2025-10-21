@@ -8,7 +8,6 @@ Your frontend is now fully configured to connect to your Render backend at:
 ## What Was Changed
 
 ### 1. **Created Configuration Files**
-
 - ✅ `frontend/src/config/api.js` - Centralized API configuration
 - ✅ `frontend/.env` - Active environment file (Render URL)
 - ✅ `frontend/.env.development` - Development settings (localhost)
@@ -16,7 +15,6 @@ Your frontend is now fully configured to connect to your Render backend at:
 - ✅ `frontend/.env.example` - Template for environment variables
 
 ### 2. **Updated All Frontend Files**
-
 - ✅ Login.jsx
 - ✅ Signup.jsx
 - ✅ ConsumerDashboard.jsx
@@ -30,13 +28,11 @@ Your frontend is now fully configured to connect to your Render backend at:
 - ✅ ProductDetailsModal.jsx
 
 ### 3. **All API Calls Updated**
-
 All hardcoded `http://127.0.0.1:8000` URLs have been replaced with `getApiUrl()` function calls.
 
 ## How to Use
 
 ### Start the Frontend (Connected to Render Backend)
-
 ```bash
 cd frontend
 npm run dev
@@ -46,11 +42,9 @@ Your app will now automatically connect to:
 **https://taza-bazar-app-backend.onrender.com**
 
 ### Switch Back to Local Backend (Optional)
-
 If you need to test with a local backend:
 
 1. Edit `frontend/.env` and change to:
-
    ```
    VITE_API_URL=http://127.0.0.1:8000
    ```
@@ -60,7 +54,6 @@ If you need to test with a local backend:
 ## Testing
 
 1. **Start the frontend:**
-
    ```bash
    cd frontend
    npm run dev
@@ -88,22 +81,18 @@ If you need to test with a local backend:
 ## Troubleshooting
 
 ### If you see CORS errors:
-
 Your backend needs to allow your frontend URL. Check your backend's CORS configuration.
 
 ### If API calls fail:
-
 1. Check that your Render backend is running: https://taza-bazar-app-backend.onrender.com
 2. Verify the API responds: Open the URL in your browser
 3. Check browser console for error messages
 
 ### To verify the API URL being used:
-
 Add this to any component:
-
 ```javascript
-import { API_BASE_URL } from "../config/api";
-console.log("API Base URL:", API_BASE_URL);
+import { API_BASE_URL } from '../config/api';
+console.log('API Base URL:', API_BASE_URL);
 ```
 
 ## Next Steps

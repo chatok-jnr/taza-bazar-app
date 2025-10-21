@@ -9,15 +9,13 @@ Your backend CORS configuration has been updated to allow requests from any orig
 **File:** `backend/app.js`
 
 The CORS configuration was changed from:
-
 ```javascript
-origin: "http://localhost:5173";
+origin: 'http://localhost:5173'
 ```
 
 To:
-
 ```javascript
-origin: "*"; // Allows all origins
+origin: '*'  // Allows all origins
 ```
 
 This allows your frontend (from anywhere) to make API requests to your backend.
@@ -27,7 +25,6 @@ This allows your frontend (from anywhere) to make API requests to your backend.
 ### Option 1: Automatic Deployment (if you have GitHub connected)
 
 1. Commit the changes:
-
    ```bash
    cd f:\TazaBazar\taza-bazar-app
    git add backend/app.js
@@ -60,7 +57,6 @@ npm run dev
 ```
 
 Then test:
-
 - ✅ Login
 - ✅ Signup
 - ✅ Creating listings/requests
@@ -71,13 +67,12 @@ Then test:
 If you want to limit CORS to specific domains (more secure):
 
 Edit `backend/app.js`:
-
 ```javascript
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://your-frontend-url.com"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: ['http://localhost:5173', 'https://your-frontend-url.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 ```
