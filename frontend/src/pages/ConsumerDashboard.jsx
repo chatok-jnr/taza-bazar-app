@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, MessageSquare, User, FileText, Edit2, Trash2, MapPin, Calendar, Package, DollarSign, TrendingUp, Bell, X, Save, Mail, Phone } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ConsumerSidebar from './ConsumerSidebar';
+import { getApiUrl } from '../config/api';
 
 export default function ConsumerDashboard() {
   console.log('ConsumerDashboard component mounted');
@@ -95,7 +96,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching requests for user ID:', user.user_id);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/consumer/${user.user_id}`, {
+      const response = await fetch(getApiUrl(`api/v1/consumer/${user.user_id}`), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -149,7 +150,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching farmer products...');
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/farmer', {
+      const response = await fetch(getApiUrl('api/v1/farmer'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -206,7 +207,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching user profile for user ID:', user.user_id);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+      const response = await fetch(getApiUrl(`api/v1/users/${user.user_id}`), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -297,7 +298,7 @@ export default function ConsumerDashboard() {
 
       console.log('Updating profile with data:', updateData);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+      const response = await fetch(getApiUrl(`api/v1/users/${user.user_id}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -407,7 +408,7 @@ export default function ConsumerDashboard() {
 
       console.log('Creating new request:', requestData);
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/consumer', {
+      const response = await fetch(getApiUrl('api/v1/consumer'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -483,7 +484,7 @@ export default function ConsumerDashboard() {
 
       console.log('Deleting request with ID:', requestToDelete);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/consumer/${requestToDelete}`, {
+      const response = await fetch(getApiUrl(`api/v1/consumer/${requestToDelete}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -544,7 +545,7 @@ export default function ConsumerDashboard() {
 
       console.log('Updating request:', requestData);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/consumer/${editingRequest._id}`, {
+      const response = await fetch(getApiUrl(`api/v1/consumer/${editingRequest._id}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

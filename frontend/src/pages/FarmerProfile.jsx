@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import FarmerSidebar from "./FarmerSidebar";
+import { getApiUrl } from '../config/api';
 
 // Utility function to format date (remove time)
 const formatDate = (dateString) => {
@@ -100,7 +101,7 @@ export default function FarmerProfile() {
         console.log("Fetching profile for user ID:", user.user_id);
 
         const response = await fetch(
-          `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+          getApiUrl(`api/v1/users/${user.user_id}`),
           {
             method: "GET",
             headers: {
@@ -199,7 +200,7 @@ export default function FarmerProfile() {
       console.log("Updating profile with data:", updateData);
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+        getApiUrl(`api/v1/users/${user.user_id}`),
         {
           method: "PATCH",
           headers: {

@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Allow requests from your frontend
+    origin: '*', // Allow all origins (or specify your frontend URL)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })

@@ -15,6 +15,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import { getApiUrl } from "../config/api";
 
 export default function ProductDetailsModal({
   isOpen,
@@ -52,7 +53,7 @@ export default function ProductDetailsModal({
         return;
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/buyer/bids`, {
+      const response = await fetch(getApiUrl(`api/v1/buyer/bids`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +112,7 @@ export default function ProductDetailsModal({
 
       // Update the bid status
       const bidStatusResponse = await fetch(
-        `http://127.0.0.1:8000/api/v1/buyer/bids`,
+        getApiUrl(`api/v1/buyer/bids`),
         {
           method: "PATCH",
           headers: {
@@ -139,7 +140,7 @@ export default function ProductDetailsModal({
         );
 
         const productUpdateResponse = await fetch(
-          `http://127.0.0.1:8000/api/v1/farmer/${listing._id}`,
+          getApiUrl(`api/v1/farmer/${listing._id}`),
           {
             method: "PATCH",
             headers: {

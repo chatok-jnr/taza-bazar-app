@@ -6,6 +6,7 @@ import FarmerSidebar from "./FarmerSidebar";
 import NewListingModal from "../components/NewListingModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import ProductDetailsModal from "../components/ProductDetailsModal";
+import { getApiUrl } from '../config/api';
 
 export default function FarmerListing() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function FarmerListing() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${user.user_id}`,
+        getApiUrl(`api/v1/farmer/${user.user_id}`),
         {
           method: "GET",
           headers: {
@@ -103,7 +104,7 @@ export default function FarmerListing() {
           return;
         }
 
-        const url = `http://127.0.0.1:8000/api/v1/farmer/${productId}`;
+        const url = getApiUrl(`api/v1/farmer/${productId}`);
         response = await fetch(url, {
           method: "PATCH",
           headers: {
@@ -113,7 +114,7 @@ export default function FarmerListing() {
           body: JSON.stringify(dataToSubmit),
         });
       } else {
-        const url = "http://127.0.0.1:8000/api/v1/farmer";
+        const url = getApiUrl("api/v1/farmer");
         response = await fetch(url, {
           method: "POST",
           headers: {
@@ -174,7 +175,7 @@ export default function FarmerListing() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${listingToDelete._id}`,
+        getApiUrl(`api/v1/farmer/${listingToDelete._id}`),
         {
           method: "DELETE",
           headers: {

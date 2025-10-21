@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, MapPin, Edit2, X, Save, FileText, TrendingUp, Bell, MessageSquare, ShoppingCart, Repeat, Calendar, DollarSign, Clock } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ConsumerSidebar from './ConsumerSidebar';
+import { getApiUrl } from '../config/api';
 
 // Utility function to format date (remove time)
 const formatDate = (dateString) => {
@@ -82,7 +83,7 @@ export default function ConsumerProfile() {
 
         console.log('Fetching profile for user ID:', user.user_id);
 
-        const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+        const response = await fetch(getApiUrl(`api/v1/users/${user.user_id}`), {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -178,7 +179,7 @@ export default function ConsumerProfile() {
 
       console.log('Updating profile with data:', updateData);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+      const response = await fetch(getApiUrl(`api/v1/users/${user.user_id}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

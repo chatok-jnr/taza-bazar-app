@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import FarmerSidebar from "./FarmerSidebar";
+import { getApiUrl } from '../config/api';
 
 export default function FarmerDashboard() {
   const location = useLocation();
@@ -113,7 +114,7 @@ export default function FarmerDashboard() {
       delete updateData.memberSince;
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+        `api/v1/users/${user.user_id}`,
         {
           method: "PATCH",
           headers: {
@@ -159,7 +160,7 @@ export default function FarmerDashboard() {
       if (!token) return;
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+        `api/v1/users/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -211,7 +212,7 @@ export default function FarmerDashboard() {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/consumer", {
+      const response = await fetch(getApiUrl("api/v1/consumer"), {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -256,7 +257,7 @@ export default function FarmerDashboard() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${user.user_id}`,
+        `api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -387,7 +388,7 @@ export default function FarmerDashboard() {
           throw new Error("Product ID is required for updating");
         }
 
-        const url = `http://127.0.0.1:8000/api/v1/farmer/${productId}`;
+        const url = `api/v1/farmer/${productId}`;
         console.log("PATCH URL:", url);
 
         response = await fetch(url, {
@@ -400,7 +401,7 @@ export default function FarmerDashboard() {
         });
       } else {
         // Create new listing
-        const url = "http://127.0.0.1:8000/api/v1/farmer";
+        const url = "api/v1/farmer";
         console.log("POST URL:", url);
 
         response = await fetch(url, {
@@ -464,7 +465,7 @@ export default function FarmerDashboard() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${listingId}`,
+        `api/v1/farmer/${listingId}`,
         {
           method: "DELETE",
           headers: {
