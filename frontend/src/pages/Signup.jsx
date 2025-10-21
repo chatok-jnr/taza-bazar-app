@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Mail, Lock, User, Phone, Upload, X, Calendar, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
-import { getApiUrl } from "../config/api";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -66,7 +65,7 @@ const handleSubmit = async (e) => {
   };
 
   try {
-    const response = await fetch(getApiUrl("api/v1/users"), {
+    const response = await fetch("http://127.0.0.1:8000/api/v1/users", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,7 +89,7 @@ const handleSubmit = async (e) => {
       
       try {
         // Make a login API call with the same credentials
-        const loginResponse = await fetch(getApiUrl('api/v1/users/login'), {
+        const loginResponse = await fetch('http://127.0.0.1:8000/api/v1/users/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

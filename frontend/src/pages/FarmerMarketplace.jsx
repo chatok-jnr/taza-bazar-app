@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import FarmerSidebar from "./FarmerSidebar";
-import { getApiUrl } from '../config/api';
 
 export default function FarmerMarketplace() {
   const navigate = useNavigate();
@@ -52,7 +51,7 @@ export default function FarmerMarketplace() {
 
       console.log("Fetching consumer requests from API...");
 
-      const response = await fetch(getApiUrl("api/v1/consumer"), {
+      const response = await fetch("http://127.0.0.1:8000/api/v1/consumer", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -143,7 +142,7 @@ export default function FarmerMarketplace() {
 
       console.log("Submitting proposal:", proposalData);
 
-      const response = await fetch(getApiUrl("api/v1/farmerBid"), {
+      const response = await fetch("http://127.0.0.1:8000/api/v1/farmerBid", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

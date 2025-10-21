@@ -1,117 +1,147 @@
-import { useState, useEffect } from "react";
-import { useUser } from "../context/UserContext";
-import { Link, useLocation } from "react-router-dom";
-import {
-  FileText,
-  TrendingUp,
-  Bell,
-  MessageSquare,
-  User,
-  MapPin,
-  Calendar,
-  Package,
-  Eye,
-} from "lucide-react";
-import ConsumerSidebar from "./ConsumerSidebar";
-import { getApiUrl } from '../config/api';
+import { useState, useEffect } from 'react';
+import { useUser } from '../context/UserContext';
+import { Link, useLocation } from 'react-router-dom';
+import { FileText, TrendingUp, Bell, MessageSquare, User, MapPin, Calendar, Package } from 'lucide-react';
+import ConsumerSidebar from './ConsumerSidebar';
 
 // Posts will be loaded from an API; start with an empty array
 // TODO: Replace with actual data fetching from backend API
 
-// Product Card Component - Clean design similar to Farmer Listing
+// Product Card Component - Enhanced with Cool Hover Effects
 function ProductCard({ post, onViewDetails, hasUserBid, hasAcceptedBid }) {
-  // Check if user has already bid on this product
+  // Temporary test - make first product show as already bid
   const testHasUserBid = hasUserBid || post.productName === "Test Product";
-
+  
   return (
-    <div
-      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
-      onClick={() => onViewDetails(post)}
-    >
-      {/* Card Header with Image Placeholder */}
-      <div className="relative h-40 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-          <Package className="w-12 h-12 text-green-600" />
+    <div className={`group relative bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-700 overflow-hidden cursor-pointer transform hover:-translate-y-4 hover:rotate-1 ${
+      testHasUserBid ? 'ring-2 ring-yellow-400 ring-opacity-60' : ''
+    } ${hasAcceptedBid ? 'ring-2 ring-green-500 ring-opacity-60' : ''}`}
+    onClick={() => onViewDetails(post)}>
+      
+      {/* Enhanced Image Section with Dynamic Effects */}
+      <div className="relative h-32 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 overflow-hidden group-hover:from-purple-400 group-hover:via-pink-400 group-hover:to-red-400 transition-all duration-700">
+        {/* Dynamic background with multiple layers */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-300 via-emerald-300 to-teal-300 group-hover:animate-pulse"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-10 transform rotate-12 scale-150 group-hover:rotate-45 group-hover:scale-200 transition-transform duration-1000"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-white bg-opacity-20 rounded-full group-hover:scale-300 transition-transform duration-700"></div>
         </div>
+        
+        {/* Product Icon with enhanced 3D effects */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative">
+            <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-2xl border border-white border-opacity-30 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:bg-opacity-30">
+              <Package className="w-6 h-6 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            {/* Dynamic floating particles */}
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-yellow-300 rounded-full animate-bounce delay-100 group-hover:bg-pink-300 group-hover:scale-150 transition-all duration-500"></div>
+            <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-blue-300 rounded-full animate-bounce delay-300 group-hover:bg-purple-300 group-hover:scale-150 transition-all duration-500"></div>
+            <div className="absolute top-0 left-6 w-1.5 h-1.5 bg-green-300 rounded-full animate-ping group-hover:bg-orange-300 transition-colors duration-500"></div>
+          </div>
+        )</div>
 
-        {/* Status Badge */}
+        {/* Enhanced Status Badge with glow effect */}
         {(testHasUserBid || hasAcceptedBid) && (
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 group-hover:scale-110 transition-transform duration-300">
             {hasAcceptedBid ? (
-              <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                Accepted
-              </span>
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:shadow-green-500/50 group-hover:shadow-xl">
+                <span className="animate-pulse">✓</span>
+                <span>Accepted</span>
+              </div>
             ) : testHasUserBid ? (
-              <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                Pending
-              </span>
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:shadow-yellow-500/50 group-hover:shadow-xl">
+                <span className="animate-spin">⏳</span>
+                <span>Pending</span>
+              </div>
             ) : null}
           </div>
         )}
 
-        {/* Date Badge */}
-        {post.dateRange && (
-          <div className="absolute top-3 right-3">
-            <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
-              {post.dateRange.split(" - ")[0]}
-            </div>
+        {/* Enhanced Price Badge with magnetic effect */}
+        <div className="absolute bottom-3 right-3 group-hover:bottom-4 group-hover:right-4 transition-all duration-500">
+          <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-xl px-3 py-1.5 shadow-xl border border-white border-opacity-50 group-hover:scale-125 group-hover:rotate-3 transition-all duration-500 group-hover:shadow-2xl">
+            <span className="text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-600 transition-all duration-500">
+              {post.price}
+            </span>
           </div>
-        )}
+        </div>
+
+        {/* Cool overlay effect on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       </div>
 
-      {/* Card Content */}
-      <div className="p-4">
-        {/* Title */}
-        <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
+      {/* Enhanced Content Section with slide-up effect */}
+      <div className="p-4 group-hover:transform group-hover:-translate-y-1 transition-transform duration-500">
+        {/* Title with cool text effect */}
+        <h3 className="font-bold text-gray-900 text-base mb-2 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-purple-600 transition-all duration-500 leading-tight">
           {post.productName}
         </h3>
-
-        {/* Description - if available */}
-        {post.description && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-            {post.description}
-          </p>
-        )}
-
-        {/* Key Details */}
+        
+        {/* Farmer info with enhanced styling */}
+        <div className="flex items-center space-x-2 mb-3 group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
+          <div className="w-5 h-5 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+            <User size={12} className="text-blue-600" />
+          </div>
+          <p className="text-xs text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300">by {post.farmer}</p>
+        </div>
+        
+        {/* Enhanced Key Info with stagger animation */}
         <div className="space-y-2 mb-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Quantity:</span>
-            <span className="font-medium text-gray-900">{post.quantity}</span>
+          <div className="flex items-center justify-between group-hover:transform group-hover:translate-x-2 transition-transform duration-300 delay-75">
+            <div className="flex items-center space-x-1.5 text-xs text-gray-600">
+              <div className="w-4 h-4 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 group-hover:scale-110 transition-all duration-300">
+                <Package size={10} className="text-green-600" />
+              </div>
+              <span className="font-medium">Qty: {post.quantity}</span>
+            </div>
+            <div className="flex items-center space-x-1.5 text-xs text-gray-600">
+              <div className="w-4 h-4 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-300">
+                <MapPin size={10} className="text-blue-600" />
+              </div>
+              <span className="truncate max-w-20 font-medium">{post.location}</span>
+            </div>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Price:</span>
-            <span className="font-medium text-gray-900">{post.price}</span>
-          </div>
+          
+          {/* Availability Period with slide effect */}
+          {post.dateRange && (
+            <div className="flex items-start space-x-1.5 text-xs text-gray-600 bg-gray-50 rounded-lg p-2 group-hover:bg-gradient-to-r group-hover:from-gray-50 group-hover:to-blue-50 group-hover:transform group-hover:translate-x-1 transition-all duration-300 delay-100">
+              <div className="w-4 h-4 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+                <Calendar size={10} className="text-orange-600" />
+              </div>
+              <span className="leading-relaxed break-words font-medium">
+                {post.dateRange}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="flex items-center text-xs text-gray-500">
-            <Calendar className="w-3 h-3 mr-1" />
-            <span>{post.dateRange}</span>
-          </div>
-          <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
-            <Eye className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-          </div>
-        </div>
+        {/* Enhanced View Details Button with magnetic effect */}
+        <button 
+          className="w-full bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-500 hover:to-emerald-500 text-gray-700 hover:text-white px-3 py-3 rounded-xl text-xs font-bold transition-all duration-500 border border-gray-200 hover:border-transparent group-hover:shadow-xl transform hover:-translate-y-2 hover:scale-105 flex items-center justify-center space-x-2 group-hover:animate-pulse"
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewDetails(post);
+          }}
+        >
+          <span>View Details</span>
+          <svg className="w-3 h-3 group-hover:translate-x-2 group-hover:scale-125 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </button>
       </div>
+      
+      {/* Enhanced card glow with rainbow effect */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 opacity-0 group-hover:opacity-30 transition-opacity duration-700 -z-10 blur-2xl group-hover:animate-pulse"></div>
+      
+      {/* Sparkle effects */}
+      <div className="absolute top-4 right-4 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-300 delay-200"></div>
+      <div className="absolute bottom-8 left-4 w-1 h-1 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-all duration-300 delay-400"></div>
     </div>
   );
 }
 
 // Product Details Modal - Fiverr Style
-function ProductDetailsModal({
-  isOpen,
-  onClose,
-  post,
-  onPlaceBid,
-  onContactFarmer,
-  hasUserBid,
-  hasAcceptedBid,
-  activeFilter,
-  acceptedBidDetails,
-}) {
+function ProductDetailsModal({ isOpen, onClose, post, onPlaceBid, onContactFarmer, hasUserBid, hasAcceptedBid, activeFilter, acceptedBidDetails }) {
   if (!isOpen || !post) return null;
 
   const testHasUserBid = hasUserBid || post.productName === "Test Product";
@@ -125,26 +155,16 @@ function ProductDetailsModal({
             onClick={onClose}
             className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-
+          
           <div className="text-white">
             <h2 className="text-3xl font-bold mb-2">{post.productName}</h2>
             <p className="text-green-100">Fresh produce from {post.farmer}</p>
           </div>
-
+          
           {/* Status Badge */}
           {(testHasUserBid || hasAcceptedBid) && (
             <div className="absolute bottom-4 left-6">
@@ -175,9 +195,7 @@ function ProductDetailsModal({
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
-                    <span className="text-2xl font-bold text-green-600">
-                      {post.price}
-                    </span>
+                    <span className="text-2xl font-bold text-green-600">{post.price}</span>
                     <span className="text-sm text-gray-600 ml-1">per unit</span>
                   </div>
                 </div>
@@ -185,60 +203,43 @@ function ProductDetailsModal({
 
               {/* Description */}
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Description
-                </h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Description</h3>
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-gray-700 leading-relaxed">
-                    Fresh, high-quality {post.productName.toLowerCase()}{" "}
-                    directly from our farm. We ensure the best quality produce
-                    with organic farming methods. This product is carefully
-                    selected and harvested at the perfect time to deliver
-                    maximum freshness and nutritional value.
+                    Fresh, high-quality {post.productName.toLowerCase()} directly from our farm. 
+                    We ensure the best quality produce with organic farming methods. 
+                    This product is carefully selected and harvested at the perfect time 
+                    to deliver maximum freshness and nutritional value.
                   </p>
                 </div>
               </div>
 
               {/* Product Details */}
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Product Details
-                </h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Product Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center space-x-3 mb-2">
                       <Package className="w-5 h-5 text-green-600" />
-                      <span className="font-semibold text-gray-700">
-                        Quantity Available
-                      </span>
+                      <span className="font-semibold text-gray-700">Quantity Available</span>
                     </div>
-                    <p className="text-lg font-bold text-gray-900">
-                      {post.quantity}
-                    </p>
+                    <p className="text-lg font-bold text-gray-900">{post.quantity}</p>
                   </div>
-
+                  
                   <div className="bg-white border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center space-x-3 mb-2">
                       <MapPin className="w-5 h-5 text-green-600" />
-                      <span className="font-semibold text-gray-700">
-                        Location
-                      </span>
+                      <span className="font-semibold text-gray-700">Location</span>
                     </div>
-                    <p className="text-lg font-bold text-gray-900">
-                      {post.location}
-                    </p>
+                    <p className="text-lg font-bold text-gray-900">{post.location}</p>
                   </div>
-
+                  
                   <div className="bg-white border border-gray-200 rounded-lg p-4 md:col-span-2">
                     <div className="flex items-center space-x-3 mb-2">
                       <Calendar className="w-5 h-5 text-green-600" />
-                      <span className="font-semibold text-gray-700">
-                        Availability Period
-                      </span>
+                      <span className="font-semibold text-gray-700">Availability Period</span>
                     </div>
-                    <p className="text-lg font-bold text-gray-900">
-                      {post.dateRange}
-                    </p>
+                    <p className="text-lg font-bold text-gray-900">{post.dateRange}</p>
                   </div>
                 </div>
               </div>
@@ -250,15 +251,9 @@ function ProductDetailsModal({
                     <User className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">
-                      About the Farmer
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      Farmer: {post.farmer}
-                    </p>
-                    <p className="text-sm text-blue-600">
-                      Verified local farmer with quality produce
-                    </p>
+                    <h4 className="font-semibold text-gray-900">About the Farmer</h4>
+                    <p className="text-sm text-gray-600">Farmer: {post.farmer}</p>
+                    <p className="text-sm text-blue-600">Verified local farmer with quality produce</p>
                   </div>
                 </div>
               </div>
@@ -271,41 +266,29 @@ function ProductDetailsModal({
               {/* Price Section */}
               <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <div className="text-center mb-4">
-                  <div className="text-3xl font-bold text-green-600 mb-1">
-                    {post.price}
-                  </div>
+                  <div className="text-3xl font-bold text-green-600 mb-1">{post.price}</div>
                   <div className="text-sm text-gray-600">per unit</div>
                 </div>
 
                 {/* Quick Stats */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">
-                      Available Quantity
-                    </span>
-                    <span className="font-semibold text-gray-900">
-                      {post.quantity}
-                    </span>
+                    <span className="text-sm text-gray-600">Available Quantity</span>
+                    <span className="font-semibold text-gray-900">{post.quantity}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-sm text-gray-600">Location</span>
-                    <span className="font-semibold text-gray-900 text-right text-sm">
-                      {post.location}
-                    </span>
+                    <span className="font-semibold text-gray-900 text-right text-sm">{post.location}</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-sm text-gray-600">
-                      Available Until
-                    </span>
-                    <span className="font-semibold text-gray-900 text-right text-sm">
-                      {post.dateRange?.split(" - ")[1] || "Available"}
-                    </span>
+                    <span className="text-sm text-gray-600">Available Until</span>
+                    <span className="font-semibold text-gray-900 text-right text-sm">{post.dateRange?.split(' - ')[1] || 'Available'}</span>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  {activeFilter === "accepted" && acceptedBidDetails ? (
+                  {activeFilter === 'accepted' && acceptedBidDetails ? (
                     <div className="space-y-3">
                       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
                         <h4 className="text-sm font-bold text-green-800 mb-3 flex items-center space-x-2">
@@ -314,34 +297,20 @@ function ProductDetailsModal({
                         </h4>
                         <div className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-xs text-gray-600">
-                              Quantity:
-                            </span>
-                            <span className="text-sm font-bold">
-                              {acceptedBidDetails.requested_quantity}
-                            </span>
+                            <span className="text-xs text-gray-600">Quantity:</span>
+                            <span className="text-sm font-bold">{acceptedBidDetails.requested_quantity}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-xs text-gray-600">
-                              Your Price:
-                            </span>
-                            <span className="text-sm font-bold text-green-600">
-                              ৳{acceptedBidDetails.bid_price}
-                            </span>
+                            <span className="text-xs text-gray-600">Your Price:</span>
+                            <span className="text-sm font-bold text-green-600">৳{acceptedBidDetails.bid_price}</span>
                           </div>
                           <div className="flex justify-between pt-2 border-t border-green-200">
                             <span className="font-medium">Total:</span>
-                            <span className="text-lg font-bold text-green-700">
-                              ৳
-                              {(
-                                acceptedBidDetails.bid_price *
-                                acceptedBidDetails.requested_quantity
-                              ).toFixed(2)}
-                            </span>
+                            <span className="text-lg font-bold text-green-700">৳{(acceptedBidDetails.bid_price * acceptedBidDetails.requested_quantity).toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
-                      <button
+                      <button 
                         onClick={() => onContactFarmer(post)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
                       >
@@ -362,7 +331,7 @@ function ProductDetailsModal({
                           <span>Bid Pending</span>
                         </div>
                       ) : (
-                        <button
+                        <button 
                           onClick={() => onPlaceBid(post)}
                           className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
@@ -370,8 +339,8 @@ function ProductDetailsModal({
                           <span>Place Bid</span>
                         </button>
                       )}
-
-                      <button
+                      
+                      <button 
                         onClick={() => onContactFarmer(post)}
                         className="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300 hover:border-gray-400 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md"
                       >
@@ -385,49 +354,23 @@ function ProductDetailsModal({
 
               {/* Trust & Safety */}
               <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-3">
-                  Trust & Safety
-                </h4>
+                <h4 className="font-semibold text-gray-900 mb-3">Trust & Safety</h4>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <svg
-                      className="w-4 h-4 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span>Verified farmer</span>
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <svg
-                      className="w-4 h-4 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span>Quality guarantee</span>
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <svg
-                      className="w-4 h-4 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span>Secure payment</span>
                   </div>
@@ -444,45 +387,42 @@ function ProductDetailsModal({
 // Place Bid Modal Component
 function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
   const [formData, setFormData] = useState({
-    bid_price: "",
-    requested_quantity: "",
-    message: "",
+    bid_price: '',
+    requested_quantity: '',
+    message: ''
   });
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        [name]: "",
+        [name]: ''
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-
+    
     if (!formData.bid_price || parseFloat(formData.bid_price) <= 0) {
-      newErrors.bid_price = "Please enter a valid bid price";
+      newErrors.bid_price = 'Please enter a valid bid price';
     }
-
-    if (
-      !formData.requested_quantity ||
-      parseInt(formData.requested_quantity) <= 0
-    ) {
-      newErrors.requested_quantity = "Please enter a valid quantity";
+    
+    if (!formData.requested_quantity || parseInt(formData.requested_quantity) <= 0) {
+      newErrors.requested_quantity = 'Please enter a valid quantity';
     }
-
+    
     if (!formData.message.trim()) {
-      newErrors.message = "Please enter a message";
+      newErrors.message = 'Please enter a message';
     }
-
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -496,9 +436,9 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
 
   const handleClose = () => {
     setFormData({
-      bid_price: "",
-      requested_quantity: "",
-      message: "",
+      bid_price: '',
+      requested_quantity: '',
+      message: ''
     });
     setErrors({});
     onClose();
@@ -518,14 +458,12 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
             ×
           </button>
         </div>
-
+        
         {post && (
           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
             <h4 className="font-semibold text-gray-800">{post.productName}</h4>
             <p className="text-sm text-gray-600">by {post.farmer}</p>
-            <p className="text-sm text-green-600 font-medium">
-              Current Price: {post.price}
-            </p>
+            <p className="text-sm text-green-600 font-medium">Current Price: {post.price}</p>
           </div>
         )}
 
@@ -542,7 +480,7 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
               step="0.01"
               min="0"
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                errors.bid_price ? "border-red-500" : "border-gray-300"
+                errors.bid_price ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Enter your bid price"
             />
@@ -562,14 +500,12 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
               onChange={handleInputChange}
               min="1"
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                errors.requested_quantity ? "border-red-500" : "border-gray-300"
+                errors.requested_quantity ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Enter quantity needed"
             />
             {errors.requested_quantity && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.requested_quantity}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.requested_quantity}</p>
             )}
           </div>
 
@@ -583,7 +519,7 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
               onChange={handleInputChange}
               rows={3}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                errors.message ? "border-red-500" : "border-gray-300"
+                errors.message ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Enter your message to the farmer"
             />
@@ -605,7 +541,7 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
               disabled={isSubmitting}
               className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Submitting..." : "Place Bid"}
+              {isSubmitting ? 'Submitting...' : 'Place Bid'}
             </button>
           </div>
         </form>
@@ -618,58 +554,55 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
 export default function MarketplacePage() {
   const [posts, setPosts] = useState([]);
   const [marketplaceLoading, setMarketplaceLoading] = useState(false);
-  const [marketplaceError, setMarketplaceError] = useState("");
-
+  const [marketplaceError, setMarketplaceError] = useState('');
+  
   // User bids state
   const [userBids, setUserBids] = useState([]);
   const [bidsLoading, setBidsLoading] = useState(false);
-
+  
   // Filter state
-  const [activeFilter, setActiveFilter] = useState("all"); // 'all' or 'accepted'
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all' or 'accepted'
   const [filteredPosts, setFilteredPosts] = useState([]);
-
+  
   // Accepted bids state
   const [acceptedBids, setAcceptedBids] = useState([]);
   const [acceptedBidsLoading, setAcceptedBidsLoading] = useState(false);
-  const [acceptedBidsError, setAcceptedBidsError] = useState("");
-
+  const [acceptedBidsError, setAcceptedBidsError] = useState('');
+  
   // Bid modal state
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isBidSubmitting, setIsBidSubmitting] = useState(false);
-  const [bidSuccess, setBidSuccess] = useState("");
-  const [bidError, setBidError] = useState("");
-
+  const [bidSuccess, setBidSuccess] = useState('');
+  const [bidError, setBidError] = useState('');
+  
   // Details modal state
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedProductForDetails, setSelectedProductForDetails] =
-    useState(null);
-
+  const [selectedProductForDetails, setSelectedProductForDetails] = useState(null);
+  
   // Alert state for already bid message
   const [showAlreadyBidAlert, setShowAlreadyBidAlert] = useState(false);
-  const [alreadyBidProduct, setAlreadyBidProduct] = useState("");
-
+  const [alreadyBidProduct, setAlreadyBidProduct] = useState('');
+  
   const { getToken, logout, user } = useUser();
 
   // Fetch farmer products from API (token-aware)
   const fetchFarmerProducts = async () => {
     try {
       setMarketplaceLoading(true);
-      setMarketplaceError("");
+      setMarketplaceError('');
 
       const token = getToken && getToken();
       if (!token) {
-        setMarketplaceError(
-          "No authentication token found. Please login again."
-        );
+        setMarketplaceError('No authentication token found. Please login again.');
         return;
       }
 
-      const response = await fetch(getApiUrl("api/v1/farmer"), {
-        method: "GET",
+      const response = await fetch('http://127.0.0.1:8000/api/v1/farmer', {
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -677,44 +610,31 @@ export default function MarketplacePage() {
         const data = await response.json();
         const responseData = data.data || {};
         // Try to read both `product` or `posts` shape depending on API
-        const productsArray =
-          responseData.product ||
-          responseData.posts ||
-          responseData.products ||
-          [];
+        const productsArray = responseData.product || responseData.posts || responseData.products || [];
         // Normalize to posts shape used in this page if necessary
-        setPosts(
-          productsArray.map((p) => ({
-            id: p._id || p.id || p.product_id,
-            productName: p.product_name || p.productName,
-            farmer: p.farmer_name || p.farmer || p.user_name || p.seller,
-            farmer_id: p.user_id || p.farmer_id || p.seller_id, // Make sure we capture farmer_id
-            image: p.image || p.product_image || "/vite.svg",
-            category: p.category || p.product_category || "Vegetables",
-            quantity: p.product_quantity || p.quantity || "1",
-            location: p.location || p.from_location || "Unknown",
-            dateRange:
-              p.from && p.to
-                ? `${new Date(p.from).toLocaleDateString()} - ${new Date(
-                    p.to
-                  ).toLocaleDateString()}`
-                : p.dateRange || "",
-            price: p.price_per_unit ? `৳${p.price_per_unit}` : p.price || "৳0",
-          }))
-        );
-        setMarketplaceError("");
+        setPosts(productsArray.map(p => ({
+          id: p._id || p.id || p.product_id,
+          productName: p.product_name || p.productName,
+          farmer: p.farmer_name || p.farmer || p.user_name || p.seller,
+          farmer_id: p.user_id || p.farmer_id || p.seller_id, // Make sure we capture farmer_id
+          image: p.image || p.product_image || '/vite.svg',
+          category: p.category || p.product_category || 'Vegetables',
+          quantity: p.product_quantity || p.quantity || '1',
+          location: p.location || p.from_location || 'Unknown',
+          dateRange: p.from && p.to ? `${new Date(p.from).toLocaleDateString()} - ${new Date(p.to).toLocaleDateString()}` : (p.dateRange || ''),
+          price: p.price_per_unit ? `৳${p.price_per_unit}` : (p.price || '৳0'),
+        })));
+        setMarketplaceError('');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setMarketplaceError(
-          errorData.message || "Failed to fetch farmer products"
-        );
+        setMarketplaceError(errorData.message || 'Failed to fetch farmer products');
         if (response.status === 401 || response.status === 403) {
           logout && logout();
         }
       }
     } catch (error) {
-      console.error("Error fetching farmer products:", error);
-      setMarketplaceError("Network error. Please try again.");
+      console.error('Error fetching farmer products:', error);
+      setMarketplaceError('Network error. Please try again.');
     } finally {
       setMarketplaceLoading(false);
     }
@@ -731,28 +651,25 @@ export default function MarketplacePage() {
       }
 
       // Assuming there's an endpoint to get user's bids
-      const response = await fetch(
-        getApiUrl(`api/v1/buyer/consumer/${user.user_id}`),
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/buyer/consumer/${user.user_id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched user bids response:", data);
+        console.log('Fetched user bids response:', data);
         const bidsData = data.data || data.bids || [];
-        console.log("Processed bids data:", bidsData);
+        console.log('Processed bids data:', bidsData);
         setUserBids(bidsData);
       } else {
-        console.error("Failed to fetch user bids");
+        console.error('Failed to fetch user bids');
       }
     } catch (error) {
-      console.error("Error fetching user bids:", error);
+      console.error('Error fetching user bids:', error);
     } finally {
       setBidsLoading(false);
     }
@@ -762,51 +679,44 @@ export default function MarketplacePage() {
   const fetchAcceptedBids = async () => {
     try {
       setAcceptedBidsLoading(true);
-      setAcceptedBidsError("");
+      setAcceptedBidsError('');
 
       const token = getToken && getToken();
       if (!token || !user || !user.user_id) {
-        setAcceptedBidsError(
-          "No authentication token or user found. Please login again."
-        );
+        setAcceptedBidsError('No authentication token or user found. Please login again.');
         return;
       }
 
-      const response = await fetch(
-        getApiUrl("api/v1/buyer/accepted"),
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            consumer_id: user.user_id,
-          }),
-        }
-      );
+      const response = await fetch('http://127.0.0.1:8000/api/v1/buyer/accepted', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          consumer_id: user.user_id
+        })
+      });
 
       console.log(response);
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched accepted bids response:", data);
+        console.log('Fetched accepted bids response:', data);
         const acceptedBidsData = data.acBid || [];
-        console.log("Processed accepted bids data:", acceptedBidsData);
+        console.log('Processed accepted bids data:', acceptedBidsData);
         setAcceptedBids(acceptedBidsData);
-        setAcceptedBidsError("");
+        setAcceptedBidsError('');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setAcceptedBidsError(
-          errorData.message || "Failed to fetch accepted bids"
-        );
+        setAcceptedBidsError(errorData.message || 'Failed to fetch accepted bids');
         if (response.status === 401 || response.status === 403) {
           logout && logout();
         }
       }
     } catch (error) {
-      console.error("Error fetching accepted bids:", error);
-      setAcceptedBidsError("Network error. Please try again.");
+      console.error('Error fetching accepted bids:', error);
+      setAcceptedBidsError('Network error. Please try again.');
     } finally {
       setAcceptedBidsLoading(false);
     }
@@ -823,37 +733,37 @@ export default function MarketplacePage() {
 
   // Check if user has already bid on a product
   const hasAlreadyBid = (productId) => {
-    console.log("Checking if user has bid on product:", productId);
-    console.log("User bids:", userBids);
-    const hasBid = userBids.some(
-      (bid) => bid.post_id === productId || bid.product_id === productId
+    console.log('Checking if user has bid on product:', productId);
+    console.log('User bids:', userBids);
+    const hasBid = userBids.some(bid => 
+      (bid.post_id === productId || bid.product_id === productId)
     );
-    console.log("Has already bid:", hasBid);
+    console.log('Has already bid:', hasBid);
     return hasBid;
   };
 
   // Check if user has an accepted bid on a product
   const hasAcceptedBid = (productId) => {
-    return acceptedBids.some((bid) => bid.post_id === productId);
+    return acceptedBids.some(bid => bid.post_id === productId);
   };
 
   // Get accepted bid details for a product
   const getAcceptedBidDetails = (productId) => {
-    return acceptedBids.find((bid) => bid.post_id === productId);
+    return acceptedBids.find(bid => bid.post_id === productId);
   };
 
   // Filter products based on active filter
   const filterProducts = () => {
-    if (activeFilter === "all") {
+    if (activeFilter === 'all') {
       // Show products with quantity > 0 and valid date
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
-
-      return posts.filter((post) => {
+      
+      return posts.filter(post => {
         // Check quantity
         const quantity = parseInt(post.quantity) || 0;
         if (quantity <= 0) return false;
-
+        
         // Check date - extract end date from dateRange if available
         if (post.dateRange) {
           const dateMatch = post.dateRange.match(/- (.+)$/);
@@ -862,15 +772,15 @@ export default function MarketplacePage() {
             if (endDate < today) return false;
           }
         }
-
+        
         return true;
       });
-    } else if (activeFilter === "accepted") {
+    } else if (activeFilter === 'accepted') {
       // Show only products that match accepted bid post_ids
-      const acceptedPostIds = acceptedBids.map((bid) => bid.post_id);
-      return posts.filter((post) => acceptedPostIds.includes(post.id));
+      const acceptedPostIds = acceptedBids.map(bid => bid.post_id);
+      return posts.filter(post => acceptedPostIds.includes(post.id));
     }
-
+    
     return posts;
   };
 
@@ -889,15 +799,15 @@ export default function MarketplacePage() {
       // Auto-hide the alert after 5 seconds
       setTimeout(() => {
         setShowAlreadyBidAlert(false);
-        setAlreadyBidProduct("");
+        setAlreadyBidProduct('');
       }, 5000);
       return;
     }
 
     setSelectedPost(post);
     setIsBidModalOpen(true);
-    setBidError("");
-    setBidSuccess("");
+    setBidError('');
+    setBidSuccess('');
   };
 
   // Handle contacting farmer
@@ -922,16 +832,16 @@ export default function MarketplacePage() {
   const submitBid = async (formData) => {
     try {
       setIsBidSubmitting(true);
-      setBidError("");
+      setBidError('');
 
       const token = getToken && getToken();
       if (!token) {
-        setBidError("No authentication token found. Please login again.");
+        setBidError('No authentication token found. Please login again.');
         return;
       }
 
       if (!user || !user.user_id) {
-        setBidError("User information not found. Please login again.");
+        setBidError('User information not found. Please login again.');
         return;
       }
 
@@ -942,42 +852,42 @@ export default function MarketplacePage() {
         bid_price: parseFloat(formData.bid_price),
         requested_quantity: parseInt(formData.requested_quantity),
         status: "Pending",
-        message: formData.message,
+        message: formData.message
       };
 
-      console.log("Sending bid data:", bidData); // Debug log
+      console.log('Sending bid data:', bidData); // Debug log
 
-      const response = await fetch(getApiUrl("api/v1/buyer"), {
-        method: "POST",
+      const response = await fetch('http://127.0.0.1:8000/api/v1/buyer', {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(bidData),
+        body: JSON.stringify(bidData)
       });
 
       if (response.ok) {
-        setBidSuccess("Bid placed successfully!");
+        setBidSuccess('Bid placed successfully!');
         setIsBidModalOpen(false);
         // Refresh user bids to update the list
         fetchUserBids();
         // Reset form and states
         setTimeout(() => {
-          setBidSuccess("");
+          setBidSuccess('');
           setSelectedPost(null);
         }, 3000);
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.log("API error response:", errorData); // Debug log
-        console.log("Response status:", response.status); // Debug log
-        setBidError(errorData.message || "Failed to place bid");
+        console.log('API error response:', errorData); // Debug log
+        console.log('Response status:', response.status); // Debug log
+        setBidError(errorData.message || 'Failed to place bid');
         if (response.status === 401 || response.status === 403) {
           logout && logout();
         }
       }
     } catch (error) {
-      console.error("Error placing bid:", error);
-      setBidError("Network error. Please try again.");
+      console.error('Error placing bid:', error);
+      setBidError('Network error. Please try again.');
     } finally {
       setIsBidSubmitting(false);
     }
@@ -987,62 +897,49 @@ export default function MarketplacePage() {
   const closeBidModal = () => {
     setIsBidModalOpen(false);
     setSelectedPost(null);
-    setBidError("");
-    setBidSuccess("");
+    setBidError('');
+    setBidSuccess('');
   };
 
   return (
     <div className="flex h-screen bg-gray-50">
       <ConsumerSidebar />
-
+      
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           {/* Header Section */}
           <div className="mb-8">
             <div className="text-center max-w-4xl mx-auto">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Find the
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
-                  {" "}
-                  perfect produce{" "}
-                </span>
+                Find the 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600"> perfect produce </span>
                 for your needs
               </h2>
               <p className="text-xl text-gray-600 leading-relaxed">
-                Browse fresh, quality products directly from local farmers. Get
-                the best deals and support your community.
+                Browse fresh, quality products directly from local farmers. Get the best deals and support your community.
               </p>
             </div>
           </div>
+
+
 
           {/* Already Bid Alert - Prominent */}
           {showAlreadyBidAlert && (
             <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-white px-6 py-4 shadow-lg">
               <div className="flex items-center justify-between max-w-6xl mx-auto">
                 <div className="flex items-center space-x-3">
-                  <svg
-                    className="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <div>
                     <h3 className="font-bold text-lg">Already Placed Bid!</h3>
-                    <p className="text-sm">
-                      You have already placed a bid on "{alreadyBidProduct}".
-                      Please check your bids or wait for the farmer's response.
-                    </p>
+                    <p className="text-sm">You have already placed a bid on "{alreadyBidProduct}". Please check your bids or wait for the farmer's response.</p>
                   </div>
                 </div>
                 <button
                   onClick={() => {
                     setShowAlreadyBidAlert(false);
-                    setAlreadyBidProduct("");
+                    setAlreadyBidProduct('');
                   }}
                   className="text-white hover:text-gray-200 text-2xl font-bold"
                 >
@@ -1062,11 +959,11 @@ export default function MarketplacePage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex space-x-1 bg-gray-100 p-1.5 rounded-xl shadow-inner">
                 <button
-                  onClick={() => setActiveFilter("all")}
+                  onClick={() => setActiveFilter('all')}
                   className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform ${
-                    activeFilter === "all"
-                      ? "bg-white text-green-600 shadow-lg scale-105 ring-2 ring-green-100"
-                      : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                    activeFilter === 'all'
+                      ? 'bg-white text-green-600 shadow-lg scale-105 ring-2 ring-green-100'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span className="flex items-center space-x-2">
@@ -1076,16 +973,16 @@ export default function MarketplacePage() {
                 </button>
                 <button
                   onClick={() => {
-                    setActiveFilter("accepted");
+                    setActiveFilter('accepted');
                     // Fetch accepted bids when this filter is clicked
                     if (user && user.user_id) {
                       fetchAcceptedBids();
                     }
                   }}
                   className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform flex items-center space-x-2 ${
-                    activeFilter === "accepted"
-                      ? "bg-white text-green-600 shadow-lg scale-105 ring-2 ring-green-100"
-                      : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                    activeFilter === 'accepted'
+                      ? 'bg-white text-green-600 shadow-lg scale-105 ring-2 ring-green-100'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>🎉</span>
@@ -1095,17 +992,14 @@ export default function MarketplacePage() {
                   )}
                 </button>
               </div>
-
+              
               {/* Results Count */}
               <div className="bg-white rounded-lg px-4 py-2 shadow-sm border border-gray-200">
                 <p className="text-gray-600 text-sm">
-                  <span className="font-semibold text-gray-900">
-                    {filteredPosts.length}
-                  </span>{" "}
-                  results
+                  <span className="font-semibold text-gray-900">{filteredPosts.length}</span> results
                   <span className="text-gray-400 ml-1">
-                    {activeFilter === "all" && "• Available products"}
-                    {activeFilter === "accepted" && "• Your accepted bids"}
+                    {activeFilter === 'all' && '• Available products'}
+                    {activeFilter === 'accepted' && '• Your accepted bids'}
                   </span>
                 </p>
               </div>
@@ -1117,16 +1011,8 @@ export default function MarketplacePage() {
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl mb-6 flex items-center space-x-3 shadow-sm">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-green-600"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
+                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 </div>
               </div>
@@ -1142,16 +1028,8 @@ export default function MarketplacePage() {
             <div className="bg-gradient-to-r from-red-50 to-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl mb-6 flex items-center space-x-3 shadow-sm">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-red-600"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
+                  <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
                 </div>
               </div>
@@ -1163,10 +1041,10 @@ export default function MarketplacePage() {
           )}
 
           {/* Accepted Bids Error Message */}
-          {acceptedBidsError && activeFilter === "accepted" && (
+          {acceptedBidsError && activeFilter === 'accepted' && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
               {acceptedBidsError}
-              <button
+              <button 
                 onClick={fetchAcceptedBids}
                 className="ml-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
               >
@@ -1176,22 +1054,17 @@ export default function MarketplacePage() {
           )}
 
           {/* Loading State */}
-          {(marketplaceLoading ||
-            (acceptedBidsLoading && activeFilter === "accepted")) && (
+          {(marketplaceLoading || (acceptedBidsLoading && activeFilter === 'accepted')) && (
             <div className="text-center py-20">
               <div className="relative mx-auto w-16 h-16 mb-6">
                 <div className="absolute inset-0 rounded-full border-4 border-green-100"></div>
                 <div className="absolute inset-0 rounded-full border-4 border-green-600 border-t-transparent animate-spin"></div>
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                {marketplaceLoading
-                  ? "Finding fresh products..."
-                  : "Loading your accepted bids..."}
+                {marketplaceLoading ? 'Finding fresh products...' : 'Loading your accepted bids...'}
               </h3>
               <p className="text-gray-500">
-                {marketplaceLoading
-                  ? "Searching through local farmer offerings"
-                  : "Retrieving your successful bids"}
+                {marketplaceLoading ? 'Searching through local farmer offerings' : 'Retrieving your successful bids'}
               </p>
             </div>
           )}
@@ -1200,7 +1073,7 @@ export default function MarketplacePage() {
           {marketplaceError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
               {marketplaceError}
-              <button
+              <button 
                 onClick={fetchFarmerProducts}
                 className="ml-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
               >
@@ -1210,73 +1083,54 @@ export default function MarketplacePage() {
           )}
 
           {/* Products Grid - Optimized for smaller cards */}
-          {!marketplaceLoading &&
-            !marketplaceError &&
-            !(acceptedBidsLoading && activeFilter === "accepted") &&
-            !acceptedBidsError &&
-            filteredPosts.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredPosts.map((post) => (
-                  <ProductCard
-                    key={post.id}
-                    post={post}
-                    onViewDetails={handleViewDetails}
-                    hasUserBid={hasAlreadyBid(post.id)}
-                    hasAcceptedBid={hasAcceptedBid(post.id)}
-                  />
-                ))}
-              </div>
-            )}
+          {!marketplaceLoading && !marketplaceError && 
+           !(acceptedBidsLoading && activeFilter === 'accepted') && 
+           !acceptedBidsError && filteredPosts.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+              {filteredPosts.map(post => (
+                <ProductCard 
+                  key={post.id} 
+                  post={post} 
+                  onViewDetails={handleViewDetails}
+                  hasUserBid={hasAlreadyBid(post.id)}
+                  hasAcceptedBid={hasAcceptedBid(post.id)}
+                />
+              ))}
+            </div>
+          )}
 
           {/* No Results Message */}
-          {!marketplaceLoading &&
-            !marketplaceError &&
-            !(acceptedBidsLoading && activeFilter === "accepted") &&
-            !acceptedBidsError &&
-            filteredPosts.length === 0 && (
-              <div className="text-center py-20">
-                <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
-                  {activeFilter === "all" ? (
-                    <Package className="w-12 h-12 text-gray-400" />
-                  ) : (
-                    <span className="text-3xl">🎉</span>
-                  )}
-                </div>
-                <h3 className="text-2xl font-bold text-gray-700 mb-2">
-                  {activeFilter === "all"
-                    ? "No products available"
-                    : "No accepted bids yet"}
-                </h3>
-                <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                  {activeFilter === "all"
-                    ? "There are currently no products with available quantity and valid dates. Check back soon for fresh listings!"
-                    : "You don't have any accepted bids yet. Keep bidding on products you like!"}
-                </p>
-                <button
-                  onClick={
-                    activeFilter === "accepted"
-                      ? fetchAcceptedBids
-                      : fetchFarmerProducts
-                  }
-                  className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  <span>Refresh</span>
-                </button>
+          {!marketplaceLoading && !marketplaceError && 
+           !(acceptedBidsLoading && activeFilter === 'accepted') && 
+           !acceptedBidsError && filteredPosts.length === 0 && (
+            <div className="text-center py-20">
+              <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
+                {activeFilter === 'all' ? (
+                  <Package className="w-12 h-12 text-gray-400" />
+                ) : (
+                  <span className="text-3xl">🎉</span>
+                )}
               </div>
-            )}
+              <h3 className="text-2xl font-bold text-gray-700 mb-2">
+                {activeFilter === 'all' ? 'No products available' : 'No accepted bids yet'}
+              </h3>
+              <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                {activeFilter === 'all' 
+                  ? 'There are currently no products with available quantity and valid dates. Check back soon for fresh listings!'
+                  : 'You don\'t have any accepted bids yet. Keep bidding on products you like!'
+                }
+              </p>
+              <button 
+                onClick={activeFilter === 'accepted' ? fetchAcceptedBids : fetchFarmerProducts}
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refresh</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1287,22 +1141,10 @@ export default function MarketplacePage() {
         post={selectedProductForDetails}
         onPlaceBid={handlePlaceBid}
         onContactFarmer={handleContactFarmer}
-        hasUserBid={
-          selectedProductForDetails
-            ? hasAlreadyBid(selectedProductForDetails.id)
-            : false
-        }
-        hasAcceptedBid={
-          selectedProductForDetails
-            ? hasAcceptedBid(selectedProductForDetails.id)
-            : false
-        }
+        hasUserBid={selectedProductForDetails ? hasAlreadyBid(selectedProductForDetails.id) : false}
+        hasAcceptedBid={selectedProductForDetails ? hasAcceptedBid(selectedProductForDetails.id) : false}
         activeFilter={activeFilter}
-        acceptedBidDetails={
-          selectedProductForDetails
-            ? getAcceptedBidDetails(selectedProductForDetails.id)
-            : null
-        }
+        acceptedBidDetails={selectedProductForDetails ? getAcceptedBidDetails(selectedProductForDetails.id) : null}
       />
 
       {/* Place Bid Modal */}
