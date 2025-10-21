@@ -111,20 +111,17 @@ export default function ProductDetailsModal({
       }
 
       // Update the bid status
-      const bidStatusResponse = await fetch(
-        getApiUrl(`api/v1/buyer/bids`),
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            _id: bidId,
-            status: action === "accept" ? "Accepted" : "Rejected",
-          }),
-        }
-      );
+      const bidStatusResponse = await fetch(getApiUrl(`api/v1/buyer/bids`), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          _id: bidId,
+          status: action === "accept" ? "Accepted" : "Rejected",
+        }),
+      });
 
       if (!bidStatusResponse.ok) {
         setBidError(`Failed to update bid status`);

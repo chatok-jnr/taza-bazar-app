@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useUser } from '../context/UserContext';
-import { getApiUrl } from '../config/api';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useUser } from "../context/UserContext";
+import { getApiUrl } from "../config/api";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useUser();
@@ -18,23 +18,23 @@ export default function LoginPage() {
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(''); // Clear error when user types
+    setError(""); // Clear error when user types
   };
 
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch(getApiUrl('api/v1/users/login'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("api/v1/users/login"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           user_email: formData.email,
@@ -47,14 +47,16 @@ export default function LoginPage() {
       if (response.ok) {
         // Login successful
         login(data.data, data.token);
-        navigate('/'); // Redirect to landing page
+        navigate("/"); // Redirect to landing page
       } else {
         // Login failed
-        setError(data.message || 'Login failed. Please check your credentials.');
+        setError(
+          data.message || "Login failed. Please check your credentials."
+        );
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('Network error. Please try again.');
+      console.error("Login error:", error);
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -71,8 +73,10 @@ export default function LoginPage() {
 
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Log In</h2>
-          
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Log In
+          </h2>
+
           <div className="space-y-5">
             {/* Email Field */}
             <div>
@@ -114,7 +118,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-5 h-5"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -133,7 +141,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {loading ? 'Logging in...' : 'Log In'}
+                {loading ? "Logging in..." : "Log In"}
               </button>
             </div>
           </div>
@@ -142,9 +150,9 @@ export default function LoginPage() {
         {/* Footer Text */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600 mb-2">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <button
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate("/signup")}
               className="text-green-600 hover:text-green-800 font-semibold"
             >
               Sign up here

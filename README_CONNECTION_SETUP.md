@@ -5,6 +5,7 @@
 Your frontend is now fully configured to connect to your Render backend!
 
 ### Backend URL
+
 ```
 https://taza-bazar-app-backend.onrender.com
 ```
@@ -12,6 +13,7 @@ https://taza-bazar-app-backend.onrender.com
 ## 📋 Checklist
 
 ### ✅ Frontend Updates (Complete)
+
 - [x] Created centralized API configuration (`src/config/api.js`)
 - [x] Created environment files (`.env`, `.env.development`, `.env.production`)
 - [x] Updated all 11 components/pages to use the new API configuration
@@ -19,6 +21,7 @@ https://taza-bazar-app-backend.onrender.com
 - [x] Added `.env` to `.gitignore`
 
 ### ⚠️ Backend Updates (Action Required)
+
 - [x] Updated CORS configuration to allow all origins
 - [ ] **YOU NEED TO:** Redeploy backend to Render
 
@@ -66,6 +69,7 @@ The frontend will automatically connect to:
 ## 📂 Files Created/Modified
 
 ### New Files
+
 ```
 frontend/
 ├── src/config/api.js          # Centralized API configuration
@@ -82,6 +86,7 @@ backend/
 ```
 
 ### Modified Files
+
 ```
 frontend/src/
 ├── pages/
@@ -105,18 +110,21 @@ backend/
 ## 🔄 Switching Between Local and Remote Backend
 
 ### Use Remote Backend (Render) - Default
+
 ```bash
 # frontend/.env
 VITE_API_URL=https://taza-bazar-app-backend.onrender.com
 ```
 
 ### Use Local Backend (for development)
+
 ```bash
 # frontend/.env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
 **Remember:** Restart the dev server after changing `.env`:
+
 ```bash
 # Stop: Ctrl+C
 npm run dev  # Start again
@@ -125,29 +133,37 @@ npm run dev  # Start again
 ## 🐛 Troubleshooting
 
 ### Problem: CORS Error
+
 **Solution:** Make sure you redeployed the backend with updated CORS configuration.
 
 ### Problem: API calls failing
+
 **Checklist:**
+
 1. ✅ Backend is running on Render
 2. ✅ Backend URL is correct in `.env`
 3. ✅ Frontend dev server restarted after changing `.env`
 4. ✅ Check browser console for specific errors
 
 ### Problem: 404 Not Found
+
 **Solution:** Check that your backend routes are correct and backend is deployed properly.
 
 ### Verify API URL
+
 Add this temporarily to any component to see which URL is being used:
+
 ```javascript
-import { API_BASE_URL } from '../config/api';
-console.log('Using API:', API_BASE_URL);
+import { API_BASE_URL } from "../config/api";
+console.log("Using API:", API_BASE_URL);
 ```
 
 ## 📝 Environment Variables Explained
 
 ### `VITE_API_URL`
+
 The base URL for your backend API. Vite automatically loads:
+
 - `.env` - Always loaded
 - `.env.development` - Loaded in development mode (`npm run dev`)
 - `.env.production` - Loaded in production mode (`npm run build`)
