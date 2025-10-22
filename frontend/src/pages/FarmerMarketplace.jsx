@@ -434,245 +434,189 @@ export default function FarmerMarketplace() {
         </div>
       </div>
 
-      {/* Details Modal */}
+      {/* Details Modal - Styled like ConsumerMarketplace */}
       {showDetailsModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
-            {/* Modal Header */}
-            <div className="sticky top-0 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl border-b border-gray-200 bg-white">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {selectedRequest.product_name}
-              </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
+            {/* Header with gradient background */}
+            <div className="relative bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-6 flex-shrink-0">
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-all duration-300"
+                className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
               >
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+              
+              <div className="text-white">
+                <h2 className="text-3xl font-bold mb-2">{selectedRequest.product_name}</h2>
+                <p className="text-green-100">Consumer request from {selectedRequest.consumerName || "Consumer"}</p>
+              </div>
+              
+              {selectedRequest.admin_deal && (
+                <div className="absolute bottom-4 left-6">
+                  <div className="bg-white bg-opacity-20 backdrop-blur-sm text-white px-3 py-1 text-sm font-bold rounded-full border border-white border-opacity-30">
+                    ✨ Featured Request
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="p-6">
-              {/* Request Image/Banner */}
-              <div className="relative h-48 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg mb-6 overflow-hidden border border-gray-200">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Package className="w-16 h-16 text-green-600" />
-                </div>
-                {selectedRequest.admin_deal && (
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-                      FEATURED
-                    </span>
+            {/* Modal Body - Two-column layout */}
+            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+              {/* Main Content Column */}
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+                <div className="p-6">
+                  {/* Request Image/Banner */}
+                  <div className="relative h-64 bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 rounded-xl mb-6 overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 bg-white bg-opacity-30 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                        <Package className="w-12 h-12 text-green-700" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-4 right-4">
+                      <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
+                        <span className="text-2xl font-bold text-green-600">{selectedRequest.price_per_unit}</span>
+                        <span className="text-sm text-gray-600 ml-1">{selectedRequest.currency || "BDT"}/{selectedRequest.quantity_unit}</span>
+                      </div>
+                    </div>
                   </div>
-                )}
-                <div className="absolute bottom-4 right-4">
-                  <div className="bg-white/90 rounded-lg px-3 py-2 text-sm font-medium text-gray-700">
-                    Posted{" "}
-                    {new Date(selectedRequest.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
 
-              {/* Main Content Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column - Request Details */}
-                <div className="lg:col-span-2 space-y-6">
                   {/* Description Section */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                      Request Description
-                    </h3>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Description</h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-gray-700 leading-relaxed">
                         {selectedRequest.request_description}
                       </p>
                     </div>
                   </div>
 
-                  {/* Specifications */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                      Specifications
-                    </h3>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              Quantity Required
-                            </p>
-                            <p className="font-semibold text-gray-800">
-                              {selectedRequest.product_quantity}{" "}
-                              {selectedRequest.quantity_unit}
-                            </p>
-                          </div>
+                  {/* Product Details */}
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Request Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <Package className="w-5 h-5 text-green-600" />
+                          <span className="font-semibold text-gray-700">Quantity Required</span>
                         </div>
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              Budget per Unit
-                            </p>
-                            <p className="font-semibold text-gray-800">
-                              {selectedRequest.price_per_unit}{" "}
-                              {selectedRequest.currency || "BDT"}
-                            </p>
-                          </div>
+                        <p className="text-lg font-bold text-gray-900">{selectedRequest.product_quantity} {selectedRequest.quantity_unit}</p>
+                      </div>
+                      
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <MapPin className="w-5 h-5 text-green-600" />
+                          <span className="font-semibold text-gray-700">Delivery Location</span>
                         </div>
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                          <div>
-                            <p className="text-sm text-gray-600">Required By</p>
-                            <p className="font-semibold text-gray-800">
-                              {new Date(
-                                selectedRequest.when
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </p>
-                          </div>
+                        <p className="text-lg font-bold text-gray-900">{selectedRequest.delivery_location || "Not specified"}</p>
+                      </div>
+                      
+                      <div className="bg-white border border-gray-200 rounded-lg p-4 md:col-span-2">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <Calendar className="w-5 h-5 text-green-600" />
+                          <span className="font-semibold text-gray-700">Required By</span>
                         </div>
-                        <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              Total Budget
-                            </p>
-                            <p className="font-semibold text-green-600 text-lg">
-                              {(
-                                selectedRequest.price_per_unit *
-                                selectedRequest.product_quantity
-                              ).toLocaleString()}{" "}
-                              {selectedRequest.currency || "BDT"}
-                            </p>
-                          </div>
-                        </div>
+                        <p className="text-lg font-bold text-gray-900">
+                          {new Date(selectedRequest.when).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* About the Consumer */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">About the Consumer</h4>
+                        <p className="text-sm text-gray-600">Consumer: {selectedRequest.consumerName || "Consumer"}</p>
+                        <p className="text-sm text-blue-600">Verified local buyer looking for quality produce</p>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Right Column - Action Panel */}
-                <div className="lg:col-span-1">
-                  <div className="sticky top-6">
-                    {/* Price Card */}
-                    <div className="bg-white border border-gray-200 rounded-lg p-6 mb-4 shadow-lg">
-                      <div className="text-center mb-4">
-                        <div className="text-3xl font-bold text-gray-800 mb-1">
-                          {selectedRequest.price_per_unit}{" "}
-                          {selectedRequest.currency || "BDT"}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          per {selectedRequest.quantity_unit}
-                        </div>
-                        <div className="text-lg font-semibold text-green-600 mt-2">
-                          Total:{" "}
-                          {(
-                            selectedRequest.price_per_unit *
-                            selectedRequest.product_quantity
-                          ).toLocaleString()}{" "}
-                          {selectedRequest.currency || "BDT"}
-                        </div>
+              {/* Sidebar Column */}
+              <div className="lg:w-80 bg-gray-50 p-6 border-l border-gray-200 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+                <div className="space-y-6">
+                  {/* Price Card */}
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="text-center mb-4">
+                      <div className="text-3xl font-bold text-green-600 mb-1">{selectedRequest.price_per_unit} {selectedRequest.currency || "BDT"}</div>
+                      <div className="text-sm text-gray-600">per {selectedRequest.quantity_unit}</div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-600">Required Quantity</span>
+                        <span className="font-semibold text-gray-900">{selectedRequest.product_quantity} {selectedRequest.quantity_unit}</span>
                       </div>
-
-                      {/* Quick Stats */}
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center justify-between py-2 border-b border-gray-200">
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4 text-gray-600" />
-                            <span className="text-sm text-gray-600">
-                              Delivery
-                            </span>
-                          </div>
-                          <span className="text-sm font-medium text-gray-800">
-                            {Math.ceil(
-                              (new Date(selectedRequest.when) - new Date()) /
-                                (1000 * 60 * 60 * 24)
-                            )}{" "}
-                            days
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-gray-200">
-                          <div className="flex items-center space-x-2">
-                            <Package className="w-4 h-4 text-gray-600" />
-                            <span className="text-sm text-gray-600">
-                              Quantity
-                            </span>
-                          </div>
-                          <span className="text-sm font-medium text-gray-800">
-                            {selectedRequest.product_quantity}{" "}
-                            {selectedRequest.quantity_unit}
-                          </span>
-                        </div>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-600">Delivery Location</span>
+                        <span className="font-semibold text-gray-900 text-right text-sm">{selectedRequest.delivery_location || "Not specified"}</span>
                       </div>
-
-                      {/* Action Buttons */}
-                      <div className="space-y-3">
-                        <button
-                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
-                          onClick={() => {
-                            setShowProposalModal(true);
-                          }}
-                        >
-                          <DollarSign className="w-5 h-5" />
-                          <span>Submit Proposal</span>
-                        </button>
-                        <button
-                          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 border border-gray-300"
-                          onClick={() => {
-                            // TODO: Implement message functionality
-                            console.log(
-                              "Message consumer clicked for request:",
-                              selectedRequest._id
-                            );
-                          }}
-                        >
-                          <MessageSquare className="w-5 h-5" />
-                          <span>Contact Buyer</span>
-                        </button>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-gray-600">Required By</span>
+                        <span className="font-semibold text-gray-900 text-right text-sm">
+                          {new Date(selectedRequest.when).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Additional Info */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mt-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-semibold text-blue-800 mb-1">
-                            Pro Tip
-                          </h4>
-                          <p className="text-sm text-blue-700">
-                            Submit a competitive proposal with clear delivery
-                            timeline to increase your chances of winning this
-                            request.
-                          </p>
-                        </div>
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <button 
+                        onClick={() => setShowProposalModal(true)}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      >
+                        <DollarSign size={18} />
+                        <span>Submit Proposal</span>
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          // TODO: Implement message functionality
+                          console.log("Message consumer clicked for request:", selectedRequest._id);
+                        }}
+                        className="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300 hover:border-gray-400 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md"
+                      >
+                        <MessageSquare size={16} />
+                        <span>Contact Consumer</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Trust & Safety */}
+                  <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <h4 className="font-semibold text-gray-900 mb-3">Pro Tips</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Offer competitive pricing</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Include delivery details</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Highlight produce quality</span>
                       </div>
                     </div>
                   </div>

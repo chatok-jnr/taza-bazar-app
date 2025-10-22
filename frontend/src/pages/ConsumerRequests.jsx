@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   MessageSquare,
@@ -19,12 +19,16 @@ import {
   MessageCircle,
   CheckCircle,
   XCircle,
+  Eye,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import ConsumerSidebar from "./ConsumerSidebar";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import ProductDetailsModal from "../components/ProductDetailsModal";
 
 // Main Consumer Requests Component
 export default function ConsumerRequests() {
+  const navigate = useNavigate();
   const { user, getToken, logout, isLoading: userLoading } = useUser();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,9 +64,8 @@ export default function ConsumerRequests() {
     admin_deal: false,
   });
 
-  // Request Details Modal State
-  const [isRequestDetailsModalOpen, setIsRequestDetailsModalOpen] =
-    useState(false);
+  // Product Details Modal State
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [requestBids, setRequestBids] = useState([]);
   const [bidsLoading, setBidsLoading] = useState(false);
@@ -253,16 +256,16 @@ export default function ConsumerRequests() {
     setIsEditRequestModalOpen(true);
   };
 
-  // Function to handle manage request click (open details modal)
-  const handleManageRequest = (request) => {
+  // Function to handle view request click (open details modal)
+  const handleViewRequest = (request) => {
     setSelectedRequest(request);
-    setIsRequestDetailsModalOpen(true);
+    setIsViewModalOpen(true);
     fetchRequestBids(request._id);
   };
 
   // Function to close request details modal
-  const closeRequestDetailsModal = () => {
-    setIsRequestDetailsModalOpen(false);
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
     setSelectedRequest(null);
     setRequestBids([]);
   };
@@ -649,7 +652,7 @@ export default function ConsumerRequests() {
                 <div 
                   key={request._id}
                   className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
-                  onClick={() => handleManageRequest(request)}
+                  onClick={() => handleViewRequest(request)}
                 >
                   <div className="relative h-40 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
@@ -669,22 +672,13 @@ export default function ConsumerRequests() {
                     {/* Admin Deal Badge */}
                     {request.admin_deal && (
                       <div className="absolute top-3 right-3">
-                        <span className="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
-                          <TrendingUp size={10} />
-                          <span>Admin deal</span>
+                        <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          Admin deal
                         </span>
                       </div>
                     )}
                     
-                    {/* Price Badge */}
                     <div className="absolute bottom-3 right-3">
-                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
-                        ৳{request.price_per_unit}
-                      </div>
-                    </div>
-                    
-                    {/* Date Badge */}
-                    <div className="absolute bottom-3 left-3">
                       <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
                         {new Date(request.when).toLocaleDateString()}
                       </div>
@@ -706,8 +700,8 @@ export default function ConsumerRequests() {
                         <span className="font-medium text-gray-900">{request.product_quantity} {request.quantity_unit}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Price per unit:</span>
-                        <span className="font-medium text-gray-900">৳{request.price_per_unit}</span>
+                        <span className="text-gray-500">Price:</span>
+                        <span className="font-medium text-gray-900">৳{request.price_per_unit}/{request.quantity_unit}</span>
                       </div>
                     </div>
 
@@ -716,11 +710,30 @@ export default function ConsumerRequests() {
                         <Calendar className="w-3 h-3 mr-1" />
                         <span>Needed by {new Date(request.when).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
-                        <span>View Details</span>
-                        <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditRequest(request);
+                          }}
+                          className="p-1.5 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteRequest(request);
+                          }}
+                          className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
+                          <Eye className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -753,326 +766,20 @@ export default function ConsumerRequests() {
         </div>
       </div>
 
-      {/* Request Details Modal */}
-      {isRequestDetailsModalOpen && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Request Details
-              </h3>
-              <button
-                onClick={closeRequestDetailsModal}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="p-6">
-              {/* Request Header */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {selectedRequest.product_name}
-                  </h2>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      selectedRequest.status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : selectedRequest.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {selectedRequest.status}
-                  </span>
-                </div>
-
-                {selectedRequest.admin_deal && (
-                  <div className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-semibold rounded-full mb-4">
-                    <TrendingUp className="w-3 h-3" />
-                    Admin Deal
-                  </div>
-                )}
-              </div>
-
-              {/* Request Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <Package className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-medium text-gray-500">
-                      Quantity
-                    </span>
-                  </div>
-                  <p className="text-xl font-bold text-gray-900">
-                    {selectedRequest.product_quantity}{" "}
-                    {selectedRequest.quantity_unit}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <DollarSign className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-medium text-gray-500">
-                      Price per Unit
-                    </span>
-                  </div>
-                  <p className="text-xl font-bold text-gray-900">
-                    ৳{selectedRequest.price_per_unit}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <Calendar className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-medium text-gray-500">
-                      Needed By
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {new Date(selectedRequest.when).toLocaleDateString()}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <DollarSign className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-medium text-gray-500">
-                      Total Budget
-                    </span>
-                  </div>
-                  <p className="text-xl font-bold text-green-600">
-                    ৳
-                    {(
-                      selectedRequest.product_quantity *
-                      selectedRequest.price_per_unit
-                    ).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-
-              {/* Description */}
-              {selectedRequest.request_description && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                    Description
-                  </h4>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-700 leading-relaxed">
-                      {selectedRequest.request_description}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Request Timeline */}
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                  Request Information
-                </h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-sm text-gray-500">Request ID</span>
-                      <p className="font-medium text-gray-900">
-                        {selectedRequest._id}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-500">
-                        Created Date
-                      </span>
-                      <p className="font-medium text-gray-900">
-                        {selectedRequest.createdAt
-                          ? new Date(
-                              selectedRequest.createdAt
-                            ).toLocaleDateString()
-                          : "Not available"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Farmer Bids Section */}
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                  Farmer Bids
-                </h4>
-
-                {bidsLoading ? (
-                  <div className="bg-gray-50 rounded-lg p-6 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
-                    <p className="text-gray-600">Loading bids...</p>
-                  </div>
-                ) : requestBids.length === 0 ? (
-                  <div className="bg-gray-50 rounded-lg p-6 text-center">
-                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 text-lg font-medium">
-                      No bid has been placed yet
-                    </p>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Farmers will see your request and can place bids
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {requestBids.map((bid, index) => (
-                      <div
-                        key={bid._id || index}
-                        className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
-                          bid.status === "Accepted"
-                            ? "bg-green-50 border-green-200"
-                            : bid.status === "Rejected"
-                            ? "bg-red-50 border-red-200"
-                            : "bg-white border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                              {bid.farmer_name
-                                ? bid.farmer_name.charAt(0)
-                                : "F"}
-                            </div>
-                            <div>
-                              <h5 className="font-semibold text-gray-900">
-                                {bid.farmer_name || "Anonymous Farmer"}
-                              </h5>
-                              <div className="flex items-center gap-2 mt-1">
-                                {bid.farm_location && (
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="w-3 h-3 text-gray-400" />
-                                    <span className="text-xs text-gray-600">
-                                      {bid.farm_location}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              bid.status === "Accepted"
-                                ? "bg-green-100 text-green-800"
-                                : bid.status === "Rejected"
-                                ? "bg-red-100 text-red-800"
-                                : bid.status === "Pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {bid.status || "Pending"}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 mb-3">
-                          <div className="bg-gray-50 rounded p-2">
-                            <p className="text-xs text-gray-500">
-                              Offered Quantity
-                            </p>
-                            <p className="font-semibold text-gray-900">
-                              {bid.quantity || "N/A"}{" "}
-                              {selectedRequest.quantity_unit}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 rounded p-2">
-                            <p className="text-xs text-gray-500">
-                              Price per Unit
-                            </p>
-                            <p className="font-semibold text-gray-900">
-                              ৳{bid.price_per_unit || "N/A"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {bid.message && (
-                          <p className="text-gray-700 text-sm mb-3 bg-gray-50 p-2 rounded">
-                            {bid.message}
-                          </p>
-                        )}
-
-                        {bid.status === "Pending" ? (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => {
-                                console.log("Accept button clicked");
-                                handleAcceptBid(bid);
-                              }}
-                              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
-                            >
-                              <CheckCircle className="w-3 h-3" />
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => {
-                                console.log("Reject button clicked");
-                                handleRejectBid(bid);
-                              }}
-                              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors"
-                            >
-                              <XCircle className="w-3 h-3" />
-                              Reject
-                            </button>
-                          </div>
-                        ) : (
-                          <div
-                            className={`text-center py-2 px-3 rounded text-xs font-medium ${
-                              bid.status === "Accepted"
-                                ? "bg-green-100 text-green-800"
-                                : bid.status === "Rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {bid.status === "Accepted"
-                              ? "✓ Accepted"
-                              : bid.status === "Rejected"
-                              ? "✗ Rejected"
-                              : bid.status}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    closeRequestDetailsModal();
-                    handleEditRequest(selectedRequest);
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  <Edit2 size={18} />
-                  Edit Request
-                </button>
-                <button
-                  onClick={() => {
-                    closeRequestDetailsModal();
-                    handleDeleteRequest(selectedRequest);
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                >
-                  <Trash2 size={18} />
-                  Delete Request
-                </button>
-                <button
-                  onClick={closeRequestDetailsModal}
-                  className="flex-1 px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* View Product Details Modal */}
+      {isViewModalOpen && selectedRequest && (
+        <ProductDetailsModal
+          isOpen={isViewModalOpen}
+          onClose={handleCloseViewModal}
+          listing={selectedRequest}
+          onEdit={handleEditRequest}
+          onDelete={handleDeleteRequest}
+          isBidSection={true}
+          requestBids={requestBids}
+          bidsLoading={bidsLoading}
+          handleAcceptBid={handleAcceptBid}
+          handleRejectBid={handleRejectBid}
+        />
       )}
 
       {/* New Request Modal */}
@@ -1418,62 +1125,13 @@ export default function ConsumerRequests() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {isDeleteConfirmModalOpen && requestToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                  <Trash2 className="text-red-600" size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Delete Request
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    This action cannot be undone
-                  </p>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-gray-700 mb-2">
-                  Are you sure you want to delete this request?
-                </p>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="font-semibold text-gray-800">
-                    {requestToDelete.product_name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Quantity: {requestToDelete.product_quantity}{" "}
-                    {requestToDelete.quantity_unit} • Price: ৳
-                    {requestToDelete.price_per_unit}
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-gray-600 text-sm mb-6">
-                This will permanently remove the request and cannot be undone.
-              </p>
-
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={cancelDeleteRequest}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDeleteRequest}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                >
-                  Delete Request
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        isOpen={isDeleteConfirmModalOpen}
+        onClose={cancelDeleteRequest}
+        onConfirm={confirmDeleteRequest}
+        title="Delete Request"
+        message={`Are you sure you want to delete "${requestToDelete?.product_name}"? This action cannot be undone.`}
+      />
     </div>
   );
 }

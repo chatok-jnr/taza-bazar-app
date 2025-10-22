@@ -14,6 +14,8 @@ import {
   Edit,
   Trash2,
   Bell,
+  MapPin,
+  CheckCircle,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
@@ -23,6 +25,11 @@ export default function ProductDetailsModal({
   listing,
   onEdit,
   onDelete,
+  isBidSection = false,
+  requestBids = [],
+  bidsLoading = false,
+  handleAcceptBid = null,
+  handleRejectBid = null,
 }) {
   const { getToken } = useUser();
 
@@ -241,7 +248,7 @@ export default function ProductDetailsModal({
 
   // Fetch bid updates when modal opens
   useEffect(() => {
-    if (isOpen && listing?._id) {
+    if (isOpen && listing?._id && !isBidSection) {
       fetchBidUpdates(listing._id);
     }
 
@@ -254,7 +261,7 @@ export default function ProductDetailsModal({
       setShowConfirmationDialog(false);
       setPendingBidAction(null);
     }
-  }, [isOpen, listing?._id]);
+  }, [isOpen, listing?._id, isBidSection]);
 
   if (!isOpen || !listing) return null;
 
@@ -263,7 +270,9 @@ export default function ProductDetailsModal({
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">Product Details</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {isBidSection ? "Request Details" : "Product Details"}
+          </h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -308,33 +317,50 @@ export default function ProductDetailsModal({
                       Admin Deal
                     </span>
                   )}
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      new Date(listing.to) >= new Date()
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {new Date(listing.to) >= new Date()
-                      ? "Available"
-                      : "Not Available"}
-                  </span>
+                  {!isBidSection && (
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        new Date(listing.to) >= new Date()
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {new Date(listing.to) >= new Date()
+                        ? "Available"
+                        : "Not Available"}
+                    </span>
+                  )}
+                  {isBidSection && listing.status && (
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        listing.status === "Active" 
+                          ? "bg-green-100 text-green-800"
+                          : listing.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {listing.status}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Date Range */}
+              {/* Date Range or Needed By */}
               <div className="flex items-center">
                 <div className="bg-blue-100 rounded-full p-3 mr-4">
                   <Calendar className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">
-                    Availability
+                    {isBidSection ? "Needed By" : "Availability"}
                   </p>
                   <p className="text-lg font-semibold text-gray-900">
-                    {formatDateRange(listing.from, listing.to)}
+                    {isBidSection 
+                      ? new Date(listing.when).toLocaleDateString()
+                      : formatDateRange(listing.from, listing.to)}
                   </p>
                 </div>
               </div>
@@ -387,145 +413,289 @@ export default function ProductDetailsModal({
             </div>
 
             {/* Description */}
-            {listing.product_description && (
+            {(listing.product_description || listing.request_description) && (
               <div className="mt-6">
                 <h4 className="text-lg font-medium text-gray-900 mb-2">
                   Description
                 </h4>
                 <p className="text-gray-600 leading-relaxed">
-                  {listing.product_description}
+                  {listing.product_description || listing.request_description}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Bid Updates Section */}
-          <div className="border-t border-gray-200 pt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              <h3 className="text-lg font-medium text-gray-900">Bid Updates</h3>
-            </div>
-
-            {loadingBids && (
-              <div className="flex justify-center items-center py-8">
-                <div className="text-gray-600">Loading bid updates...</div>
+          {/* Bid Updates Section for Farmer Listings */}
+          {!isBidSection && (
+            <div className="border-t border-gray-200 pt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                <h3 className="text-lg font-medium text-gray-900">Bid Updates</h3>
               </div>
-            )}
 
-            {bidError && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-                {bidError}
-              </div>
-            )}
+              {loadingBids && (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-gray-600">Loading bid updates...</div>
+                </div>
+              )}
 
-            {bidActionSuccess && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4">
-                {bidActionSuccess}
-              </div>
-            )}
+              {bidError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                  {bidError}
+                </div>
+              )}
 
-            {!loadingBids && !bidError && bidUpdates.length === 0 && (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 mb-2">
-                  No bids yet
-                </h4>
-                <p className="text-gray-600">
-                  No one has placed a bid on this listing yet.
-                </p>
-              </div>
-            )}
+              {bidActionSuccess && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4">
+                  {bidActionSuccess}
+                </div>
+              )}
 
-            {!loadingBids && !bidError && bidUpdates.length > 0 && (
-              <div className="space-y-4 max-h-64 overflow-y-auto">
-                {bidUpdates.map((bid, index) => (
-                  <div
-                    key={index}
-                    className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
-                      bid.status === "accepted" || bid.status === "Accepted"
-                        ? "bg-green-50 border-green-200"
-                        : bid.status === "rejected" || bid.status === "Rejected"
-                        ? "bg-red-50 border-red-200"
-                        : "bg-white border-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="bg-green-100 rounded-full p-2">
-                          <User className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">
-                            {bid.consumer_id || "Anonymous Bidder"}
-                          </h4>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {bid.message || "No message provided"}
-                          </p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="h-3 w-3" />
-                              <span>Bid: ৳{bid.bid_price}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Package className="h-3 w-3" />
-                              <span>Qty: {bid.requested_quantity}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span>
-                                {new Date(bid.createdAt).toLocaleDateString()}
-                              </span>
+              {!loadingBids && !bidError && bidUpdates.length === 0 && (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    No bids yet
+                  </h4>
+                  <p className="text-gray-600">
+                    No one has placed a bid on this listing yet.
+                  </p>
+                </div>
+              )}
+
+              {!loadingBids && !bidError && bidUpdates.length > 0 && (
+                <div className="space-y-4 max-h-64 overflow-y-auto">
+                  {bidUpdates.map((bid, index) => (
+                    <div
+                      key={index}
+                      className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
+                        bid.status === "accepted" || bid.status === "Accepted"
+                          ? "bg-green-50 border-green-200"
+                          : bid.status === "rejected" || bid.status === "Rejected"
+                          ? "bg-red-50 border-red-200"
+                          : "bg-white border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-green-100 rounded-full p-2">
+                            <User className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">
+                              {bid.consumer_id || "Anonymous Bidder"}
+                            </h4>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {bid.message || "No message provided"}
+                            </p>
+                            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <DollarSign className="h-3 w-3" />
+                                <span>Bid: ৳{bid.bid_price}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Package className="h-3 w-3" />
+                                <span>Qty: {bid.requested_quantity}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                <span>
+                                  {new Date(bid.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
+                        <div className="text-right flex flex-col items-end gap-2">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              bid.status === "accepted" ||
+                              bid.status === "Accepted"
+                                ? "bg-green-100 text-green-800"
+                                : bid.status === "rejected" ||
+                                  bid.status === "Rejected"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {bid.status || "Pending"}
+                          </span>
+
+                          {/* Action buttons - only show for pending bids */}
+                          {(bid.status === "Pending" ||
+                            bid.status === "pending" ||
+                            !bid.status) && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleBidAction(bid._id, "accept")}
+                                disabled={processingBids.has(bid._id)}
+                                className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Accept bid"
+                              >
+                                <Check size={12} />
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleBidAction(bid._id, "reject")}
+                                disabled={processingBids.has(bid._id)}
+                                className="flex items-center gap-1 px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Reject bid"
+                              >
+                                <XCircle size={12} />
+                                Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right flex flex-col items-end gap-2">
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Farmer Bids Section for Consumer Requests */}
+          {isBidSection && (
+            <div className="border-t border-gray-200 pt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                <h3 className="text-lg font-medium text-gray-900">Farmer Bids</h3>
+              </div>
+
+              {bidsLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <div className="ml-3 text-gray-600">Loading bids...</div>
+                </div>
+              ) : requestBids.length === 0 ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    No bid has been placed yet
+                  </h4>
+                  <p className="text-gray-600">
+                    Farmers will see your request and can place bids
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-64 overflow-y-auto">
+                  {requestBids.map((bid, index) => (
+                    <div
+                      key={bid._id || index}
+                      className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
+                        bid.status === "Accepted"
+                          ? "bg-green-50 border-green-200"
+                          : bid.status === "Rejected"
+                          ? "bg-red-50 border-red-200"
+                          : "bg-white border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            {bid.farmer_name
+                              ? bid.farmer_name.charAt(0)
+                              : "F"}
+                          </div>
+                          <div>
+                            <h5 className="font-semibold text-gray-900">
+                              {bid.farmer_name || "Anonymous Farmer"}
+                            </h5>
+                            <div className="flex items-center gap-2 mt-1">
+                              {bid.farm_location && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-gray-400" />
+                                  <span className="text-xs text-gray-600">
+                                    {bid.farm_location}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            bid.status === "accepted" ||
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
                             bid.status === "Accepted"
                               ? "bg-green-100 text-green-800"
-                              : bid.status === "rejected" ||
-                                bid.status === "Rejected"
+                              : bid.status === "Rejected"
                               ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
+                              : bid.status === "Pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {bid.status || "Pending"}
                         </span>
-
-                        {/* Action buttons - only show for pending bids */}
-                        {(bid.status === "Pending" ||
-                          bid.status === "pending" ||
-                          !bid.status) && (
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => handleBidAction(bid._id, "accept")}
-                              disabled={processingBids.has(bid._id)}
-                              className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Accept bid"
-                            >
-                              <Check size={12} />
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => handleBidAction(bid._id, "reject")}
-                              disabled={processingBids.has(bid._id)}
-                              className="flex items-center gap-1 px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Reject bid"
-                            >
-                              <XCircle size={12} />
-                              Reject
-                            </button>
-                          </div>
-                        )}
                       </div>
+
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="bg-gray-50 rounded p-2">
+                          <p className="text-xs text-gray-500">
+                            Offered Quantity
+                          </p>
+                          <p className="font-semibold text-gray-900">
+                            {bid.quantity || "N/A"}{" "}
+                            {listing.quantity_unit}
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 rounded p-2">
+                          <p className="text-xs text-gray-500">
+                            Price per Unit
+                          </p>
+                          <p className="font-semibold text-gray-900">
+                            ৳{bid.price_per_unit || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {bid.message && (
+                        <p className="text-gray-700 text-sm mb-3 bg-gray-50 p-2 rounded">
+                          {bid.message}
+                        </p>
+                      )}
+
+                      {bid.status === "Pending" && handleAcceptBid && handleRejectBid ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleAcceptBid(bid)}
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
+                          >
+                            <Check className="w-3 h-3" />
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleRejectBid(bid)}
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                          >
+                            <XCircle className="w-3 h-3" />
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          className={`text-center py-2 px-3 rounded text-xs font-medium ${
+                            bid.status === "Accepted"
+                              ? "bg-green-100 text-green-800"
+                              : bid.status === "Rejected"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {bid.status === "Accepted"
+                            ? "✓ Accepted"
+                            : bid.status === "Rejected"
+                            ? "✗ Rejected"
+                            : bid.status}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Notification Success Toast */}
