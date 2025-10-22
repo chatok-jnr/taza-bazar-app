@@ -34,5 +34,3 @@ exports.allAlert = async (req, res) => {
     });
   }
 };
-
-

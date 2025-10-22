@@ -57,6 +57,23 @@ it will call on this api link with get method
 http://127.0.0.1:8000/api/v1/farmAlert/paste_the_user_id_here
 
 and it will get a respone like this
+{
+    "status": "success",
+    "data": [
+        {
+            "_id": "68f7cf3d6b1685949dccab3b",
+            "user_id": "68e7f137030f97d4fe40fd7d",
+            "bidInfo": "68f7cf3dfae1011db28a500e",
+            "reqInfo": "68f7cea06b1685949dccab17",
+            "status": "Rejected",
+            "createdAt": "2025-10-21T18:21:49.977Z",
+            "updatedAt": "2025-10-21T18:21:49.977Z",
+            "__v": 0
+        }
+    ]
+}
 
+now if the status is reject it must be shown in red color
+if its accepted it must be shown as green
 
 */

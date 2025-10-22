@@ -1,86 +1,106 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ConsumerSidebar from "./ConsumerSidebar";
+import { useUser } from "../context/UserContext";
 
-const NotificationItem = ({ notification, onMarkAsRead }) => (
-  <div
-    onClick={() => onMarkAsRead(notification.id)}
-    className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${
-      !notification.read ? "bg-green-50" : "bg-white"
-    } border-b border-gray-100`}
-  >
-    <img
-      src={notification.avatar}
-      alt={notification.title}
-      className="w-12 h-12 rounded-full"
-    />
-    <div className="ml-4 flex-grow">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">{notification.title}</h3>
-          <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-        </div>
-        <div className="flex items-center">
-          {!notification.read && (
-            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-          )}
-          <span className="text-xs text-gray-500">
-            {notification.timestamp}
-          </span>
+const NotificationItem = ({ notification, onMarkAsRead }) => {
+  const isAccepted = notification.status === "Accepted";
+  const bgColor = isAccepted ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200";
+  const statusColor = isAccepted ? "text-green-700" : "text-red-700";
+  const statusBgColor = isAccepted ? "bg-green-100" : "bg-red-100";
+
+  return (
+    <div
+      onClick={() => onMarkAsRead(notification._id)}
+      className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${bgColor} border-b`}
+    >
+      <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+        <span className="text-lg font-semibold text-gray-600">
+          {isAccepted ? "✓" : "✗"}
+        </span>
+      </div>
+      <div className="ml-4 flex-grow">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">
+              Bid {notification.status}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Your bid has been {notification.status.toLowerCase()}
+            </p>
+            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-2 ${statusColor} ${statusBgColor}`}>
+              {notification.status}
+            </span>
+          </div>
+          <div className="flex items-center">
+            <span className="text-xs text-gray-500">
+              {new Date(notification.createdAt).toLocaleString()}
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function ConsumerNotification() {
   const [activeTab, setActiveTab] = useState("Notifications");
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Offer Accepted",
-      message: "Your offer for 3kg Tomatoes has been accepted by the farmer",
-      timestamp: "2 minutes ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "Order Status Update",
-      message: "Your order #456 is ready for pickup",
-      timestamp: "1 hour ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
-      read: false,
-    },
-    {
-      id: 3,
-      title: "Payment Confirmation",
-      message: "Payment of 350Tk sent successfully for order #456",
-      timestamp: "2 hours ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f",
-      read: false,
-    },
-    {
-      id: 4,
-      title: "New Response",
-      message: "Farmer responded to your inquiry about organic vegetables",
-      timestamp: "Yesterday",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d",
-      read: true,
-    },
-    {
-      id: 5,
-      title: "Special Offer",
-      message: "New seasonal vegetables available at discount prices",
-      timestamp: "2 days ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705e",
-      read: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user, getToken } = useUser();
+
+  // Fetch notifications from API
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user || (!user._id && !user.user_id)) {
+        setError("User not logged in");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const token = getToken();
+        if (!token) {
+          setError("Authentication token not found");
+          setLoading(false);
+          return;
+        }
+
+        const userId = user._id || user.user_id;
+        const response = await fetch(`http://127.0.0.1:8000/api/v1/consumerAlert/${userId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.status === "success") {
+          setNotifications(data.data);
+        } else {
+          setError("Failed to fetch notifications");
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [user]);
 
   const handleMarkAsRead = (id) => {
     setNotifications(
       notifications.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
+        notification._id === id ? { ...notification, read: true } : notification
       )
     );
   };
@@ -111,13 +131,34 @@ export default function ConsumerNotification() {
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
-            {notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onMarkAsRead={handleMarkAsRead}
-              />
-            ))}
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <span className="ml-2 text-gray-600">Loading notifications...</span>
+              </div>
+            ) : error ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="text-red-600 text-center">
+                  <p className="text-lg font-semibold">Error loading notifications</p>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="text-gray-500 text-center">
+                  <p className="text-lg font-semibold">No notifications found</p>
+                  <p className="text-sm">You don't have any notifications yet.</p>
+                </div>
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <NotificationItem
+                  key={notification._id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

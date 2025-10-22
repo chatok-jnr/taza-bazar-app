@@ -78,7 +78,7 @@ const FarmerNotification = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user } = useUser();
+  const { user, getToken } = useUser();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -89,8 +89,22 @@ const FarmerNotification = () => {
 
       try {
         setLoading(true);
+        const token = getToken();
+
+        if (!token) {
+          setError("No authentication token found. Please login again.");
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/v1/farmAlert/${user.user_id}`
+          `http://127.0.0.1:8000/api/v1/farmAlert/${user.user_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (response.data && response.data.status === "success") {
