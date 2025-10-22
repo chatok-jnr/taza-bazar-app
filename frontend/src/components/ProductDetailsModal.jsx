@@ -202,25 +202,122 @@ export default function ProductDetailsModal({
         }
 
         // Update farmer's total revenue using the current user's ID
-        const revenueUpdateResponse = await fetch(
+        // First get current revenue
+        const farmerResponse = await fetch(
           `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
           {
-            method: "PATCH",
+            method: "GET",
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({
-              total_revenue: bidRevenue,
-            }),
           }
         );
+
+        let revenueUpdateResponse;
+        
+        if (farmerResponse.ok) {
+          const farmerData = await farmerResponse.json();
+          // Use the special parameter "increment_revenue" to indicate we want to add to the existing value
+          // The backend needs to be updated to handle this special parameter
+          
+          // Now update with the combined revenue
+          revenueUpdateResponse = await fetch(
+            `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                increment_revenue: bidRevenue, // Special parameter to indicate addition
+              }),
+            }
+          );
+          console.log("Incrementing farmer revenue by:", bidRevenue);
+        } else {
+          // If we can't get current revenue info, still use the increment parameter
+          revenueUpdateResponse = await fetch(
+            `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                increment_revenue: bidRevenue,
+              }),
+            }
+          );
+        }
 
         if (!revenueUpdateResponse.ok) {
           console.error("Failed to update farmer's revenue");
           // We continue even if revenue update fails to ensure product update happens
         } else {
           console.log("Farmer's revenue updated successfully");
+        }
+        
+        // Update consumer's total spent
+        if (bidDetails.consumer_id) {
+          // First get consumer's current total_spent
+          const consumerResponse = await fetch(
+            `http://127.0.0.1:8000/api/v1/users/${bidDetails.consumer_id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          
+          let spentUpdateResponse;
+            
+          if (consumerResponse.ok) {
+            const consumerData = await consumerResponse.json();
+            // Use a special parameter to indicate we want to increment the existing value
+            
+            // Now update with combined spent amount
+            spentUpdateResponse = await fetch(
+              `http://127.0.0.1:8000/api/v1/users/${bidDetails.consumer_id}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  increment_spent: bidRevenue, // Special parameter to indicate addition
+                }),
+              }
+            );
+            console.log("Incrementing consumer spent by:", bidRevenue);
+          } else {
+            // If we can't get current spent, still use increment parameter
+            spentUpdateResponse = await fetch(
+              `http://127.0.0.1:8000/api/v1/users/${bidDetails.consumer_id}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  increment_spent: bidRevenue,
+                }),
+              }
+            );
+          }
+          
+          if (spentUpdateResponse.ok) {
+            console.log("Consumer's total spent updated successfully");
+          } else {
+            console.error("Failed to update consumer's total spent");
+            // Continue even if consumer update fails
+          }
+
+          // We've already handled the response above
         }
 
         // Update listing data locally
@@ -509,7 +606,7 @@ export default function ProductDetailsModal({
                           </div>
                           <div>
                             <h4 className="font-medium text-gray-900">
-                              {bid.consumer_id || "Anonymous Bidder"}
+                              {bid.consumer_name || bid.consumer_id || "Anonymous Bidder"}
                             </h4>
                             <p className="text-sm text-gray-600 mt-1">
                               {bid.message || "No message provided"}
@@ -770,9 +867,10 @@ export default function ProductDetailsModal({
                     </h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Consumer ID:</span>
+                        <span className="text-gray-600">Consumer:</span>
                         <span className="font-medium">
-                          {pendingBidAction.bidDetails.consumer_id ||
+                          {pendingBidAction.bidDetails.consumer_name || 
+                           pendingBidAction.bidDetails.consumer_id ||
                             "Anonymous"}
                         </span>
                       </div>
