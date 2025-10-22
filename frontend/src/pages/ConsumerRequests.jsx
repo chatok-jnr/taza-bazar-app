@@ -621,11 +621,11 @@ export default function ConsumerRequests() {
             </div>
           </div>
 
-          {/* Loading State */}
+          {/* Loading State - Marketplace Style */}
           {loading && (
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading your requests...</p>
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 font-medium">Loading your requests...</p>
             </div>
           )}
 
@@ -642,182 +642,111 @@ export default function ConsumerRequests() {
             </div>
           )}
 
-          {/* Requests Grid - Enhanced with Smaller Card Style */}
+          {/* Requests Grid - Matching Consumer Marketplace Style */}
           {!loading && !error && requests.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {requests.map((request) => (
-                <div
+                <div 
                   key={request._id}
-                  className="group relative bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-700 overflow-hidden cursor-pointer transform hover:-translate-y-4 hover:rotate-1"
+                  className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
                   onClick={() => handleManageRequest(request)}
                 >
-                  {/* Enhanced Header Section with Dynamic Effects */}
-                  <div className="relative h-32 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 overflow-hidden group-hover:from-orange-400 group-hover:via-red-400 group-hover:to-pink-400 transition-all duration-700">
-                    {/* Dynamic background with multiple layers */}
-                    <div className="absolute inset-0 opacity-30">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-300 via-indigo-300 to-purple-300 group-hover:animate-pulse"></div>
-                      <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-10 transform rotate-12 scale-150 group-hover:rotate-45 group-hover:scale-200 transition-transform duration-1000"></div>
-                      <div className="absolute bottom-0 right-0 w-16 h-16 bg-white bg-opacity-20 rounded-full group-hover:scale-300 transition-transform duration-700"></div>
+                  <div className="relative h-40 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                      <FileText className="w-12 h-12 text-green-600" />
                     </div>
-
-                    {/* Request Icon with enhanced 3D effects */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-2xl border border-white border-opacity-30 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:bg-opacity-30">
-                          <FileText className="w-6 h-6 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
-                        </div>
-                        {/* Dynamic floating particles */}
-                        <div className="absolute -top-2 -right-2 w-3 h-3 bg-yellow-300 rounded-full animate-bounce delay-100 group-hover:bg-pink-300 group-hover:scale-150 transition-all duration-500"></div>
-                        <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-green-300 rounded-full animate-bounce delay-300 group-hover:bg-purple-300 group-hover:scale-150 transition-all duration-500"></div>
-                        <div className="absolute top-0 left-6 w-1.5 h-1.5 bg-blue-300 rounded-full animate-ping group-hover:bg-orange-300 transition-colors duration-500"></div>
-                      </div>
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className={`text-white text-xs font-bold px-2 py-1 rounded-full ${
+                        request.status === "Active" ? "bg-green-500" : 
+                        request.status === "Pending" ? "bg-orange-500" : "bg-gray-500"
+                      }`}>
+                        {request.status}
+                      </span>
                     </div>
-
-                    {/* Enhanced Status Badge with glow effect */}
-                    <div className="absolute top-3 left-3 group-hover:scale-110 transition-transform duration-300">
-                      <div
-                        className={`px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 ${
-                          request.status === "Active"
-                            ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white group-hover:shadow-green-500/50 group-hover:shadow-xl"
-                            : request.status === "Pending"
-                            ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-white group-hover:shadow-yellow-500/50 group-hover:shadow-xl"
-                            : "bg-gradient-to-r from-gray-400 to-gray-500 text-white group-hover:shadow-gray-500/50 group-hover:shadow-xl"
-                        }`}
-                      >
-                        <span
-                          className={
-                            request.status === "Active"
-                              ? "animate-pulse"
-                              : request.status === "Pending"
-                              ? "animate-spin"
-                              : ""
-                          }
-                        >
-                          {request.status === "Active"
-                            ? "✓"
-                            : request.status === "Pending"
-                            ? "⏳"
-                            : "●"}
-                        </span>
-                        <span>{request.status}</span>
-                      </div>
-                    </div>
-
+                    
                     {/* Admin Deal Badge */}
                     {request.admin_deal && (
-                      <div className="absolute top-3 right-3 group-hover:bottom-4 group-hover:right-4 transition-all duration-500">
-                        <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-2 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:scale-125 group-hover:rotate-3 transition-all duration-500 group-hover:shadow-2xl">
+                      <div className="absolute top-3 right-3">
+                        <span className="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
                           <TrendingUp size={10} />
-                          <span>Priority</span>
-                        </div>
+                          <span>Admin deal</span>
+                        </span>
                       </div>
                     )}
-
-                    {/* Enhanced Price Badge with magnetic effect */}
-                    <div className="absolute bottom-3 right-3 group-hover:bottom-4 group-hover:right-4 transition-all duration-500">
-                      <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-xl px-3 py-1.5 shadow-xl border border-white border-opacity-50 group-hover:scale-125 group-hover:rotate-3 transition-all duration-500 group-hover:shadow-2xl">
-                        <span className="text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-orange-600 group-hover:to-pink-600 transition-all duration-500">
-                          ৳{request.price_per_unit}
-                        </span>
+                    
+                    {/* Price Badge */}
+                    <div className="absolute bottom-3 right-3">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+                        ৳{request.price_per_unit}
                       </div>
                     </div>
-
-                    {/* Cool overlay effect on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Date Badge */}
+                    <div className="absolute bottom-3 left-3">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+                        {new Date(request.when).toLocaleDateString()}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Enhanced Content Section with slide-up effect */}
-                  <div className="p-4 group-hover:transform group-hover:-translate-y-1 transition-transform duration-500">
-                    {/* Title with cool text effect */}
-                    <h3 className="font-bold text-gray-900 text-base mb-2 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-500 leading-tight">
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
                       {request.product_name}
                     </h3>
+                    
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                      {request.request_description || `Request for ${request.product_quantity} ${request.quantity_unit} of ${request.product_name}`}
+                    </p>
 
-                    {/* Enhanced Key Info with stagger animation */}
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center justify-between group-hover:transform group-hover:translate-x-2 transition-transform duration-300 delay-75">
-                        <div className="flex items-center space-x-1.5 text-xs text-gray-600">
-                          <div className="w-4 h-4 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 group-hover:scale-110 transition-all duration-300">
-                            <Package size={10} className="text-green-600" />
-                          </div>
-                          <span className="font-medium">
-                            Qty: {request.product_quantity}{" "}
-                            {request.quantity_unit}
-                          </span>
-                        </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Quantity:</span>
+                        <span className="font-medium text-gray-900">{request.product_quantity} {request.quantity_unit}</span>
                       </div>
-
-                      <div className="flex items-center space-x-1.5 text-xs text-gray-600 group-hover:transform group-hover:translate-x-1 transition-transform duration-300 delay-100">
-                        <div className="w-4 h-4 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-300">
-                          <DollarSign size={10} className="text-blue-600" />
-                        </div>
-                        <span className="font-medium">
-                          Price: ৳{request.price_per_unit}/
-                          {request.quantity_unit}
-                        </span>
-                      </div>
-
-                      {/* Needed by date with slide effect */}
-                      <div className="flex items-start space-x-1.5 text-xs text-gray-600 bg-gray-50 rounded-lg p-2 group-hover:bg-gradient-to-r group-hover:from-gray-50 group-hover:to-blue-50 group-hover:transform group-hover:translate-x-1 transition-all duration-300 delay-150">
-                        <div className="w-4 h-4 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
-                          <Calendar size={10} className="text-orange-600" />
-                        </div>
-                        <span className="leading-relaxed break-words font-medium">
-                          Needed by:{" "}
-                          {new Date(request.when).toLocaleDateString()}
-                        </span>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Price per unit:</span>
+                        <span className="font-medium text-gray-900">৳{request.price_per_unit}</span>
                       </div>
                     </div>
 
-                    {/* Enhanced Manage Request Button with magnetic effect */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleManageRequest(request);
-                      }}
-                      className="w-full bg-gradient-to-r from-gray-50 to-gray-100 hover:from-blue-500 hover:to-purple-500 text-gray-700 hover:text-white px-3 py-3 rounded-xl text-xs font-bold transition-all duration-500 border border-gray-200 hover:border-transparent group-hover:shadow-xl transform hover:-translate-y-2 hover:scale-105 flex items-center justify-center space-x-2 group-hover:animate-pulse"
-                    >
-                      <span>Manage Request</span>
-                      <svg
-                        className="w-3 h-3 group-hover:translate-x-2 group-hover:scale-125 transition-transform duration-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
-                    </button>
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Calendar className="w-3 h-3 mr-1" />
+                        <span>Needed by {new Date(request.when).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
+                        <span>View Details</span>
+                        <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Enhanced card glow with rainbow effect */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-400 via-purple-500 to-pink-600 opacity-0 group-hover:opacity-30 transition-opacity duration-700 -z-10 blur-2xl group-hover:animate-pulse"></div>
-
-                  {/* Sparkle effects */}
-                  <div className="absolute top-4 right-4 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-300 delay-200"></div>
-                  <div className="absolute bottom-8 left-4 w-1 h-1 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-all duration-300 delay-400"></div>
                 </div>
               ))}
             </div>
           )}
 
-          {/* No Requests Message */}
+          {/* No Requests Message - Marketplace Style */}
           {!loading && !error && requests.length === 0 && (
-            <div className="text-center py-16">
-              <FileText size={64} className="mx-auto text-gray-400 mb-4" />
-              <p className="text-xl text-gray-600">No requests found</p>
-              <p className="text-gray-500 mt-2">
-                Create your first product request to get started
+            <div className="text-center py-20 max-w-md mx-auto">
+              <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText size={36} className="text-green-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">No requests yet</h3>
+              <p className="text-gray-600 mb-6">
+                Create your first product request to connect with local farmers
               </p>
               <button
                 onClick={() => setIsNewRequestModalOpen(true)}
-                className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center mx-auto space-x-2"
               >
-                Create Request
+                <span>Create First Request</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
               </button>
             </div>
           )}
