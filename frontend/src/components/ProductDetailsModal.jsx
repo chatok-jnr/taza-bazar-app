@@ -31,7 +31,7 @@ export default function ProductDetailsModal({
   handleAcceptBid = null,
   handleRejectBid = null,
 }) {
-  const { getToken } = useUser();
+  const { user, getToken } = useUser();
 
   const [bidUpdates, setBidUpdates] = useState([]);
   const [loadingBids, setLoadingBids] = useState(false);
@@ -170,7 +170,7 @@ export default function ProductDetailsModal({
         }, 3000);
       }
 
-      // If accepting bid, reduce product quantity
+      // If accepting bid, reduce product quantity and update farmer's revenue
       if (action === "accept" && listing?._id) {
         const newQuantity = Math.max(
           0,
@@ -178,6 +178,10 @@ export default function ProductDetailsModal({
             parseInt(bidDetails.requested_quantity)
         );
 
+        // Calculate revenue from this bid
+        const bidRevenue = parseFloat(bidDetails.bid_price) * parseInt(bidDetails.requested_quantity);
+
+        // Update product quantity
         const productUpdateResponse = await fetch(
           `http://127.0.0.1:8000/api/v1/farmer/${listing._id}`,
           {
@@ -195,6 +199,28 @@ export default function ProductDetailsModal({
         if (!productUpdateResponse.ok) {
           setBidError("Failed to update product quantity");
           return;
+        }
+
+        // Update farmer's total revenue using the current user's ID
+        const revenueUpdateResponse = await fetch(
+          `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              total_revenue: bidRevenue,
+            }),
+          }
+        );
+
+        if (!revenueUpdateResponse.ok) {
+          console.error("Failed to update farmer's revenue");
+          // We continue even if revenue update fails to ensure product update happens
+        } else {
+          console.log("Farmer's revenue updated successfully");
         }
 
         // Update listing data locally
