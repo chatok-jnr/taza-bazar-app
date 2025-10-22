@@ -21,7 +21,9 @@ exports.createAlert = async (req, res) => {
 //Get all alert of user
 exports.allAlert = async (req, res) => {
   try {
-    const allNotify = await Consumer_alert.find({user_id:req.params.id});
+    const allNotify = await Consumer_alert.find({user_id:req.params.id})
+      .populate("bidInfo")
+      .populate("productInfo")
 
     res.status(200).json({
         status:"success",
@@ -34,5 +36,3 @@ exports.allAlert = async (req, res) => {
     });
   }
 };
-
-

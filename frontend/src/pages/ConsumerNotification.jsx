@@ -1,86 +1,280 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ConsumerSidebar from "./ConsumerSidebar";
+import { useUser } from "../context/UserContext";
 
-const NotificationItem = ({ notification, onMarkAsRead }) => (
-  <div
-    onClick={() => onMarkAsRead(notification.id)}
-    className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${
-      !notification.read ? "bg-green-50" : "bg-white"
-    } border-b border-gray-100`}
-  >
-    <img
-      src={notification.avatar}
-      alt={notification.title}
-      className="w-12 h-12 rounded-full"
-    />
-    <div className="ml-4 flex-grow">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">{notification.title}</h3>
-          <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+// Modal component for detailed notification view
+const NotificationDetailModal = ({ notification, isOpen, onClose }) => {
+  if (!isOpen || !notification) return null;
+
+  const { bidInfo, productInfo, status } = notification;
+  const isAccepted = status === "Accepted";
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Bid Details - {status}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+          >
+            ×
+          </button>
         </div>
-        <div className="flex items-center">
-          {!notification.read && (
-            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Status Card */}
+          <div className={`p-4 rounded-lg ${isAccepted ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <div className="flex items-center">
+              <span className="text-2xl mr-3">{isAccepted ? "✓" : "✗"}</span>
+              <div>
+                <h3 className="text-lg font-semibold">{status}</h3>
+                <p className="text-sm text-gray-600">
+                  Your bid has been {status.toLowerCase()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bid Information */}
+          {bidInfo && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">Your Bid Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Bid Price</p>
+                  <p className="font-semibold text-lg">{bidInfo.bid_price} BDT</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Requested Quantity</p>
+                  <p className="font-semibold text-lg">{bidInfo.requested_quantity} kg</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-sm text-gray-600">Your Message</p>
+                  <p className="font-medium">{bidInfo.message || "No message provided"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Bid Submitted</p>
+                  <p className="font-medium">{new Date(bidInfo.createdAt).toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Last Updated</p>
+                  <p className="font-medium">{new Date(bidInfo.updatedAt).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
           )}
-          <span className="text-xs text-gray-500">
-            {notification.timestamp}
-          </span>
+
+          {/* Product Information */}
+          {productInfo && (
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">Product Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Product Name</p>
+                  <p className="font-semibold text-lg">{productInfo.product_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Price per Unit</p>
+                  <p className="font-semibold text-lg">{productInfo.price_per_unit} {productInfo.currency}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Available Quantity</p>
+                  <p className="font-semibold text-lg">{productInfo.product_quantity} {productInfo.quantity_unit}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Admin Deal</p>
+                  <p className="font-semibold text-lg">{productInfo.admin_deal ? "Yes" : "No"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Available From</p>
+                  <p className="font-medium">{new Date(productInfo.from).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Available Until</p>
+                  <p className="font-medium">{new Date(productInfo.to).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* If no product info available */}
+          {!productInfo && (
+            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+              <p className="text-yellow-800">
+                Product information is not available for this notification.
+              </p>
+            </div>
+          )}
+
+          {/* Total Calculation */}
+          {bidInfo && (
+            <div className="bg-gray-100 p-4 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold">Total Amount:</span>
+                <span className="text-xl font-bold text-green-600">
+                  {bidInfo.bid_price * bidInfo.requested_quantity} BDT
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                {bidInfo.requested_quantity} kg × {bidInfo.bid_price} BDT per kg
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 rounded-b-lg">
+          <button
+            onClick={onClose}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded transition-colors duration-200"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
+
+const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
+  const isAccepted = notification.status === "Accepted";
+  const bgColor = isAccepted ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200";
+  const statusColor = isAccepted ? "text-green-700" : "text-red-700";
+  const statusBgColor = isAccepted ? "bg-green-100" : "bg-red-100";
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    onViewDetails(notification);
+  };
+
+  const handleMarkAsRead = (e) => {
+    e.stopPropagation();
+    onMarkAsRead(notification._id);
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${bgColor} border-b`}
+    >
+      <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+        <span className="text-lg font-semibold text-gray-600">
+          {isAccepted ? "✓" : "✗"}
+        </span>
+      </div>
+      <div className="ml-4 flex-grow">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">
+              Bid {notification.status}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Your bid has been {notification.status.toLowerCase()}
+            </p>
+            {notification.bidInfo && (
+              <div className="mt-2 space-y-1">
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Amount:</span> {notification.bidInfo.bid_price} BDT × {notification.bidInfo.requested_quantity} kg
+                </p>
+                {notification.productInfo && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Product:</span> {notification.productInfo.product_name}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="flex items-center mt-2 space-x-2">
+              <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${statusColor} ${statusBgColor}`}>
+                {notification.status}
+              </span>
+              <button
+                onClick={handleMarkAsRead}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Mark as read
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-xs text-gray-500">
+              {new Date(notification.createdAt).toLocaleString()}
+            </span>
+            <span className="text-xs text-blue-600 mt-1 font-medium">
+              Click for details →
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function ConsumerNotification() {
   const [activeTab, setActiveTab] = useState("Notifications");
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Offer Accepted",
-      message: "Your offer for 3kg Tomatoes has been accepted by the farmer",
-      timestamp: "2 minutes ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "Order Status Update",
-      message: "Your order #456 is ready for pickup",
-      timestamp: "1 hour ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
-      read: false,
-    },
-    {
-      id: 3,
-      title: "Payment Confirmation",
-      message: "Payment of 350Tk sent successfully for order #456",
-      timestamp: "2 hours ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f",
-      read: false,
-    },
-    {
-      id: 4,
-      title: "New Response",
-      message: "Farmer responded to your inquiry about organic vegetables",
-      timestamp: "Yesterday",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d",
-      read: true,
-    },
-    {
-      id: 5,
-      title: "Special Offer",
-      message: "New seasonal vegetables available at discount prices",
-      timestamp: "2 days ago",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705e",
-      read: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, getToken } = useUser();
+
+  // Fetch notifications from API
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user || (!user._id && !user.user_id)) {
+        setError("User not logged in");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const token = getToken();
+        if (!token) {
+          setError("Authentication token not found");
+          setLoading(false);
+          return;
+        }
+
+        const userId = user._id || user.user_id;
+        const response = await fetch(`http://127.0.0.1:8000/api/v1/consumerAlert/${userId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.status === "success") {
+          setNotifications(data.data);
+        } else {
+          setError("Failed to fetch notifications");
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [user]);
 
   const handleMarkAsRead = (id) => {
     setNotifications(
       notifications.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
+        notification._id === id ? { ...notification, read: true } : notification
       )
     );
   };
@@ -89,6 +283,16 @@ export default function ConsumerNotification() {
     setNotifications(
       notifications.map((notification) => ({ ...notification, read: true }))
     );
+  };
+
+  const handleViewDetails = (notification) => {
+    setSelectedNotification(notification);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedNotification(null);
   };
 
   return (
@@ -111,16 +315,45 @@ export default function ConsumerNotification() {
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
-            {notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onMarkAsRead={handleMarkAsRead}
-              />
-            ))}
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <span className="ml-2 text-gray-600">Loading notifications...</span>
+              </div>
+            ) : error ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="text-red-600 text-center">
+                  <p className="text-lg font-semibold">Error loading notifications</p>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="text-gray-500 text-center">
+                  <p className="text-lg font-semibold">No notifications found</p>
+                  <p className="text-sm">You don't have any notifications yet.</p>
+                </div>
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <NotificationItem
+                  key={notification._id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                  onViewDetails={handleViewDetails}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>
+
+      {/* Notification Detail Modal */}
+      <NotificationDetailModal
+        notification={selectedNotification}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const bid_info = require("./buyerModel");
-const farmerModel = require("./farmerModel");
+const Buyer_request = require("./buyerModel");
+const Farmer_product = require("./farmerModel");
 
 const alertScheam = new mongoose.Schema(
   {
@@ -11,12 +11,12 @@ const alertScheam = new mongoose.Schema(
     bidInfo: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "bid_info",
+      ref: "Buyer_request",
     },
     productInfo: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "farmerModel",
+      ref: "Farmer_product",
     },
     status: {
       type: String,
