@@ -21,7 +21,10 @@ exports.createAlert = async(req, res) => {
 //Get all alert of user
 exports.allAlert = async(req, res) => {
   try{
-    const allAlert = await Farm_alert.find({user_id:req.params.id});
+    const allAlert = await Farm_alert.find({user_id:req.params.id})
+      .populate('reqInfo')
+      .populate('bidInfo');
+
     res.status(200).json({
       status:"success",
       data:allAlert

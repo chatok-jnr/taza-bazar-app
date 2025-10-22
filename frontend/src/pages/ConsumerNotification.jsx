@@ -2,15 +2,164 @@ import React, { useState, useEffect } from "react";
 import ConsumerSidebar from "./ConsumerSidebar";
 import { useUser } from "../context/UserContext";
 
-const NotificationItem = ({ notification, onMarkAsRead }) => {
+// Modal component for detailed notification view
+const NotificationDetailModal = ({ notification, isOpen, onClose }) => {
+  if (!isOpen || !notification) return null;
+
+  const { bidInfo, productInfo, status } = notification;
+  const isAccepted = status === "Accepted";
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Bid Details - {status}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Status Card */}
+          <div className={`p-4 rounded-lg ${isAccepted ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <div className="flex items-center">
+              <span className="text-2xl mr-3">{isAccepted ? "✓" : "✗"}</span>
+              <div>
+                <h3 className="text-lg font-semibold">{status}</h3>
+                <p className="text-sm text-gray-600">
+                  Your bid has been {status.toLowerCase()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bid Information */}
+          {bidInfo && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">Your Bid Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Bid Price</p>
+                  <p className="font-semibold text-lg">{bidInfo.bid_price} BDT</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Requested Quantity</p>
+                  <p className="font-semibold text-lg">{bidInfo.requested_quantity} kg</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-sm text-gray-600">Your Message</p>
+                  <p className="font-medium">{bidInfo.message || "No message provided"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Bid Submitted</p>
+                  <p className="font-medium">{new Date(bidInfo.createdAt).toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Last Updated</p>
+                  <p className="font-medium">{new Date(bidInfo.updatedAt).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Product Information */}
+          {productInfo && (
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">Product Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Product Name</p>
+                  <p className="font-semibold text-lg">{productInfo.product_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Price per Unit</p>
+                  <p className="font-semibold text-lg">{productInfo.price_per_unit} {productInfo.currency}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Available Quantity</p>
+                  <p className="font-semibold text-lg">{productInfo.product_quantity} {productInfo.quantity_unit}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Admin Deal</p>
+                  <p className="font-semibold text-lg">{productInfo.admin_deal ? "Yes" : "No"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Available From</p>
+                  <p className="font-medium">{new Date(productInfo.from).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Available Until</p>
+                  <p className="font-medium">{new Date(productInfo.to).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* If no product info available */}
+          {!productInfo && (
+            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+              <p className="text-yellow-800">
+                Product information is not available for this notification.
+              </p>
+            </div>
+          )}
+
+          {/* Total Calculation */}
+          {bidInfo && (
+            <div className="bg-gray-100 p-4 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold">Total Amount:</span>
+                <span className="text-xl font-bold text-green-600">
+                  {bidInfo.bid_price * bidInfo.requested_quantity} BDT
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                {bidInfo.requested_quantity} kg × {bidInfo.bid_price} BDT per kg
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 rounded-b-lg">
+          <button
+            onClick={onClose}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded transition-colors duration-200"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
   const isAccepted = notification.status === "Accepted";
   const bgColor = isAccepted ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200";
   const statusColor = isAccepted ? "text-green-700" : "text-red-700";
   const statusBgColor = isAccepted ? "bg-green-100" : "bg-red-100";
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    onViewDetails(notification);
+  };
+
+  const handleMarkAsRead = (e) => {
+    e.stopPropagation();
+    onMarkAsRead(notification._id);
+  };
+
   return (
     <div
-      onClick={() => onMarkAsRead(notification._id)}
+      onClick={handleClick}
       className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${bgColor} border-b`}
     >
       <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
@@ -27,13 +176,36 @@ const NotificationItem = ({ notification, onMarkAsRead }) => {
             <p className="text-sm text-gray-600 mt-1">
               Your bid has been {notification.status.toLowerCase()}
             </p>
-            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-2 ${statusColor} ${statusBgColor}`}>
-              {notification.status}
-            </span>
+            {notification.bidInfo && (
+              <div className="mt-2 space-y-1">
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Amount:</span> {notification.bidInfo.bid_price} BDT × {notification.bidInfo.requested_quantity} kg
+                </p>
+                {notification.productInfo && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Product:</span> {notification.productInfo.product_name}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="flex items-center mt-2 space-x-2">
+              <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${statusColor} ${statusBgColor}`}>
+                {notification.status}
+              </span>
+              <button
+                onClick={handleMarkAsRead}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Mark as read
+              </button>
+            </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex flex-col items-end">
             <span className="text-xs text-gray-500">
               {new Date(notification.createdAt).toLocaleString()}
+            </span>
+            <span className="text-xs text-blue-600 mt-1 font-medium">
+              Click for details →
             </span>
           </div>
         </div>
@@ -47,6 +219,8 @@ export default function ConsumerNotification() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, getToken } = useUser();
 
   // Fetch notifications from API
@@ -111,6 +285,16 @@ export default function ConsumerNotification() {
     );
   };
 
+  const handleViewDetails = (notification) => {
+    setSelectedNotification(notification);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedNotification(null);
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       <ConsumerSidebar />
@@ -156,12 +340,20 @@ export default function ConsumerNotification() {
                   key={notification._id}
                   notification={notification}
                   onMarkAsRead={handleMarkAsRead}
+                  onViewDetails={handleViewDetails}
                 />
               ))
             )}
           </div>
         </div>
       </div>
+
+      {/* Notification Detail Modal */}
+      <NotificationDetailModal
+        notification={selectedNotification}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

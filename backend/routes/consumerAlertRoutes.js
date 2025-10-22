@@ -1,10 +1,10 @@
 const express = require("express");
 const consumerAlertController = require("./../controllers/consumerAlertController");
-//const {protect} = require('./../middleware/authMiddleware');
+const {protect} = require('./../middleware/authMiddleware');
 
 const router = express.Router();
 
-//router.user(protect);
+router.use(protect);
 
 router
     .route("/")
