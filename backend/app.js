@@ -7,6 +7,7 @@ const consumerRouter = require('./routes/consumerRoutes');
 const buyerRouter = require('./routes/buyerRoutes');
 const farmerBidRouter = require('./routes/farmerBidRoutes');
 const farmAlert = require('./routes/farmAlertRoutes');
+const consumerAlert = require('./routes/consumerAlertRoutes');
 const app = express();
 
 app.use(
@@ -27,4 +28,5 @@ app.use('/api/v1/consumer', consumerRouter);
 app.use('/api/v1/buyer', buyerRouter);
 app.use('/api/v1/farmerBid', farmerBidRouter); //http://127.0.0.1:8000/api/v1/farmerBid
 app.use('/api/v1/farmAlert', farmAlert);
+app.use('/api/v1/consumerAlert', consumerAlert);
 module.exports = app;

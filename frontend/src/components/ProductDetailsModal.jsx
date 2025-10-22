@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Edit,
   Trash2,
+  Bell,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
@@ -36,6 +37,7 @@ export default function ProductDetailsModal({
 
   // Success message state for bid actions
   const [bidActionSuccess, setBidActionSuccess] = useState("");
+  const [notificationSuccess, setNotificationSuccess] = useState(false);
 
   // Function to fetch bid updates for the listing
   const fetchBidUpdates = async (productId) => {
@@ -130,6 +132,37 @@ export default function ProductDetailsModal({
         return;
       }
 
+      // Send notification to consumer about bid acceptance/rejection
+      const notificationResponse = await fetch(
+        "http://127.0.0.1:8000/api/v1/consumerAlert",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            user_id: bidDetails.consumer_id, // Consumer's ID who placed the bid
+            bidInfo: bidId, // Bid object ID
+            productInfo: listing._id, // Product/listing ID
+            status: action === "accept" ? "Accepted" : "Rejected",
+          }),
+        }
+      );
+
+      if (!notificationResponse.ok) {
+        console.error("Failed to send notification to consumer");
+        // Continue even if notification fails
+      } else {
+        console.log("Notification sent successfully to consumer");
+        setNotificationSuccess(true);
+        
+        // Auto-hide notification success after 3 seconds
+        setTimeout(() => {
+          setNotificationSuccess(false);
+        }, 3000);
+      }
+
       // If accepting bid, reduce product quantity
       if (action === "accept" && listing?._id) {
         const newQuantity = Math.max(
@@ -217,6 +250,7 @@ export default function ProductDetailsModal({
       setBidUpdates([]);
       setBidError("");
       setBidActionSuccess("");
+      setNotificationSuccess(false);
       setShowConfirmationDialog(false);
       setPendingBidAction(null);
     }
@@ -493,6 +527,19 @@ export default function ProductDetailsModal({
             )}
           </div>
         </div>
+
+        {/* Notification Success Toast */}
+        {notificationSuccess && (
+          <div className="fixed bottom-4 right-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow-lg z-50 flex items-center">
+            <Bell className="h-5 w-5 text-blue-500 mr-3" />
+            <div>
+              <p className="font-medium text-blue-700">Notification Sent</p>
+              <p className="text-sm text-blue-600">
+                The consumer has been notified about your decision.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Bid Action Confirmation Dialog */}
         {showConfirmationDialog && pendingBidAction && (

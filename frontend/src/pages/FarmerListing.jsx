@@ -22,6 +22,9 @@ export default function FarmerListing() {
 
   // Fetch farmer listings from API
   const fetchFarmerListings = async () => {
+
+    console.log("Hola");
+
     if (!user?.user_id) {
       setError("User not found. Please login again.");
       setLoading(false);
