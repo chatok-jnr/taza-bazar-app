@@ -221,10 +221,15 @@ export default function ConsumerNotification() {
   const [error, setError] = useState(null);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user, getToken } = useUser();
+  const { user, getToken, isLoading: authLoading } = useUser();
 
   // Fetch notifications from API
   useEffect(() => {
+    // Wait until authentication check is complete
+    if (authLoading) {
+      return;
+    }
+    
     const fetchNotifications = async () => {
       if (!user || (!user._id && !user.user_id)) {
         setError("User not logged in");
@@ -269,7 +274,7 @@ export default function ConsumerNotification() {
     };
 
     fetchNotifications();
-  }, [user]);
+  }, [user, authLoading]);
 
   const handleMarkAsRead = (id) => {
     setNotifications(
@@ -315,7 +320,7 @@ export default function ConsumerNotification() {
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
-            {loading ? (
+            {authLoading || loading ? (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                 <span className="ml-2 text-gray-600">Loading notifications...</span>

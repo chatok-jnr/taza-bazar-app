@@ -147,34 +147,11 @@ const NotificationDetailModal = ({ notification, isOpen, onClose }) => {
 };
 
 const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
-  // Determine background color based on status
-  const getStatusColor = (status) => {
-    if (!status) return "";
+  const isAccepted = notification.status === "Accepted";
+  const bgColor = isAccepted ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200";
+  const statusColor = isAccepted ? "text-green-700" : "text-red-700";
+  const statusBgColor = isAccepted ? "bg-green-100" : "bg-red-100";
 
-    switch (status.toLowerCase()) {
-      case "rejected":
-        return "bg-red-50 border-l-4 border-red-500";
-      case "accepted":
-        return "bg-green-50 border-l-4 border-green-500";
-      default:
-        return "bg-white";
-    }
-  };
-
-  // Determine text color based on status
-  const getStatusTextColor = (status) => {
-    if (!status) return "text-gray-600";
-
-    switch (status.toLowerCase()) {
-      case "rejected":
-        return "text-red-600";
-      case "accepted":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-  
   const handleClick = (e) => {
     e.preventDefault();
     onViewDetails(notification);
@@ -188,30 +165,26 @@ const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
   return (
     <div
       onClick={handleClick}
-      className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${getStatusColor(
-        notification.status
-      )} border-b border-gray-100`}
+      className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${bgColor} border-b`}
     >
-      <div className="bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center">
-        <span className="text-xl font-bold text-gray-600">
-          {notification.status ? notification.status.charAt(0) : "N"}
+      <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+        <span className="text-lg font-semibold text-gray-600">
+          {isAccepted ? "✓" : "✗"}
         </span>
       </div>
       <div className="ml-4 flex-grow">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-semibold">Bid {notification.status}</h3>
-            <p
-              className={`text-sm mt-1 ${getStatusTextColor(
-                notification.status
-              )}`}
-            >
-              Status: {notification.status || "Pending"}
+            <h3 className="text-lg font-semibold">
+              Bid {notification.status}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Your bid has been {notification.status.toLowerCase()}
             </p>
             {notification.bidInfo && (
               <div className="mt-2 space-y-1">
                 <p className="text-sm text-gray-700">
-                  <span className="font-medium">Price:</span> {notification.bidInfo.price_per_unit} BDT × {notification.bidInfo.quantity} kg
+                  <span className="font-medium">Amount:</span> {notification.bidInfo.price_per_unit} BDT × {notification.bidInfo.quantity} kg
                 </p>
                 {notification.reqInfo && (
                   <p className="text-sm text-gray-700">
@@ -221,7 +194,7 @@ const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
               </div>
             )}
             <div className="flex items-center mt-2 space-x-2">
-              <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusTextColor(notification.status)} bg-opacity-20`}>
+              <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${statusColor} ${statusBgColor}`}>
                 {notification.status}
               </span>
               <button
@@ -325,11 +298,11 @@ const FarmerNotification = () => {
   };
 
   return (
-    <div className="flex h-screen font-sans antialiased text-gray-800 bg-gray-50">
+    <div className="flex h-screen bg-gray-50">
       <FarmerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-
+      
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="px-8 py-6 flex justify-between items-center">
@@ -344,26 +317,25 @@ const FarmerNotification = () => {
         </div>
 
         {/* Notifications List */}
-        <div className="overflow-y-auto h-[calc(100vh-5rem)]">
+        <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <span className="ml-2 text-gray-600">Loading notifications...</span>
               </div>
             ) : error ? (
-              <div className="p-4 mx-auto max-w-md text-center">
-                <p className="text-red-500">{error}</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200"
-                >
-                  Retry
-                </button>
+              <div className="flex justify-center items-center py-8">
+                <div className="text-red-600 text-center">
+                  <p className="text-lg font-semibold">Error loading notifications</p>
+                  <p className="text-sm">{error}</p>
+                </div>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="text-gray-400 text-xl">
-                  No notifications found
+              <div className="flex justify-center items-center py-8">
+                <div className="text-gray-500 text-center">
+                  <p className="text-lg font-semibold">No notifications found</p>
+                  <p className="text-sm">You don't have any notifications yet.</p>
                 </div>
               </div>
             ) : (
