@@ -1,141 +1,100 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import { Link, useLocation } from 'react-router-dom';
-import { FileText, TrendingUp, Bell, MessageSquare, User, MapPin, Calendar, Package } from 'lucide-react';
+import { FileText, TrendingUp, Bell, MessageSquare, User, MapPin, Calendar, Package, Search, Eye } from 'lucide-react';
 import ConsumerSidebar from './ConsumerSidebar';
 
 // Posts will be loaded from an API; start with an empty array
 // TODO: Replace with actual data fetching from backend API
 
-// Product Card Component - Enhanced with Cool Hover Effects
+// Product Card Component - Cleaner Farmer-Style
 function ProductCard({ post, onViewDetails, hasUserBid, hasAcceptedBid }) {
   // Temporary test - make first product show as already bid
   const testHasUserBid = hasUserBid || post.productName === "Test Product";
   
   return (
-    <div className={`group relative bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-700 overflow-hidden cursor-pointer transform hover:-translate-y-4 hover:rotate-1 ${
-      testHasUserBid ? 'ring-2 ring-yellow-400 ring-opacity-60' : ''
-    } ${hasAcceptedBid ? 'ring-2 ring-green-500 ring-opacity-60' : ''}`}
-    onClick={() => onViewDetails(post)}>
-      
-      {/* Enhanced Image Section with Dynamic Effects */}
-      <div className="relative h-32 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 overflow-hidden group-hover:from-purple-400 group-hover:via-pink-400 group-hover:to-red-400 transition-all duration-700">
-        {/* Dynamic background with multiple layers */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-300 via-emerald-300 to-teal-300 group-hover:animate-pulse"></div>
-          <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-10 transform rotate-12 scale-150 group-hover:rotate-45 group-hover:scale-200 transition-transform duration-1000"></div>
-          <div className="absolute bottom-0 right-0 w-16 h-16 bg-white bg-opacity-20 rounded-full group-hover:scale-300 transition-transform duration-700"></div>
+    <div 
+      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
+      onClick={() => onViewDetails(post)}
+    >
+      {/* Card Header with Image Placeholder */}
+      <div className="relative h-40 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+          <Package className="w-12 h-12 text-green-600" />
         </div>
         
-        {/* Product Icon with enhanced 3D effects */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-2xl border border-white border-opacity-30 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 group-hover:bg-opacity-30">
-              <Package className="w-6 h-6 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
-            </div>
-            {/* Dynamic floating particles */}
-            <div className="absolute -top-2 -right-2 w-3 h-3 bg-yellow-300 rounded-full animate-bounce delay-100 group-hover:bg-pink-300 group-hover:scale-150 transition-all duration-500"></div>
-            <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-blue-300 rounded-full animate-bounce delay-300 group-hover:bg-purple-300 group-hover:scale-150 transition-all duration-500"></div>
-            <div className="absolute top-0 left-6 w-1.5 h-1.5 bg-green-300 rounded-full animate-ping group-hover:bg-orange-300 transition-colors duration-500"></div>
-          </div>
-        )</div>
-
-        {/* Enhanced Status Badge with glow effect */}
+        {/* Status Badge */}
         {(testHasUserBid || hasAcceptedBid) && (
-          <div className="absolute top-3 left-3 group-hover:scale-110 transition-transform duration-300">
+          <div className="absolute top-3 left-3">
             {hasAcceptedBid ? (
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:shadow-green-500/50 group-hover:shadow-xl">
-                <span className="animate-pulse">✓</span>
-                <span>Accepted</span>
-              </div>
+              <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                Accepted
+              </span>
             ) : testHasUserBid ? (
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 text-xs font-bold rounded-xl shadow-lg border border-white border-opacity-30 backdrop-blur-sm flex items-center space-x-1 group-hover:shadow-yellow-500/50 group-hover:shadow-xl">
-                <span className="animate-spin">⏳</span>
-                <span>Pending</span>
-              </div>
+              <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                Pending
+              </span>
             ) : null}
           </div>
         )}
-
-        {/* Enhanced Price Badge with magnetic effect */}
-        <div className="absolute bottom-3 right-3 group-hover:bottom-4 group-hover:right-4 transition-all duration-500">
-          <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-xl px-3 py-1.5 shadow-xl border border-white border-opacity-50 group-hover:scale-125 group-hover:rotate-3 transition-all duration-500 group-hover:shadow-2xl">
-            <span className="text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-600 transition-all duration-500">
-              {post.price}
-            </span>
+        
+        {/* Price Badge */}
+        <div className="absolute top-3 right-3">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+            {post.price}
           </div>
         </div>
-
-        {/* Cool overlay effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        
+        {/* Date Badge (if available in dateRange) */}
+        {post.dateRange && (
+          <div className="absolute bottom-3 right-3">
+            <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+              {new Date(post.dateRange.split(' - ')[0]).toLocaleDateString()}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Enhanced Content Section with slide-up effect */}
-      <div className="p-4 group-hover:transform group-hover:-translate-y-1 transition-transform duration-500">
-        {/* Title with cool text effect */}
-        <h3 className="font-bold text-gray-900 text-base mb-2 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-purple-600 transition-all duration-500 leading-tight">
+      {/* Card Content */}
+      <div className="p-4">
+        {/* Title */}
+        <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
           {post.productName}
         </h3>
         
-        {/* Farmer info with enhanced styling */}
-        <div className="flex items-center space-x-2 mb-3 group-hover:transform group-hover:translate-x-1 transition-transform duration-300">
-          <div className="w-5 h-5 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-            <User size={12} className="text-blue-600" />
-          </div>
-          <p className="text-xs text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300">by {post.farmer}</p>
-        </div>
-        
-        {/* Enhanced Key Info with stagger animation */}
+        {/* Farmer info */}
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+          by {post.farmer}
+        </p>
+
+        {/* Key Details */}
         <div className="space-y-2 mb-4">
-          <div className="flex items-center justify-between group-hover:transform group-hover:translate-x-2 transition-transform duration-300 delay-75">
-            <div className="flex items-center space-x-1.5 text-xs text-gray-600">
-              <div className="w-4 h-4 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 group-hover:scale-110 transition-all duration-300">
-                <Package size={10} className="text-green-600" />
-              </div>
-              <span className="font-medium">Qty: {post.quantity}</span>
-            </div>
-            <div className="flex items-center space-x-1.5 text-xs text-gray-600">
-              <div className="w-4 h-4 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-300">
-                <MapPin size={10} className="text-blue-600" />
-              </div>
-              <span className="truncate max-w-20 font-medium">{post.location}</span>
-            </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">Quantity:</span>
+            <span className="font-medium text-gray-900">{post.quantity}</span>
           </div>
-          
-          {/* Availability Period with slide effect */}
-          {post.dateRange && (
-            <div className="flex items-start space-x-1.5 text-xs text-gray-600 bg-gray-50 rounded-lg p-2 group-hover:bg-gradient-to-r group-hover:from-gray-50 group-hover:to-blue-50 group-hover:transform group-hover:translate-x-1 transition-all duration-300 delay-100">
-              <div className="w-4 h-4 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
-                <Calendar size={10} className="text-orange-600" />
-              </div>
-              <span className="leading-relaxed break-words font-medium">
-                {post.dateRange}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">Location:</span>
+            <span className="font-medium text-gray-900 text-right">{post.location}</span>
+          </div>
         </div>
 
-        {/* Enhanced View Details Button with magnetic effect */}
-        <button 
-          className="w-full bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-500 hover:to-emerald-500 text-gray-700 hover:text-white px-3 py-3 rounded-xl text-xs font-bold transition-all duration-500 border border-gray-200 hover:border-transparent group-hover:shadow-xl transform hover:-translate-y-2 hover:scale-105 flex items-center justify-center space-x-2 group-hover:animate-pulse"
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewDetails(post);
-          }}
-        >
-          <span>View Details</span>
-          <svg className="w-3 h-3 group-hover:translate-x-2 group-hover:scale-125 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </button>
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center text-xs text-gray-500">
+            <Calendar className="w-3 h-3 mr-1" />
+            <span>
+              {post.dateRange ? `Until ${new Date(post.dateRange.split(' - ')[1]).toLocaleDateString()}` : 'Available'}
+            </span>
+          </div>
+          <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
+            <span>View Details</span>
+            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+        </div>
       </div>
-      
-      {/* Enhanced card glow with rainbow effect */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 opacity-0 group-hover:opacity-30 transition-opacity duration-700 -z-10 blur-2xl group-hover:animate-pulse"></div>
-      
-      {/* Sparkle effects */}
-      <div className="absolute top-4 right-4 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-300 delay-200"></div>
-      <div className="absolute bottom-8 left-4 w-1 h-1 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce transition-all duration-300 delay-400"></div>
     </div>
   );
 }
@@ -563,6 +522,7 @@ export default function MarketplacePage() {
   // Filter state
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' or 'accepted'
   const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Accepted bids state
   const [acceptedBids, setAcceptedBids] = useState([]);
@@ -752,14 +712,16 @@ export default function MarketplacePage() {
     return acceptedBids.find(bid => bid.post_id === productId);
   };
 
-  // Filter products based on active filter
+  // Filter products based on active filter and search term
   const filterProducts = () => {
+    let filtered;
+
     if (activeFilter === 'all') {
       // Show products with quantity > 0 and valid date
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
       
-      return posts.filter(post => {
+      filtered = posts.filter(post => {
         // Check quantity
         const quantity = parseInt(post.quantity) || 0;
         if (quantity <= 0) return false;
@@ -778,17 +740,28 @@ export default function MarketplacePage() {
     } else if (activeFilter === 'accepted') {
       // Show only products that match accepted bid post_ids
       const acceptedPostIds = acceptedBids.map(bid => bid.post_id);
-      return posts.filter(post => acceptedPostIds.includes(post.id));
+      filtered = posts.filter(post => acceptedPostIds.includes(post.id));
+    } else {
+      filtered = posts;
     }
     
-    return posts;
+    // Apply search term filter
+    if (searchTerm.trim()) {
+      return filtered.filter(post => 
+        post.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.farmer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return filtered;
   };
 
-  // Update filtered posts when posts, acceptedBids, or activeFilter changes
+  // Update filtered posts when posts, acceptedBids, activeFilter, or searchTerm changes
   useEffect(() => {
     setFilteredPosts(filterProducts());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posts, acceptedBids, activeFilter]);
+  }, [posts, acceptedBids, activeFilter, searchTerm]);
 
   // Handle placing a bid
   const handlePlaceBid = (post) => {
@@ -910,14 +883,67 @@ export default function MarketplacePage() {
           {/* Header Section */}
           <div className="mb-8">
             <div className="text-center max-w-4xl mx-auto">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Find the 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600"> perfect produce </span>
-                for your needs
-              </h2>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Browse fresh, quality products directly from local farmers. Get the best deals and support your community.
-              </p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Farmer Products Marketplace
+              </h1>
+              <p className="text-gray-600">Browse and purchase fresh produce directly from local farmers</p>
+            </div>
+          </div>
+          
+          {/* Search Bar - Fiverr Style */}
+          <div className="mb-8">
+            <div className="relative max-w-3xl mx-auto">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl blur-sm opacity-20"></div>
+                <div className="relative bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 pl-6">
+                      <Search className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="What product are you looking for today?"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="flex-1 px-4 py-4 text-gray-900 placeholder-gray-500 bg-transparent border-none outline-none focus:ring-0 text-lg"
+                      style={{ fontSize: "16px" }}
+                    />
+                    <div className="flex-shrink-0 pr-2">
+                      <button
+                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+                        onClick={() => {
+                          console.log("Search clicked:", searchTerm);
+                          // Search is already handled by the filter
+                        }}
+                      >
+                        Search
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Popular searches */}
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500 mb-2">Popular:</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {[
+                    "Fresh Vegetables",
+                    "Organic Fruits",
+                    "Rice & Grains",
+                    "Dairy Products",
+                    "Seasonal Produce",
+                  ].map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => setSearchTerm(tag)}
+                      className="px-3 py-1 text-sm text-gray-600 hover:text-green-600 border border-gray-300 hover:border-green-500 rounded-full transition-all duration-200 hover:bg-green-50"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1055,16 +1081,10 @@ export default function MarketplacePage() {
 
           {/* Loading State */}
           {(marketplaceLoading || (acceptedBidsLoading && activeFilter === 'accepted')) && (
-            <div className="text-center py-20">
-              <div className="relative mx-auto w-16 h-16 mb-6">
-                <div className="absolute inset-0 rounded-full border-4 border-green-100"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-green-600 border-t-transparent animate-spin"></div>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                {marketplaceLoading ? 'Finding fresh products...' : 'Loading your accepted bids...'}
-              </h3>
-              <p className="text-gray-500">
-                {marketplaceLoading ? 'Searching through local farmer offerings' : 'Retrieving your successful bids'}
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500 mx-auto"></div>
+              <p className="text-gray-600 mt-4">
+                {marketplaceLoading ? 'Loading farmer products...' : 'Loading your accepted bids...'}
               </p>
             </div>
           )}
@@ -1082,11 +1102,11 @@ export default function MarketplacePage() {
             </div>
           )}
 
-          {/* Products Grid - Optimized for smaller cards */}
+          {/* Products Grid - Farmer Style */}
           {!marketplaceLoading && !marketplaceError && 
            !(acceptedBidsLoading && activeFilter === 'accepted') && 
            !acceptedBidsError && filteredPosts.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredPosts.map(post => (
                 <ProductCard 
                   key={post.id} 
@@ -1103,31 +1123,22 @@ export default function MarketplacePage() {
           {!marketplaceLoading && !marketplaceError && 
            !(acceptedBidsLoading && activeFilter === 'accepted') && 
            !acceptedBidsError && filteredPosts.length === 0 && (
-            <div className="text-center py-20">
-              <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
-                {activeFilter === 'all' ? (
-                  <Package className="w-12 h-12 text-gray-400" />
-                ) : (
-                  <span className="text-3xl">🎉</span>
-                )}
-              </div>
-              <h3 className="text-2xl font-bold text-gray-700 mb-2">
+            <div className="col-span-full text-center py-16">
+              <FileText size={64} className="mx-auto text-gray-300 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
                 {activeFilter === 'all' ? 'No products available' : 'No accepted bids yet'}
               </h3>
-              <p className="text-gray-500 mb-8 max-w-md mx-auto">
+              <p className="text-gray-500">
                 {activeFilter === 'all' 
-                  ? 'There are currently no products with available quantity and valid dates. Check back soon for fresh listings!'
-                  : 'You don\'t have any accepted bids yet. Keep bidding on products you like!'
+                  ? 'Check back later for new products from farmers'
+                  : 'You don\'t have any accepted bids yet. Place some bids!'
                 }
               </p>
               <button 
                 onClick={activeFilter === 'accepted' ? fetchAcceptedBids : fetchFarmerProducts}
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="mt-6 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>Refresh</span>
+                Refresh
               </button>
             </div>
           )}
