@@ -135,23 +135,34 @@ export default function Landing() {
               <span className="ml-2 text-2xl font-bold text-gray-900">TazaBazar</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-gray-600 hover:text-gray-900 transition">Browse</a>
+              {/* <a href="#" className="text-gray-600 hover:text-gray-900 transition">Browse</a> */}
               <a href="#" className="text-gray-600 hover:text-gray-900 transition">How it Works</a>
               {isAuthenticated ? (
                 <>
                   <span className="text-gray-600">Welcome, {user?.user_name}!</span>
-                  <button 
+                  <button
                     onClick={logout}
-                    className="w-10 h-10 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-1 px-2 py-1 border border-red-600 bg-white text-red-600 rounded-full text-sm font-medium shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300 hover:bg-red-600 hover:text-white hover:shadow-[0_0_10px_2px_rgba(220,38,38,0.5)] hover:border-red-700"
                     title="Logout"
                   >
-                    <Power className="h-5 w-5" />
+                    <Power className="h-4 w-4" />
+                    <span className="hidden sm:inline">Logout</span>
                   </button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-gray-600 hover:text-gray-900 transition">Sign In</Link>
-                  <Link to="/signup" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Join Now</Link>
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-1 px-2 py-1 border border-green-600 bg-white text-green-600 rounded-full text-sm font-medium shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-300 hover:bg-green-600 hover:text-white hover:shadow-[0_0_10px_2px_rgba(22,163,74,0.5)] hover:border-green-700"
+                  >
+                    <span>Sign In</span>
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="flex items-center gap-1 px-2 py-1 border border-green-600 bg-white text-green-600 rounded-full text-sm font-medium shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-300 hover:bg-green-600 hover:text-white hover:shadow-[0_0_10px_2px_rgba(22,163,74,0.5)] hover:border-green-700"
+                  >
+                    <span>Join Now</span>
+                  </Link>
                 </>
               )}
             </nav>
@@ -329,7 +340,7 @@ export default function Landing() {
               <ul className="space-y-2">
                 <li><a href="#" className="text-gray-400 hover:text-white transition">About Us</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition">How It Works</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">Blog</a></li>
+                <li><a href="/about-developer" className="text-gray-400 hover:text-white transition">👨‍💻 About the Developer</a></li>
               </ul>
             </div>
             <div>

@@ -8,6 +8,7 @@ import ConsumerMarketplace from "./pages/ConsumerMarketplace";
 import ConsumerProfile from "./pages/ConsumerProfile";
 import ConsumerMessage from "./pages/ConsumerMessaage";
 import ConsumerNotification from "./pages/ConsumerNotification";
+import AboutDeveloper from "./pages/AboutDeveloper";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import ProductDetails from "./pages/ProductDetails";
 import RequestDetails from "./pages/RequestDetails";
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/request/:id" element={<RequestDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/about-developer" element={<AboutDeveloper />} />
 
         {/* Consumer Routes */}
         <Route path="/consumer/*">
