@@ -177,10 +177,7 @@ function ProductDetailsModal({ isOpen, onClose, post, onPlaceBid, onContactFarme
                 <h3 className="text-xl font-bold text-gray-900 mb-3">Description</h3>
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-gray-700 leading-relaxed">
-                    Fresh, high-quality {post.productName.toLowerCase()} directly from our farm. 
-                    We ensure the best quality produce with organic farming methods. 
-                    This product is carefully selected and harvested at the perfect time 
-                    to deliver maximum freshness and nutritional value.
+                    {post.description ? post.description : "This product has no description."}
                   </p>
                 </div>
               </div>
@@ -607,6 +604,7 @@ export default function MarketplacePage() {
           location: p.location || p.from_location || 'Unknown',
           dateRange: p.from && p.to ? `${new Date(p.from).toLocaleDateString()} - ${new Date(p.to).toLocaleDateString()}` : (p.dateRange || ''),
           price: p.price_per_unit ? `৳${p.price_per_unit}` : (p.price || '৳0'),
+          description: p.product_description || p.description || '',
         })));
         setMarketplaceError('');
       } else {
