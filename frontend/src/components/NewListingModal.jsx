@@ -64,8 +64,7 @@ export default function NewListingModal({
         currency: editData.currency || "BDT",
         from: editData.from ? editData.from.split("T")[0] : "", // Convert to YYYY-MM-DD format
         to: editData.to ? editData.to.split("T")[0] : "", // Convert to YYYY-MM-DD format
-        product_description:
-          editData.product_descriptionn || editData.product_description || "",
+        product_description: editData.product_description || "",
         admin_deal: editData.admin_deal || false,
       });
       setErrors({});
@@ -143,11 +142,8 @@ export default function NewListingModal({
         ...formData,
         product_quantity: parseInt(formData.product_quantity),
         price_per_unit: parseFloat(formData.price_per_unit),
-        product_descriptionn: formData.product_description, // Note: API expects 'product_descriptionn' with double 'n'
+        product_description: formData.product_description, // Send the product description with correct spelling
       };
-
-      // Remove the local product_description field since API expects product_descriptionn
-      delete submitData.product_description;
 
       // If editing, include the product ID but don't include user_id
       if (isEditMode && editData) {
