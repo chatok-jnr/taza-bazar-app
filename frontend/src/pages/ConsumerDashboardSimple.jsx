@@ -50,18 +50,18 @@ export default function ConsumerDashboardSimple() {
 
   const quickActions = [
     {
-      title: 'Browse Marketplace',
-      description: 'Find fresh products from local farmers',
-      icon: Package,
-      color: 'bg-green-500',
-      path: '/consumer/marketplace'
-    },
-    {
       title: 'My Requests',
       description: 'View and manage your product requests',
       icon: ShoppingCart,
       color: 'bg-blue-500',
       path: '/consumer/requests'
+    },
+    {
+      title: 'Browse Marketplace',
+      description: 'Find fresh products from local farmers',
+      icon: Package,
+      color: 'bg-green-500',
+      path: '/consumer/marketplace'
     },
     {
       title: 'Messages',
