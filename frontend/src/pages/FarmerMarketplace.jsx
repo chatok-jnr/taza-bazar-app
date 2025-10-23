@@ -436,8 +436,18 @@ export default function FarmerMarketplace() {
 
       {/* Details Modal - Styled like ConsumerMarketplace */}
       {showDetailsModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowDetailsModal(false);
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header with gradient background */}
             <div className="relative bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-6 flex-shrink-0">
               <button
@@ -629,7 +639,21 @@ export default function FarmerMarketplace() {
 
       {/* Proposal Modal */}
       {showProposalModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !proposalLoading) {
+              setShowProposalModal(false);
+              setProposalForm({
+                quantity: "",
+                price_per_unit: "",
+                farm_location: "",
+                message: "",
+              });
+              setProposalError("");
+            }
+          }}
+        >
           <div
             className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 rounded-2xl"
             style={{
@@ -639,6 +663,7 @@ export default function FarmerMarketplace() {
               boxShadow:
                 "0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="sticky top-0 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl border-b border-gray-200 bg-white/90 backdrop-blur-sm">

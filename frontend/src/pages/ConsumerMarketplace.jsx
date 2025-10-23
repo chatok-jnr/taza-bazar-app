@@ -105,9 +105,21 @@ function ProductDetailsModal({ isOpen, onClose, post, onPlaceBid, onContactFarme
 
   const testHasUserBid = hasUserBid || post.productName === "Test Product";
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      onClick={handleOverlayClick}
+    >
+      <div 
+        className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header - Fixed */}
         <div className="relative bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-6 flex-shrink-0">
           <button
@@ -405,9 +417,21 @@ function PlaceBidModal({ isOpen, onClose, post, onSubmit, isSubmitting }) {
 
   if (!isOpen) return null;
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget && !isSubmitting) {
+      handleClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={handleOverlayClick}
+    >
+      <div 
+        className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-gray-800">Place Bid</h3>
           <button
