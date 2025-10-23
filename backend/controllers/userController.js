@@ -60,7 +60,6 @@ exports.deleteUser = async (req, res) => {
 //Update a user information
 exports.updateUser = async(req, res) => {
   try{
-
     const updUser = await User_infos.findById(req.params.id);
 
     if(!updUser) {
@@ -70,10 +69,33 @@ exports.updateUser = async(req, res) => {
       });
     }
 
+    // Handle special increment parameters
+    if (req.body.increment_revenue !== undefined) {
+      // Add to existing total_revenue
+      const currentRevenue = parseFloat(updUser.total_revenue || 0);
+      const incrementAmount = parseFloat(req.body.increment_revenue);
+      updUser.total_revenue = currentRevenue + incrementAmount;
+      console.log(`Incremented revenue for user ${req.params.id} from ${currentRevenue} to ${updUser.total_revenue}`);
+      
+      // Remove the special parameter
+      delete req.body.increment_revenue;
+    }
+    
+    if (req.body.increment_spent !== undefined) {
+      // Add to existing total_spent
+      const currentSpent = parseFloat(updUser.total_spent || 0);
+      const incrementAmount = parseFloat(req.body.increment_spent);
+      updUser.total_spent = currentSpent + incrementAmount;
+      console.log(`Incremented spent for user ${req.params.id} from ${currentSpent} to ${updUser.total_spent}`);
+      
+      // Remove the special parameter
+      delete req.body.increment_spent;
+    }
+
+    // Handle regular updates for other fields
     Object.assign(updUser, req.body);
     await updUser.save();
     
-
     res.status(200).json({
       status:"Success",
       message:"Your Profile has been updated"

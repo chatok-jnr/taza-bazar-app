@@ -37,6 +37,13 @@ export default function FarmerDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [profileError, setProfileError] = useState("");
+  const [farmerListings, setFarmerListings] = useState([]);
+  const [error, setError] = useState("");
+  const [dashboardStats, setDashboardStats] = useState({
+    totalListings: 0,
+    activeListings: 0,
+    totalRevenue: 0
+  });
   const [profile, setProfile] = useState({
     name: user?.user_name || "Farmer Name",
     email: user?.user_email || "farmer@example.com",
@@ -65,7 +72,9 @@ export default function FarmerDashboard() {
       replace: true,
     });
 
-    if (tabName === "Profile") {
+    if (tabName === "Dashboard") {
+      fetchDashboardData();
+    } else if (tabName === "Profile") {
       fetchUserProfile();
     }
   };
@@ -182,8 +191,8 @@ export default function FarmerDashboard() {
           birthDate: userData.user_birth_date
             ? new Date(userData.user_birth_date).toLocaleDateString()
             : "Not set",
-          activeListing: farmerListings?.length || 0,
-          totalRevenue: userData.total_revenue || 0,
+          activeListing: dashboardStats.activeListings,
+          totalRevenue: dashboardStats.totalRevenue,
           memberSince: userData.createdAt
             ? new Date(userData.createdAt).toLocaleDateString()
             : "Unknown",
@@ -271,12 +280,96 @@ export default function FarmerDashboard() {
       if (response.ok) {
         setFarmerListings(data.data.products || []);
         setError("");
+        
+        // After updating the farmer listings, also refresh the dashboard data
+        await fetchDashboardData();
       } else {
         setError(data.message || "Failed to fetch listings");
       }
     } catch (error) {
       console.error("Error fetching farmer listings:", error);
       setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch dashboard data - farmer listings and statistics
+  const fetchDashboardData = async () => {
+    if (!user?.user_id) {
+      setError("User not found. Please login again.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = getToken();
+
+      if (!token) {
+        setError("No authentication token found. Please login again.");
+        navigate("/login");
+        return;
+      }
+
+      // First API call - fetch farmer listings
+      const farmerResponse = await fetch(
+        `http://127.0.0.1:8000/api/v1/farmer/${user.user_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!farmerResponse.ok) {
+        const errorData = await farmerResponse.json();
+        throw new Error(errorData.message || "Failed to fetch farmer listings");
+      }
+
+      const farmerData = await farmerResponse.json();
+      const products = farmerData.data?.products || [];
+      setFarmerListings(products);
+      
+      // Calculate active listings (where "to" date is after current date)
+      const currentDate = new Date();
+      const activeListings = products.filter(product => {
+        const toDate = new Date(product.to);
+        return toDate > currentDate;
+      });
+
+      // Second API call - fetch user data for total revenue
+      const userResponse = await fetch(
+        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json();
+        throw new Error(errorData.message || "Failed to fetch user data");
+      }
+
+      const userData = await userResponse.json();
+      const totalRevenue = userData.data?.total_revenue || 0;
+
+      // Update dashboard stats
+      setDashboardStats({
+        totalListings: products.length,
+        activeListings: activeListings.length,
+        totalRevenue: totalRevenue
+      });
+
+      setError("");
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      setError(error.message || "Failed to fetch dashboard data");
     } finally {
       setLoading(false);
     }
@@ -295,6 +388,10 @@ export default function FarmerDashboard() {
 
       // Fetch data based on initial tab
       const currentTab = getActiveTabFromURL();
+      
+      // Always fetch dashboard data when user loads the page
+      await fetchDashboardData();
+      
       if (currentTab === "Profile") {
         fetchUserProfile();
       }
@@ -328,8 +425,8 @@ export default function FarmerDashboard() {
         birthDate: user.user_birth_date
           ? new Date(user.user_birth_date).toLocaleDateString()
           : "Not set",
-        activeListing: 0,
-        totalRevenue: user.total_revenue || 0,
+        activeListing: dashboardStats.activeListings,
+        totalRevenue: dashboardStats.totalRevenue,
         memberSince: user.createdAt
           ? new Date(user.createdAt).toLocaleDateString()
           : "Unknown",
@@ -337,7 +434,7 @@ export default function FarmerDashboard() {
       setProfile(updatedProfile);
       setEditForm(updatedProfile);
     }
-  }, [user]);
+  }, [user, dashboardStats]);
 
   // Function to create a new listing
   const handleCreateListing = async (listingData, isEditMode = false) => {
@@ -520,12 +617,12 @@ export default function FarmerDashboard() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Active Listings</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-1">0</p>
+                    <p className="text-sm text-gray-600">Total Listing</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1">{dashboardStats.totalListings}</p>
                   </div>
                   <FileText className="text-green-600" size={32} />
                 </div>
@@ -533,30 +630,21 @@ export default function FarmerDashboard() {
               <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
+                    <p className="text-sm text-gray-600">Active Listing</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1">{dashboardStats.activeListings}</p>
+                  </div>
+                  <Package className="text-purple-600" size={32} />
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
                     <p className="text-sm text-gray-600">Total Sales</p>
                     <p className="text-2xl font-bold text-gray-800 mt-1">
-                      ₹{profile.totalRevenue || 0}
+                      ৳{dashboardStats.totalRevenue}
                     </p>
                   </div>
                   <DollarSign className="text-blue-600" size={32} />
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Messages</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-1">8</p>
-                  </div>
-                  <MessageSquare className="text-purple-600" size={32} />
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Performance</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-1">92%</p>
-                  </div>
-                  <TrendingUp className="text-green-600" size={32} />
                 </div>
               </div>
             </div>

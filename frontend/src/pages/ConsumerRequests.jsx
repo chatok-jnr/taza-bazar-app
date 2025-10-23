@@ -400,6 +400,104 @@ export default function ConsumerRequests() {
       console.log("Bid quantity:", bid.quantity);
       console.log("New quantity:", newQuantity);
 
+      // Calculate the total transaction amount based on bid
+      const totalAmount = bid.quantity * bid.price_per_unit;
+      console.log("Total transaction amount:", totalAmount);
+
+      // First, get current consumer data to get existing total_spent value
+      const consumerResponse = await fetch(
+        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(`Hello = ${bid.quantity * bid.price_per_unit + consumerResponse.total_spent} `);
+
+      if (consumerResponse.ok) {
+        const consumerData = await consumerResponse.json();
+        const currentTotalSpent = consumerData.data?.total_spent || 0;
+        const newTotalSpent = currentTotalSpent + totalAmount;
+        console.log("Current total spent:", currentTotalSpent);
+        console.log("New total spent:", newTotalSpent);
+
+        // Since the backend directly replaces values with Object.assign
+        // We need to send the calculated sum for total_spent 
+        const consumerUpdateResponse = await fetch(
+          `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              total_spent: newTotalSpent, // Send the pre-calculated sum
+            }),
+          }
+        );
+
+        if (!consumerUpdateResponse.ok) {
+          const errorData = await consumerUpdateResponse.json().catch(() => ({}));
+          console.error("Failed to update consumer total_spent:", errorData);
+          // Continue even if update fails
+        } else {
+          console.log("Consumer total_spent updated successfully");
+        }
+      } else {
+        console.error("Failed to fetch consumer data for total_spent update");
+      }
+
+      // Get current farmer data to get existing total_revenue value
+      const farmerResponse = await fetch(
+        `http://127.0.0.1:8000/api/v1/users/${bid.farmer_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (farmerResponse.ok) {
+        const farmerData = await farmerResponse.json();
+        const currentTotalRevenue = farmerData.data?.total_revenue || 0;
+        const newTotalRevenue = currentTotalRevenue + totalAmount;
+        console.log("Current total revenue:", currentTotalRevenue);
+        console.log("New total revenue:", newTotalRevenue);
+
+        // Since the backend directly replaces values with Object.assign
+        // We need to send the calculated sum for total_revenue
+        const farmerUpdateResponse = await fetch(
+          `http://127.0.0.1:8000/api/v1/users/${bid.farmer_id}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              total_revenue: newTotalRevenue, // Send the pre-calculated sum
+            }),
+          }
+        );
+
+        if (!farmerUpdateResponse.ok) {
+          const errorData = await farmerUpdateResponse.json().catch(() => ({}));
+          console.error("Failed to update farmer total_revenue:", errorData);
+          // Continue even if update fails
+        } else {
+          console.log("Farmer total_revenue updated successfully");
+        }
+      } else {
+        console.error("Failed to fetch farmer data for total_revenue update");
+      }
+
       // Update the request quantity
       const requestResponse = await fetch(
         `http://127.0.0.1:8000/api/v1/consumer/${selectedRequest._id}`,

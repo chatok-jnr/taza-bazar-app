@@ -63,6 +63,5 @@ module.exports = Farmer_product;
   "product_descriptionn":"Bery big kola"
   "from":"2025-10-15",
   "to":"2025-10-15",
-
 }
 */

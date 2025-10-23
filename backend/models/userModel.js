@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema({
   total_revenue:{
     type:Number,
     default:0
+  },
+  total_spent:{
+    type:Number,
+    default:0
   }
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
