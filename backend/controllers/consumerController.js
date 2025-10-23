@@ -21,7 +21,8 @@ exports.createReq = async (req, res) => {
 exports.getAllReq = async (req, res) => {
 
   try {
-    const allReq = await Consumer_request.find();
+    const allReq = await Consumer_request.find()
+      .sort({createdAt:-1});
     
     res.status(200).json({
       status:"Success",
@@ -40,7 +41,8 @@ exports.getAllReq = async (req, res) => {
 // Get request by user
 exports.getUserReq = async (req, res) => {
   try {
-    const userReq = await Consumer_request.find({user_id:req.params.id});
+    const userReq = await Consumer_request.find({user_id:req.params.id})
+      .sort({createdAt:-1});
 
     res.status(200).json({
       status:"Success",

@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp, Power } from 'lucide-react';
+import { Search, Leaf, Fish, Apple, ShoppingBag, User, TrendingUp, Power, Package } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 
 export default function Landing() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [farmerPosts, setFarmerPosts] = useState([]);
+  const [isLatestLoading, setIsLatestLoading] = useState(true);
+  const [latestError, setLatestError] = useState(null);
   const { isAuthenticated, user, logout, isLoading } = useUser();
   const navigate = useNavigate();
+
+  // Fetch latest products for the "Latest from Farmers" section
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        setIsLatestLoading(true);
+        setLatestError(null);
+        const res = await fetch('http://127.0.0.1:8000/api/v1/latestProducts', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        const json = await res.json();
+        const items = Array.isArray(json?.data) ? json.data : [];
+        if (isMounted) setFarmerPosts(items);
+      } catch (err) {
+        if (isMounted) setLatestError(err.message || 'Failed to load latest products');
+      } finally {
+        if (isMounted) setIsLatestLoading(false);
+      }
+    })();
+    return () => { isMounted = false; };
+  }, []);
 
   const handleConsumerClick = () => {
     console.log('Consumer click - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
@@ -46,83 +73,58 @@ export default function Landing() {
     { name: 'Fruits', icon: Apple, color: 'bg-red-100 text-red-600' }
   ];
 
-  const farmerPosts = [
-    {
-      id: 1,
-      farmer: 'Karim Rahman',
-      product: 'Fresh Tomatoes',
-      price: '৳80/kg',
-      location: 'Narsingdi',
-      rating: 4.9,
-      reviews: 127,
-      image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop'
-    },
-    {
-      id: 2,
-      farmer: 'Fatema Begum',
-      product: 'Organic Spinach',
-      price: '৳60/kg',
-      location: 'Gazipur',
-      rating: 5.0,
-      reviews: 89,
-      image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=300&fit=crop'
-    },
-    {
-      id: 3,
-      farmer: 'Rahim Mia',
-      product: 'River Fish (Rui)',
-      price: '৳350/kg',
-      location: 'Munshiganj',
-      rating: 4.8,
-      reviews: 156,
-      image: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&h=300&fit=crop'
-    },
-    {
-      id: 4,
-      farmer: 'Ayesha Khan',
-      product: 'Fresh Mangoes',
-      price: '৳120/kg',
-      location: 'Rajshahi',
-      rating: 4.9,
-      reviews: 203,
-      image: 'https://images.unsplash.com/photo-1605027990121-cbae9e0642df?w=400&h=300&fit=crop'
+  // Small helpers
+  const formatBDT = (value) => {
+    if (value == null) return '—';
+    try {
+      return new Intl.NumberFormat('en-BD').format(Number(value));
+    } catch {
+      return String(value);
     }
-  ];
+  };
+  const timeAgo = (dateStr) => {
+    try {
+      const d = new Date(dateStr);
+      const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+      if (diff < 60) return 'just now';
+      const mins = Math.floor(diff / 60);
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      return `${days}d ago`;
+    } catch {
+      return '';
+    }
+  };
 
-  const consumerRequests = [
-    {
-      id: 1,
-      consumer: 'Nadia Islam',
-      request: 'Looking for 10kg Fresh Potatoes',
-      budget: '৳300-400',
-      location: 'Dhaka',
-      urgency: 'Within 2 days'
-    },
-    {
-      id: 2,
-      consumer: 'Hasan Ahmed',
-      request: 'Need 5kg Organic Vegetables Mix',
-      budget: '৳500-600',
-      location: 'Chittagong',
-      urgency: 'This week'
-    },
-    {
-      id: 3,
-      consumer: 'Sultana Parvin',
-      request: 'Fresh Hilsa Fish 2-3kg',
-      budget: '৳1500-2000',
-      location: 'Narayanganj',
-      urgency: 'Today'
-    },
-    {
-      id: 4,
-      consumer: 'Farhan Kabir',
-      request: 'Seasonal Fruits Basket',
-      budget: '৳800-1000',
-      location: 'Sylhet',
-      urgency: 'Within 3 days'
-    }
-  ];
+  const [consumerRequests, setConsumerRequests] = useState([]);
+  const [isRequestsLoading, setIsRequestsLoading] = useState(true);
+  const [requestsError, setRequestsError] = useState(null);
+
+  // Fetch latest consumer requests
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        setIsRequestsLoading(true);
+        setRequestsError(null);
+        const res = await fetch('http://127.0.0.1:8000/api/v1/latestRequest', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        const json = await res.json();
+        const items = Array.isArray(json?.data) ? json.data : [];
+        if (isMounted) setConsumerRequests(items);
+      } catch (err) {
+        if (isMounted) setRequestsError(err.message || 'Failed to load latest requests');
+      } finally {
+        if (isMounted) setIsRequestsLoading(false);
+      }
+    })();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -182,7 +184,7 @@ export default function Landing() {
             </p>
 
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
+            {/* <div className="max-w-2xl mx-auto mb-8">
               <div className="relative">
                 <input
                   type="text"
@@ -195,7 +197,7 @@ export default function Landing() {
                   <Search className="h-5 w-5" />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -250,40 +252,83 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Latest from Farmers</h2>
-            <a href="#" className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-1">
-              View All <TrendingUp className="h-4 w-4" />
-            </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {farmerPosts.map((post) => (
-              <div
-                key={post.id}
-                className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-xl transform hover:-translate-y-2 transition cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img src={post.image} alt={post.product} className="w-full h-full object-cover hover:scale-110 transition duration-300" />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-green-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">{post.farmer}</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{post.product}</h3>
-                  <p className="text-sm text-gray-500 mb-3">{post.location}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-green-600">{post.price}</span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-500">★</span>
-                      <span className="text-sm font-semibold text-gray-900">{post.rating}</span>
-                      <span className="text-sm text-gray-500">({post.reviews})</span>
-                    </div>
+          {isLatestLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-white rounded-lg border border-gray-200">
+                  <div className="h-48 bg-gray-200" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    <div className="h-5 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-1/3" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+          {!isLatestLoading && latestError && (
+            <div className="text-red-600">{latestError}</div>
+          )}
+          {!isLatestLoading && !latestError && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {farmerPosts.map((post) => {
+                const title = post?.product_name || 'Product';
+                const farmerName = post?.user_id?.user_name || 'Unknown Farmer';
+                const price = post?.price_per_unit;
+                const created = post?.createdAt;
+                return (
+                  <div
+                    key={post?._id || created}
+                    className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
+                  >
+                    {/* Header with gradient and price badge (matching consumer marketplace style) */}
+                    <div className="relative h-40 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                        <Package className="w-12 h-12 text-green-600" />
+                      </div>
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+                          ৳{formatBDT(price)}
+                        </div>
+                      </div>
+                      {created && (
+                        <div className="absolute bottom-3 right-3">
+                          <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
+                            {new Date(created).toLocaleDateString()}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card Content */}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
+                        {title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                        by {farmerName}
+                      </p>
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center text-xs text-gray-500">
+                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" />
+                          </svg>
+                          <span>{created ? `Posted ${timeAgo(created)}` : 'Available'}</span>
+                        </div>
+                        <div className="flex items-center text-green-600 text-sm font-semibold">
+                          <span>৳{formatBDT(price)}</span>
+                          <span className="ml-1 text-gray-500 font-normal">/unit</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -292,35 +337,54 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Latest Consumer Requests</h2>
-            <a href="#" className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-1">
-              View All <TrendingUp className="h-4 w-4" />
-            </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {consumerRequests.map((request) => (
-              <div
-                key={request.id}
-                className="bg-white rounded-lg p-6 border-2 border-gray-200 hover:border-green-500 hover:shadow-xl transform hover:-translate-y-2 transition cursor-pointer"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <ShoppingBag className="h-5 w-5 text-blue-600" />
+          {isRequestsLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-white rounded-lg p-6 border-2 border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
                   </div>
-                  <span className="font-medium text-gray-900">{request.consumer}</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{request.request}</h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <p><span className="font-medium">Budget:</span> {request.budget}</p>
-                  <p><span className="font-medium">Location:</span> {request.location}</p>
-                  <div className="pt-2 mt-2 border-t border-gray-100">
-                    <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                      {request.urgency}
-                    </span>
+                  <div className="space-y-3">
+                    <div className="h-5 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    <div className="h-4 bg-gray-200 rounded w-1/3" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+          {!isRequestsLoading && requestsError && (
+            <div className="text-red-600">{requestsError}</div>
+          )}
+          {!isRequestsLoading && !requestsError && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {consumerRequests.map((request) => (
+                <div
+                  key={request._id}
+                  className="bg-white rounded-lg p-6 border-2 border-gray-200 hover:border-green-500 hover:shadow-xl transform hover:-translate-y-2 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <ShoppingBag className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-gray-900">{request.user_id.user_name}</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{request.product_name}</h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p><span className="font-medium">Quantity:</span> {request.product_quantity} {request.quantity_unit}</p>
+                    <p><span className="font-medium">Price:</span> ৳{formatBDT(request.price_per_unit)}/{request.quantity_unit}</p>
+                    <div className="pt-2 mt-2 border-t border-gray-100">
+                      <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                        Posted {timeAgo(request.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

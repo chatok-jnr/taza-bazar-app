@@ -1,3 +1,4 @@
+const { create } = require("../models/userModel");
 const Consumer_alert = require("./../models/consumerAlertModel");
 
 //create alert
@@ -22,6 +23,7 @@ exports.createAlert = async (req, res) => {
 exports.allAlert = async (req, res) => {
   try {
     const allNotify = await Consumer_alert.find({user_id:req.params.id})
+      .sort({createdAt:-1})
       .populate("bidInfo")
       .populate("productInfo")
 

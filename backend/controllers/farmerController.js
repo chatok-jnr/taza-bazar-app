@@ -21,7 +21,8 @@ exports.createProduct = async (req, res) => {
 //List of all prodcut
 exports.getAllProduct = async(req, res) => {
   try{
-    const allProduct = await Farmer_product.find();
+    const allProduct = await Farmer_product.find()
+      .sort({createdAt:-1});
     res.status(200).json({
       stus:"success",
       data:{
@@ -39,7 +40,8 @@ exports.getAllProduct = async(req, res) => {
 //List of all product of user x
 exports.getProductByUser = async(req, res) => {
   try{
-    const products = await Farmer_product.find({user_id:req.params.id});
+    const products = await Farmer_product.find({user_id:req.params.id})
+      .sort({createdAt:-1});
 
     res.status(200).json({
       status:"success",

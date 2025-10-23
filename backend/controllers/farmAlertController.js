@@ -22,6 +22,7 @@ exports.createAlert = async(req, res) => {
 exports.allAlert = async(req, res) => {
   try{
     const allAlert = await Farm_alert.find({user_id:req.params.id})
+      .sort({createdAt:-1})
       .populate('reqInfo')
       .populate('bidInfo');
 

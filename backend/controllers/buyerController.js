@@ -56,6 +56,7 @@ exports.updateBid = async(req, res) => {
 exports.bidPlaced = async(req, res) => {
 
   const bids = await Buyer_request.find({post_id:req.body.post_id})
+    .sort({createdAt:-1})
     .populate('consumer_id', '_id user_name')
     .lean();
 
@@ -77,7 +78,8 @@ exports.bidPlaced = async(req, res) => {
 //accepted Bid
 exports.acceptedBid = async (req, res) => {
   try{
-    const acBid = await Buyer_request.find({consumer_id:req.body.consumer_id, status:"Accepted"});
+    const acBid = await Buyer_request.find({consumer_id:req.body.consumer_id, status:"Accepted"})
+      .sort({createdAt:-1});
 
     if(!acBid) {
       return res.status(400).json({

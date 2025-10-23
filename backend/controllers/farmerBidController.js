@@ -22,9 +22,8 @@ exports.placeBid = async (req, res) => {
 exports.getAllBid = async(req, res) => {
   try{
 
-    console.log(`This is the ID = ${req.params.id}`);
-
-    const allBid = await Farmer_bid.find({request_id:req.params.id});
+    const allBid = await Farmer_bid.find({request_id:req.params.id})
+      .sort({createdAt:-1});
 
     if(!allBid) {
       return res.status(400).json({
