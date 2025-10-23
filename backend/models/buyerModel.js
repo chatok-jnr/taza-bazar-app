@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User_infos = require('./userModel');
 
 const buyerSchema = new mongoose.Schema({
   post_id:{

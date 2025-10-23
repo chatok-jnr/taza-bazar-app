@@ -55,7 +55,9 @@ exports.updateBid = async(req, res) => {
 //Get all bids by post_id
 exports.bidPlaced = async(req, res) => {
 
-  const bids = await Buyer_request.find({post_id:req.body.post_id});
+  const bids = await Buyer_request.find({post_id:req.body.post_id})
+    .populate('consumer_id', '_id user_name')
+    .lean();
 
   try {
     res.status(200).json({

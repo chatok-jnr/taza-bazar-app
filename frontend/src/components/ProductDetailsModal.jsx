@@ -149,7 +149,7 @@ export default function ProductDetailsModal({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            user_id: bidDetails.consumer_id, // Consumer's ID who placed the bid
+            user_id: typeof bidDetails.consumer_id === 'object' ? bidDetails.consumer_id._id : bidDetails.consumer_id, // Consumer's ID who placed the bid
             bidInfo: bidId, // Bid object ID
             productInfo: listing._id, // Product/listing ID
             status: action === "accept" ? "Accepted" : "Rejected",
@@ -261,9 +261,11 @@ export default function ProductDetailsModal({
         
         // Update consumer's total spent
         if (bidDetails.consumer_id) {
+          const consumerId = typeof bidDetails.consumer_id === 'object' ? bidDetails.consumer_id._id : bidDetails.consumer_id;
+          
           // First get consumer's current total_spent
           const consumerResponse = await fetch(
-            `http://127.0.0.1:8000/api/v1/users/${bidDetails.consumer_id}`,
+            `http://127.0.0.1:8000/api/v1/users/${consumerId}`,
             {
               method: "GET",
               headers: {
@@ -280,7 +282,7 @@ export default function ProductDetailsModal({
             
             // Now update with combined spent amount
             spentUpdateResponse = await fetch(
-              `http://127.0.0.1:8000/api/v1/users/${bidDetails.consumer_id}`,
+              `http://127.0.0.1:8000/api/v1/users/${consumerId}`,
               {
                 method: "PATCH",
                 headers: {
@@ -296,7 +298,7 @@ export default function ProductDetailsModal({
           } else {
             // If we can't get current spent, still use increment parameter
             spentUpdateResponse = await fetch(
-              `http://127.0.0.1:8000/api/v1/users/${bidDetails.consumer_id}`,
+              `http://127.0.0.1:8000/api/v1/users/${consumerId}`,
               {
                 method: "PATCH",
                 headers: {
@@ -616,7 +618,7 @@ export default function ProductDetailsModal({
                           </div>
                           <div>
                             <h4 className="font-medium text-gray-900">
-                              {bid.consumer_name || bid.consumer_id || "Anonymous Bidder"}
+                              {bid.consumer_name || (bid.consumer_id && typeof bid.consumer_id === 'object' ? bid.consumer_id.user_name : bid.consumer_id) || "Anonymous Bidder"}
                             </h4>
                             <p className="text-sm text-gray-600 mt-1">
                               {bid.message || "No message provided"}
@@ -888,7 +890,9 @@ export default function ProductDetailsModal({
                         <span className="text-gray-600">Consumer:</span>
                         <span className="font-medium">
                           {pendingBidAction.bidDetails.consumer_name || 
-                           pendingBidAction.bidDetails.consumer_id ||
+                           (pendingBidAction.bidDetails.consumer_id && typeof pendingBidAction.bidDetails.consumer_id === 'object' 
+                              ? pendingBidAction.bidDetails.consumer_id.user_name 
+                              : pendingBidAction.bidDetails.consumer_id) ||
                             "Anonymous"}
                         </span>
                       </div>
