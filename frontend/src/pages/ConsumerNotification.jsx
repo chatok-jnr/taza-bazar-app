@@ -41,11 +41,15 @@ const NotificationDetailModal = ({ notification, isOpen, onClose }) => {
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Status Card */}
-          <div className={`p-4 rounded-lg ${isAccepted ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+          <div className="p-4 rounded-lg bg-blue-50 border border-blue-100">
             <div className="flex items-center">
-              <span className="text-2xl mr-3">{isAccepted ? "✓" : "✗"}</span>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${isAccepted ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <span className="text-xl font-bold">{isAccepted ? "✓" : "✗"}</span>
+              </div>
               <div>
-                <h3 className="text-lg font-semibold">{status}</h3>
+                <h3 className="text-lg font-semibold">
+                  <span className={`${isAccepted ? 'text-green-700' : 'text-red-700'}`}>{status}</span>
+                </h3>
                 <p className="text-sm text-gray-600">
                   Your bid has been {status.toLowerCase()}
                 </p>
@@ -156,7 +160,12 @@ const NotificationDetailModal = ({ notification, isOpen, onClose }) => {
 
 const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
   const isAccepted = notification.status === "Accepted";
-  const bgColor = isAccepted ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200";
+  const isRead = notification.read === true;
+  
+  // Use blue-50 as the default unread notification color, white for read notifications
+  const bgColor = isRead ? "bg-white" : "bg-blue-50 border-blue-100";
+  
+  // Keep status colors for the small badge
   const statusColor = isAccepted ? "text-green-700" : "text-red-700";
   const statusBgColor = isAccepted ? "bg-green-100" : "bg-red-100";
 
@@ -175,8 +184,8 @@ const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
       onClick={handleClick}
       className={`flex items-start p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${bgColor} border-b`}
     >
-      <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-        <span className="text-lg font-semibold text-gray-600">
+      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isAccepted ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+        <span className="text-lg font-semibold">
           {isAccepted ? "✓" : "✗"}
         </span>
       </div>
@@ -205,12 +214,17 @@ const NotificationItem = ({ notification, onMarkAsRead, onViewDetails }) => {
               <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${statusColor} ${statusBgColor}`}>
                 {notification.status}
               </span>
-              <button
-                onClick={handleMarkAsRead}
-                className="text-xs text-blue-600 hover:text-blue-800 underline"
-              >
-                Mark as read
-              </button>
+              {!notification.read && (
+                <button
+                  onClick={handleMarkAsRead}
+                  className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-1 rounded-md transition-colors duration-150"
+                >
+                  Mark as read
+                </button>
+              )}
+              {notification.read && (
+                <span className="text-xs text-gray-500 px-2">Read</span>
+              )}
             </div>
           </div>
           <div className="flex flex-col items-end">
@@ -274,7 +288,12 @@ export default function ConsumerNotification() {
         const data = await response.json();
         
         if (data.status === "success") {
-          setNotifications(data.data);
+          // Ensure all notifications have a read property
+          const notificationsWithReadStatus = data.data.map(notification => ({
+            ...notification,
+            read: notification.read || false // Set default read status to false if not present
+          }));
+          setNotifications(notificationsWithReadStatus);
         } else {
           setError("Failed to fetch notifications");
         }
@@ -289,21 +308,58 @@ export default function ConsumerNotification() {
     fetchNotifications();
   }, [user, authLoading]);
 
-  const handleMarkAsRead = (id) => {
+  const handleMarkAsRead = async (id) => {
+    // In a real application, you would call an API to mark the notification as read
+    // For now, we're just updating the local state
     setNotifications(
       notifications.map((notification) =>
         notification._id === id ? { ...notification, read: true } : notification
       )
     );
+    
+    // You could implement an API call here:
+    // try {
+    //   const token = getToken();
+    //   await fetch(`http://127.0.0.1:8000/api/v1/consumerAlert/${id}/markAsRead`, {
+    //     method: "PATCH",
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "application/json",
+    //     }
+    //   });
+    // } catch (err) {
+    //   console.error("Error marking notification as read:", err);
+    // }
   };
 
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = async () => {
+    // In a real application, you would call an API to mark all notifications as read
     setNotifications(
       notifications.map((notification) => ({ ...notification, read: true }))
     );
+    
+    // You could implement an API call here:
+    // try {
+    //   const token = getToken();
+    //   const userId = user._id || user.user_id;
+    //   await fetch(`http://127.0.0.1:8000/api/v1/consumerAlert/markAllAsRead`, {
+    //     method: "PATCH",
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ userId })
+    //   });
+    // } catch (err) {
+    //   console.error("Error marking all notifications as read:", err);
+    // }
   };
 
   const handleViewDetails = (notification) => {
+    // Mark as read when viewing details
+    if (!notification.read) {
+      handleMarkAsRead(notification._id);
+    }
     setSelectedNotification(notification);
     setIsModalOpen(true);
   };
@@ -320,10 +376,22 @@ export default function ConsumerNotification() {
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="px-8 py-6 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
+              {notifications.filter(n => !n.read).length > 0 && (
+                <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 text-xs font-medium rounded-md mt-1">
+                  {notifications.filter(n => !n.read).length} unread
+                </span>
+              )}
+            </div>
             <button
               onClick={handleMarkAllAsRead}
-              className="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors duration-200"
+              disabled={notifications.every(n => n.read)}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                notifications.some(n => !n.read) 
+                  ? "bg-blue-50 text-blue-700 hover:bg-blue-100" 
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              }`}
             >
               Mark all as read
             </button>
