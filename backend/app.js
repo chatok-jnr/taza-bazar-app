@@ -10,11 +10,14 @@ const farmAlert = require('./routes/farmAlertRoutes');
 const consumerAlert = require('./routes/consumerAlertRoutes');
 const latestProducts = require('./routes/latestProductsRoutes');
 const latestRequest = require('./routes/latestRequestRoutes');
+
+//Admin
+const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Allow requests from your frontend
+    origin: '*', // Allow requests from your frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -33,4 +36,7 @@ app.use('/api/v1/farmAlert', farmAlert);
 app.use('/api/v1/consumerAlert', consumerAlert);
 app.use('/api/v1/latestProducts', latestProducts)
 app.use('/api/v1/latestRequest', latestRequest)
+
+//Admin Routes
+app.use('/api/v1/admin', adminRoutes);
 module.exports = app;
