@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Login } from './components/Login';
 import { AdminLayout } from './components/AdminLayout';
 import { Dashboard } from './components/Dashboard';
@@ -12,16 +12,18 @@ import { Settings } from './components/Settings';
 import { AuditLogs } from './components/AuditLogs';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('adminToken');
+  });
   const [currentPage, setCurrentPage] = useState('dashboard');
 
-  const handleLogin = (email: string, password: string) => {
-    // In a real application, you would validate credentials with your backend
-    // For demo purposes, we're accepting the mock credentials
+  const handleLogin = (email: string, token: string) => {
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
     setIsAuthenticated(false);
     setCurrentPage('dashboard'); // Reset to dashboard on logout
   };
