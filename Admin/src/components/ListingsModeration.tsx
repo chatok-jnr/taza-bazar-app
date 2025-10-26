@@ -16,31 +16,37 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
 const mockListings = [
-  { id: 1, title: 'Organic Tomatoes - Premium Quality', farmer: 'John Farmer', category: 'Vegetables', price: 45, unit: 'kg', quantity: 500, status: 'pending', dateCreated: '2025-10-24', adminDeal: false },
-  { id: 2, title: 'Fresh Milk - Daily Supply', farmer: 'Sarah Dairy', category: 'Dairy', price: 35, unit: 'liter', quantity: 200, status: 'active', dateCreated: '2025-10-23', adminDeal: true },
-  { id: 3, title: 'Premium Rice - Basmati', farmer: 'Mike Farm', category: 'Grains', price: 120, unit: 'kg', quantity: 1000, status: 'pending', dateCreated: '2025-10-24', adminDeal: false },
-  { id: 4, title: 'Free Range Eggs', farmer: 'Tom Poultry', category: 'Poultry', price: 8, unit: 'dozen', quantity: 500, status: 'active', dateCreated: '2025-10-22', adminDeal: false },
-  { id: 5, title: 'Organic Wheat Flour', farmer: 'Jane Miller', category: 'Grains', price: 55, unit: 'kg', quantity: 750, status: 'rejected', dateCreated: '2025-10-21', adminDeal: false },
+  { id: 1, title: 'Organic Tomatoes - Premium Quality', farmer: 'John Farmer', category: 'Vegetables', price: 45, unit: 'kg', quantity: 500, status: 'pending', dateCreated: '2025-10-24', adminDeal: false, adminDealRequested: true },
+  { id: 2, title: 'Fresh Milk - Daily Supply', farmer: 'Sarah Dairy', category: 'Dairy', price: 35, unit: 'liter', quantity: 200, status: 'active', dateCreated: '2025-10-23', adminDeal: true, adminDealRequested: false },
+  { id: 3, title: 'Premium Rice - Basmati', farmer: 'Mike Farm', category: 'Grains', price: 120, unit: 'kg', quantity: 1000, status: 'pending', dateCreated: '2025-10-24', adminDeal: false, adminDealRequested: true },
+  { id: 4, title: 'Free Range Eggs', farmer: 'Tom Poultry', category: 'Poultry', price: 8, unit: 'dozen', quantity: 500, status: 'active', dateCreated: '2025-10-22', adminDeal: false, adminDealRequested: false },
+  { id: 5, title: 'Organic Wheat Flour', farmer: 'Jane Miller', category: 'Grains', price: 55, unit: 'kg', quantity: 750, status: 'rejected', dateCreated: '2025-10-21', adminDeal: false, adminDealRequested: false },
 ];
 
 export function ListingsModeration() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedListing, setSelectedListing] = useState<typeof mockListings[0] | null>(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'feature' | 'archive' | null>(null);
   const [actionReason, setActionReason] = useState('');
+  const [adminDealFilter, setAdminDealFilter] = useState<'all' | 'requested' | 'accepted'>('all');
 
   const filteredListings = mockListings.filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          listing.farmer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || listing.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+    const matchesAdminDeal =
+      adminDealFilter === 'all' ? true :
+      adminDealFilter === 'requested' ? listing.adminDealRequested === true :
+      listing.adminDeal === true; // accepted
+
+    return matchesSearch && matchesAdminDeal;
   });
 
   const pendingCount = mockListings.filter(l => l.status === 'pending').length;
   const activeCount = mockListings.filter(l => l.status === 'active').length;
   const rejectedCount = mockListings.filter(l => l.status === 'rejected').length;
+  const requestedDealCount = mockListings.filter(l => l.adminDealRequested).length;
+  const acceptedDealCount = mockListings.filter(l => l.adminDeal).length;
 
   const handleAction = (listing: typeof mockListings[0], type: 'approve' | 'reject' | 'feature' | 'archive') => {
     setSelectedListing(listing);
@@ -93,34 +99,28 @@ export function ListingsModeration() {
               className="pl-10 bg-input-background border-border"
             />
           </div>
-          <div className="flex gap-2">
+          
+          <div className="flex gap-2 md:ml-auto">
             <Button
-              variant={selectedStatus === 'all' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('all')}
-              className={selectedStatus === 'all' ? 'neon-glow-sm' : ''}
+              variant={adminDealFilter === 'all' ? 'default' : 'outline'}
+              onClick={() => setAdminDealFilter('all')}
+              className={adminDealFilter === 'all' ? 'neon-glow-sm' : ''}
             >
-              All
+              All Listings
             </Button>
             <Button
-              variant={selectedStatus === 'pending' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('pending')}
-              className={selectedStatus === 'pending' ? 'neon-glow-sm' : ''}
+              variant={adminDealFilter === 'requested' ? 'default' : 'outline'}
+              onClick={() => setAdminDealFilter('requested')}
+              className={adminDealFilter === 'requested' ? 'neon-glow-sm' : ''}
             >
-              Pending ({pendingCount})
+              Requested Admin Deals ({requestedDealCount})
             </Button>
             <Button
-              variant={selectedStatus === 'active' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('active')}
-              className={selectedStatus === 'active' ? 'neon-glow-sm' : ''}
+              variant={adminDealFilter === 'accepted' ? 'default' : 'outline'}
+              onClick={() => setAdminDealFilter('accepted')}
+              className={adminDealFilter === 'accepted' ? 'neon-glow-sm' : ''}
             >
-              Active
-            </Button>
-            <Button
-              variant={selectedStatus === 'rejected' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('rejected')}
-              className={selectedStatus === 'rejected' ? 'neon-glow-sm' : ''}
-            >
-              Rejected
+              Accepted Admin Deals ({acceptedDealCount})
             </Button>
           </div>
         </div>
@@ -137,6 +137,9 @@ export function ListingsModeration() {
                     <h3 className="text-foreground">{listing.title}</h3>
                     {listing.adminDeal && (
                       <Star className="w-5 h-5 text-primary fill-primary" />
+                    )}
+                    {!listing.adminDeal && listing.adminDealRequested && (
+                      <Badge className="bg-secondary/20 text-secondary border-secondary/30">Admin Deal Requested</Badge>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">by {listing.farmer}</p>
