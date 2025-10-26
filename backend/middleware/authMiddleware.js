@@ -22,6 +22,13 @@ const protect = async (req, res, next) => {
 
     const currentUser = await User_infos.findById(decode.id);
 
+    if(currentUser.user_status === 'Suspended') {
+      return res.status(401).json({
+        status:'Failed',
+        message:"You have been suspended from the platfrom"
+      });
+    }
+
     // 3. Check if user still exists
     if (!currentUser) {
       return res.status(401).json({

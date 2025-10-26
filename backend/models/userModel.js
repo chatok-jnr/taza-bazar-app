@@ -43,6 +43,15 @@ const userSchema = new mongoose.Schema({
     default:0,
     min:[0, 'Active list cannot be negative']
   },
+  verified:{
+    type:Boolean,
+    default:0
+  },
+  user_status:{
+    type:String,
+    enum:['Active', 'Suspended'],
+    default:'Active'
+  },
   total_revenue:{
     type:Number,
     default:0

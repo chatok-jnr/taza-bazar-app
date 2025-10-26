@@ -91,6 +91,15 @@ exports.loginUser = async (req, res) => {
     //2. Find user + include password
     const user = await User_infos.findOne({user_email}).select('+user_password');
 
+    if(user.user_status === 'Suspended') {
+      return res.status(400).json({
+        status:'failed',
+        message:"You have been suspended from the platform"
+      });
+    }
+
+    console.log(`USER  = ${user}`);
+
     //3.Verify user exist and password matches
     if(!user || !(await user.correctPassword(user_password))) {
       return res.status(401).json({
@@ -125,6 +134,7 @@ exports.loginUser = async (req, res) => {
 exports.protect = async (req, res, next) => {
   try {
 
+
     //1. extract token from header
     let token;
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -145,11 +155,20 @@ exports.protect = async (req, res, next) => {
     //4. Check if user still exist in databse
     const currentUser = await User_infos.findById(decode.id);
 
+
     if(!currentUser) {
-      res.status(400).json({
+      return res.status(400).json({
         status:"failed",
         message:"This user belonging to this token no longer exist."
       });
+    }
+
+    const userStatus = User_infos.findById(req.params.id);
+    if(userStatus.user_status === 'Suspended') {
+      return res.status(401).json({
+        status:'failed',
+        message:"You have been suspended from the platform"
+      })
     }
 
     req.user = currentUser;

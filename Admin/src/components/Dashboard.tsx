@@ -1,13 +1,61 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Users, Package, FileText, Gavel, TrendingUp, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Card } from './ui/card';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const kpiData = [
-  { label: 'Total Users', value: '12,847', change: '+12.5%', icon: Users, trend: 'up' },
-  { label: 'Active Listings', value: '3,429', change: '+8.3%', icon: Package, trend: 'up' },
-  { label: 'Open Requests', value: '1,256', change: '-3.2%', icon: FileText, trend: 'down' },
-  { label: 'Pending Bids', value: '847', change: '+15.7%', icon: Gavel, trend: 'up' },
-];
+type ApiListResponse<T> = {
+  status: string;
+  data: T[];
+};
+
+type ApiBidsResponse = {
+  status: string;
+  data: {
+    faremerBid?: any[]; // Note: API uses 'faremerBid' spelling
+    consumerBid?: any[];
+  };
+};
+
+type User = {
+  _id: string;
+  user_name: string;
+};
+
+type Listing = {
+  _id: string;
+  product_name: string;
+  product_quantity: number;
+  quantity_unit: string;
+  createdAt?: string;
+};
+
+type RequestItem = {
+  _id: string;
+  product_name: string;
+  product_quantity: number;
+  quantity_unit: string;
+  when?: string;
+  createdAt?: string;
+};
+
+type FarmerBid = {
+  _id: string;
+  farmer_name?: string;
+  quantity?: number;
+  price_per_unit?: number;
+  message?: string;
+  status?: string;
+  createdAt?: string;
+};
+
+type ConsumerBid = {
+  _id: string;
+  requested_quantity?: number;
+  bid_price?: number;
+  message?: string;
+  status?: string;
+  createdAt?: string;
+};
 
 const trendData = [
   { month: 'Jan', users: 8400, listings: 2100, requests: 900 },
@@ -18,11 +66,12 @@ const trendData = [
   { month: 'Jun', users: 12847, listings: 3429, requests: 1256 },
 ];
 
-const bidStatusData = [
-  { name: 'Pending', value: 847, color: '#00d9ff' },
-  { name: 'Accepted', value: 3421, color: '#00FF99' },
-  { name: 'Rejected', value: 1234, color: '#ff4466' },
-];
+// Bid distribution colors by status
+const BID_COLORS = {
+  Pending: '#00d9ff',
+  Accepted: '#00FF99',
+  Rejected: '#ff4466',
+} as const;
 
 const moderationQueue = [
   { id: 1, type: 'Listing', title: 'Organic Tomatoes - 50kg', status: 'pending', user: 'John Farmer', time: '5m ago' },
@@ -39,11 +88,108 @@ const recentActivity = [
 ];
 
 export function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [farmerBids, setFarmerBids] = useState<FarmerBid[]>([]);
+  const [consumerBids, setConsumerBids] = useState<ConsumerBid[]>([]);
+
+  // Derived counts
+  const totalUsers = users.length;
+  const activeListings = listings.length;
+  const openRequests = requests.length;
+  // Bid status counts
+  const bidCounts = useMemo(() => {
+    const all = [...(farmerBids ?? []), ...(consumerBids ?? [])];
+    return all.reduce(
+      (acc, b: { status?: string }) => {
+        const s = (b.status || '').toLowerCase();
+        if (s === 'pending') acc.pending += 1;
+        else if (s === 'accepted' || s === 'approved') acc.accepted += 1;
+        else if (s === 'rejected' || s === 'declined') acc.rejected += 1;
+        return acc;
+      },
+      { pending: 0, accepted: 0, rejected: 0 }
+    );
+  }, [farmerBids, consumerBids]);
+  const pendingBidsCount = bidCounts.pending;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    async function fetchAll() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const base = 'http://127.0.0.1:8000/api/v1/admin';
+
+        const [usersRes, listRes, reqRes, bidsRes] = await Promise.all([
+          fetch(`${base}/allUser`, { method: 'GET', signal }),
+          fetch(`${base}/allList`, { method: 'GET', signal }),
+          fetch(`${base}/allReq`, { method: 'GET', signal }),
+          fetch(`${base}/allBid`, { method: 'GET', signal }),
+        ]);
+
+        if (!usersRes.ok || !listRes.ok || !reqRes.ok || !bidsRes.ok) {
+          throw new Error('Failed to fetch one or more resources');
+        }
+
+        const usersJson = (await usersRes.json()) as ApiListResponse<User>;
+        const listJson = (await listRes.json()) as ApiListResponse<Listing>;
+        const reqJson = (await reqRes.json()) as ApiListResponse<RequestItem>;
+        const bidsJson = (await bidsRes.json()) as ApiBidsResponse;
+
+        setUsers(Array.isArray(usersJson.data) ? usersJson.data : []);
+        setListings(Array.isArray(listJson.data) ? listJson.data : []);
+        setRequests(Array.isArray(reqJson.data) ? reqJson.data : []);
+        setFarmerBids(Array.isArray(bidsJson.data?.faremerBid) ? (bidsJson.data?.faremerBid as FarmerBid[]) : []);
+        setConsumerBids(Array.isArray(bidsJson.data?.consumerBid) ? (bidsJson.data?.consumerBid as ConsumerBid[]) : []);
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          setError(err?.message || 'Something went wrong while loading dashboard data');
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAll();
+    return () => controller.abort();
+  }, []);
+
+  const kpiData = useMemo(
+    () => [
+      { label: 'Total Users', value: totalUsers.toLocaleString(), icon: Users },
+      { label: 'Active Listings', value: activeListings.toLocaleString(), icon: Package },
+      { label: 'Open Requests', value: openRequests.toLocaleString(), icon: FileText },
+      { label: 'Pending Bids', value: pendingBidsCount.toLocaleString(), icon: Gavel },
+    ],
+    [totalUsers, activeListings, openRequests, pendingBidsCount]
+  );
+
+  // Dynamic bid distribution for PieChart
+  const bidStatusData = useMemo(() => [
+    { name: 'Pending', value: bidCounts.pending, color: BID_COLORS.Pending },
+    { name: 'Accepted', value: bidCounts.accepted, color: BID_COLORS.Accepted },
+    { name: 'Rejected', value: bidCounts.rejected, color: BID_COLORS.Rejected },
+  ], [bidCounts]);
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-primary mb-2">Dashboard</h1>
         <p className="text-muted-foreground">Welcome to the admin control center</p>
+        {loading && (
+          <p className="text-xs text-muted-foreground mt-1">Loading latest metrics…</p>
+        )}
+        {error && (
+          <p className="text-xs text-destructive mt-1">{error}</p>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -56,10 +202,7 @@ export function Dashboard() {
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground mb-1">{kpi.label}</p>
                   <h2 className="text-foreground mb-2">{kpi.value}</h2>
-                  <div className={`flex items-center gap-1 text-sm ${kpi.trend === 'up' ? 'text-primary' : 'text-destructive'}`}>
-                    <TrendingUp className="w-4 h-4" />
-                    <span>{kpi.change}</span>
-                  </div>
+                  {/* Optional: trend placeholder removed since values are live counts */}
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center neon-glow-sm">
                   <Icon className="w-6 h-6 text-primary" />
@@ -135,70 +278,84 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* Queues and Activity */}
+      {/* Open Requests and Pending Bids */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Moderation Queue */}
+        {/* Open Requests */}
         <Card className="p-6 bg-card neon-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-foreground">Moderation Queue</h3>
+            <h3 className="text-foreground">Open Requests</h3>
             <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-sm neon-glow-sm">
-              {moderationQueue.length} pending
+              {openRequests} total
             </span>
           </div>
           <div className="space-y-3">
-            {moderationQueue.map((item) => (
-              <div key={item.id} className="p-4 rounded-xl bg-muted/50 border border-border hover:border-primary/50 transition-all duration-300">
+            {requests.slice(0, 6).map((req) => (
+              <div key={req._id} className="p-4 rounded-xl bg-muted/50 border border-border hover:border-primary/50 transition-all duration-300">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2 py-0.5 rounded text-xs bg-primary/20 text-primary">{item.type}</span>
-                      <span className="text-xs text-muted-foreground">{item.time}</span>
-                    </div>
-                    <p className="text-sm text-foreground mb-1">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">by {item.user}</p>
+                    <p className="text-sm text-foreground mb-1">{req.product_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {req.product_quantity} {req.quantity_unit}
+                    </p>
                   </div>
-                  <div className="flex gap-2">
-                    <button className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary transition-all duration-300 hover:scale-110">
-                      <CheckCircle className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 rounded-lg bg-destructive/20 hover:bg-destructive/30 text-destructive transition-all duration-300 hover:scale-110">
-                      <XCircle className="w-4 h-4" />
-                    </button>
+                  <div className="text-right">
+                    <span className="text-xs text-muted-foreground">
+                      {req.when ? new Date(req.when).toLocaleString() : req.createdAt ? new Date(req.createdAt).toLocaleString() : ''}
+                    </span>
                   </div>
                 </div>
               </div>
             ))}
+            {requests.length === 0 && !loading && (
+              <p className="text-sm text-muted-foreground">No open requests right now.</p>
+            )}
           </div>
         </Card>
 
-        {/* Recent Activity */}
+        {/* Pending Bids */}
         <Card className="p-6 bg-card neon-border">
-          <h3 className="text-foreground mb-4">Recent Admin Activity</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-foreground">Pending Bids</h3>
+            <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-sm neon-glow-sm">
+              {pendingBidsCount} total
+            </span>
+          </div>
           <div className="space-y-3">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="p-4 rounded-xl bg-muted/50 border border-border">
-                <div className="flex items-start gap-3">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    activity.type === 'success' ? 'bg-primary/20 text-primary' :
-                    activity.type === 'error' ? 'bg-destructive/20 text-destructive' :
-                    'bg-secondary/20 text-secondary'
-                  }`}>
-                    {activity.type === 'success' ? <CheckCircle className="w-4 h-4" /> :
-                     activity.type === 'error' ? <XCircle className="w-4 h-4" /> :
-                     <AlertCircle className="w-4 h-4" />}
-                  </div>
+            {farmerBids.filter(b => (b.status || '').toLowerCase() === 'pending').slice(0, 3).map((bid) => (
+              <div key={`farmer-${bid._id}`} className="p-4 rounded-xl bg-muted/50 border border-border">
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-sm text-foreground mb-1">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground mb-1">{activity.item}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{activity.admin}</span>
-                      <span>•</span>
-                      <span>{activity.time}</span>
-                    </div>
+                    <p className="text-sm text-foreground mb-1">Farmer Bid{bid.farmer_name ? ` • ${bid.farmer_name}` : ''}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Qty: {bid.quantity ?? '-'} @ {bid.price_per_unit ?? '-'}
+                    </p>
+                    {bid.message && <p className="text-xs text-muted-foreground mt-1">{bid.message}</p>}
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-muted-foreground">{bid.createdAt ? new Date(bid.createdAt).toLocaleString() : ''}</span>
                   </div>
                 </div>
               </div>
             ))}
+            {consumerBids.filter(b => (b.status || '').toLowerCase() === 'pending').slice(0, 3).map((bid) => (
+              <div key={`consumer-${bid._id}`} className="p-4 rounded-xl bg-muted/50 border border-border">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm text-foreground mb-1">Consumer Bid</p>
+                    <p className="text-xs text-muted-foreground">
+                      Qty: {bid.requested_quantity ?? '-'} @ {bid.bid_price ?? '-'}
+                    </p>
+                    {bid.message && <p className="text-xs text-muted-foreground mt-1">{bid.message}</p>}
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-muted-foreground">{bid.createdAt ? new Date(bid.createdAt).toLocaleString() : ''}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {pendingBidsCount === 0 && !loading && (
+              <p className="text-sm text-muted-foreground">No pending bids right now.</p>
+            )}
           </div>
         </Card>
       </div>
