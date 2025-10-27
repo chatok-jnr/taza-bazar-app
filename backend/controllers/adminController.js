@@ -149,15 +149,17 @@ exports.getAllFarmerReq = async(req, res) => {
 exports.updateVerdict = async(req, res) => {
   try{
 
-    console.log(`check  = ${req.body.verdict}`);
-
-    const {prodcut_ID} = req.body;
-
+  
 
     let admin_deal = false;
     if(req.body.verdict === 'Accepted') admin_deal = true;
 
-    const updProd = await Farmer_product.findByIdAndUpdate(prodcut_ID, {
+    console.log(`Debuging inside = ${req.body.product_ID}`);
+
+    //const temp = await Farmer_product.findById(prodcut_ID);
+    //console.log(temp);
+
+    const updProd = await Farmer_product.findByIdAndUpdate(req.body.product_ID, {
       'admin_deal':admin_deal
     }, {
       new:true,
