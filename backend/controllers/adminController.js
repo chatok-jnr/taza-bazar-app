@@ -149,15 +149,10 @@ exports.getAllFarmerReq = async(req, res) => {
 exports.updateVerdict = async(req, res) => {
   try{
 
-  
-
     let admin_deal = false;
     if(req.body.verdict === 'Accepted') admin_deal = true;
 
     console.log(`Debuging inside = ${req.body.product_ID}`);
-
-    //const temp = await Farmer_product.findById(prodcut_ID);
-    //console.log(temp);
 
     const updProd = await Farmer_product.findByIdAndUpdate(req.body.product_ID, {
       'admin_deal':admin_deal
@@ -176,6 +171,27 @@ exports.updateVerdict = async(req, res) => {
     res.status(200).json({
       status:'success',
       message:"Update Successfully"
+    });
+
+  } catch(err) {
+    res.status(400).json({
+      status:'failed',
+      message:err.message
+    });
+  }
+}
+
+// Delete Farmer Request
+exports.deleteProduct = async(req, res) => {
+  try{
+
+    const dltProd = await Farmer_product.findByIdAndDelete(req.body.ID);
+
+    console.log(`Debug = ${dltProd}`);
+
+    res.status(200).json({
+      status:'success',
+      message:'The Product has been Deleted successfully'
     });
 
   } catch(err) {

@@ -83,6 +83,11 @@ export function ListingsModeration() {
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'feature' | 'archive' | null>(null);
   const [actionReason, setActionReason] = useState('');
+  // Delete flow
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ProductListing | null>(null);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const [adminDealFilter, setAdminDealFilter] = useState<'all' | 'requested' | 'accepted'>('all');
 
   useEffect(() => {
@@ -124,6 +129,51 @@ export function ListingsModeration() {
     setSelectedListing(listing);
     setActionType(type);
     setActionDialogOpen(true);
+  };
+
+  const handleDeleteClick = (listing: ProductListing) => {
+    setDeleteTarget(listing);
+    setDeleteReason('');
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const headers = getAuthHeaders();
+      // axios.delete accepts body data via config.data
+      await axios.delete('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', {
+        headers,
+        data: {
+          ID: deleteTarget._id,
+          // include reason as an optional field; backend should ignore if not used
+          Reason: deleteReason || undefined,
+        },
+      });
+
+      // Remove from local state so UI updates immediately
+      setAllListings((prev) => prev.filter((l) => l._id !== deleteTarget._id));
+      // Optionally refresh deal requests if relevant
+      const headersForRefresh = getAuthHeaders();
+      try {
+        const dealRequestsRes = await axios.get('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', { headers: headersForRefresh });
+        setAdminDealRequests(dealRequestsRes.data.data);
+      } catch (e) {
+        // non-fatal
+        console.warn('Could not refresh admin deal requests after delete', e);
+      }
+
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
+      setDeleteReason('');
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      // Minimal user feedback; could be replaced with a toast
+      alert('Failed to delete listing. See console for details.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const confirmAction = async () => {
@@ -256,6 +306,17 @@ export function ListingsModeration() {
                     <p className="text-sm text-foreground">{new Date(listing.to).toLocaleDateString()}</p>
                   </div>
                 </div>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteClick(listing)}
+                    className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
+                  >
+                    <Archive className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
               </div>
             </Card>
           ))
@@ -373,6 +434,37 @@ export function ListingsModeration() {
               className="neon-glow-sm"
             >
               Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Delete Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-card border-border neon-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">Delete Listing</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Are you sure you want to permanently delete "{deleteTarget?.product_name}"? You may optionally provide a reason below. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="delete-reason">Reason (optional)</Label>
+              <Textarea
+                id="delete-reason"
+                placeholder="Enter reason for deletion (optional)"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                className="bg-input-background border-border"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button onClick={confirmDelete} className="bg-destructive/80 text-white hover:bg-destructive/90" disabled={isDeleting}>
+              {isDeleting ? 'Deleting...' : 'Delete Listing'}
             </Button>
           </DialogFooter>
         </DialogContent>

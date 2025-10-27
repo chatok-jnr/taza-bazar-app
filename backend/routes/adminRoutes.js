@@ -35,6 +35,7 @@ router
 router
   .route('/deal/farmerReq') // If Accepted or Rejected
   .get(adminControll.getAllFarmerReq)
-  .patch(adminControll.updateVerdict);
+  .patch(adminControll.updateVerdict)
+  .delete(adminControll.deleteProduct);
 
 module.exports = router;
