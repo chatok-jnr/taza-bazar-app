@@ -4,6 +4,7 @@ const Farmer_product = require('./../models/farmerModel');
 const Consumer_request = require('./../models/consumerModel');
 const farmerBid = require('./../models/farmerBid');
 const consumerBid = require('./../models/buyerModel');
+const Farmer_to_admin = require('./../models/farmerToAdminReqModel');
 
 // Get list of all user
 exports.getAllUser = async (req, res) => {
@@ -113,6 +114,71 @@ exports.userStatus = async(req, res) => {
   } catch(err) {
     res.status(400).json({
       status:"failed",
+      message:err.message
+    });
+  }
+}
+
+//Get all teh listing from farmer which is requested for admin deal
+exports.getAllFarmerReq = async(req, res) => {
+  try{
+    const allReq = await Farmer_to_admin.find()
+      .populate('id');
+
+    if(!allReq) {
+      return res.status(404).json({
+        status:'failed',
+        message:'No Data Found'
+      });
+    }
+    
+    res.status(200).json({
+      status:'Success',
+      data:allReq
+    })
+
+  } catch(err) {
+    res.status(400).json({
+      status:'failed',
+      message:err.message
+    });
+  }
+}
+
+//Accept or Reject Farmer Req
+exports.updateVerdict = async(req, res) => {
+  try{
+
+    console.log(`check  = ${req.body.verdict}`);
+
+    const {prodcut_ID} = req.body;
+
+
+    let admin_deal = false;
+    if(req.body.verdict === 'Accepted') admin_deal = true;
+
+    const updProd = await Farmer_product.findByIdAndUpdate(prodcut_ID, {
+      'admin_deal':admin_deal
+    }, {
+      new:true,
+      runValidators:true
+    });
+
+    const updVar = await Farmer_to_admin.findByIdAndUpdate(req.body.ID,{
+      'verdict':req.body.verdict
+    }, {
+      new:true,
+      runValidators:true
+    })
+
+    res.status(200).json({
+      status:'success',
+      message:"Update Successfully"
+    });
+
+  } catch(err) {
+    res.status(400).json({
+      status:'failed',
       message:err.message
     });
   }

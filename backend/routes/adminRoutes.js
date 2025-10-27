@@ -31,4 +31,10 @@ router
 router 
   .route('/userStatus/:id')
   .patch(adminControll.userStatus)
+
+router
+  .route('/deal/farmerReq') // If Accepted or Rejected
+  .get(adminControll.getAllFarmerReq)
+  .patch(adminControll.updateVerdict);
+
 module.exports = router;
