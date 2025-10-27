@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, CheckCircle, XCircle, Star, Archive, Eye } from 'lucide-react';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import axios from 'axios';
 import { Badge } from './ui/badge';
 import {
   Dialog,
@@ -15,47 +16,139 @@ import {
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
-const mockListings = [
-  { id: 1, title: 'Organic Tomatoes - Premium Quality', farmer: 'John Farmer', category: 'Vegetables', price: 45, unit: 'kg', quantity: 500, status: 'pending', dateCreated: '2025-10-24', adminDeal: false, adminDealRequested: true },
-  { id: 2, title: 'Fresh Milk - Daily Supply', farmer: 'Sarah Dairy', category: 'Dairy', price: 35, unit: 'liter', quantity: 200, status: 'active', dateCreated: '2025-10-23', adminDeal: true, adminDealRequested: false },
-  { id: 3, title: 'Premium Rice - Basmati', farmer: 'Mike Farm', category: 'Grains', price: 120, unit: 'kg', quantity: 1000, status: 'pending', dateCreated: '2025-10-24', adminDeal: false, adminDealRequested: true },
-  { id: 4, title: 'Free Range Eggs', farmer: 'Tom Poultry', category: 'Poultry', price: 8, unit: 'dozen', quantity: 500, status: 'active', dateCreated: '2025-10-22', adminDeal: false, adminDealRequested: false },
-  { id: 5, title: 'Organic Wheat Flour', farmer: 'Jane Miller', category: 'Grains', price: 55, unit: 'kg', quantity: 750, status: 'rejected', dateCreated: '2025-10-21', adminDeal: false, adminDealRequested: false },
-];
+interface FarmerRequest {
+  user_type: string;
+  _id: string;
+  id: {
+    _id: string;
+    user_id: string;
+    product_name: string;
+    product_quantity: number;
+    quantity_unit: string;
+    price_per_unit: number;
+    currency: string;
+    from: string;
+    to: string;
+    product_description: string;
+    admin_deal: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  verdict: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProductListing {
+  _id: string;
+  user_id: string;
+  product_name: string;
+  product_quantity: number;
+  quantity_unit: string;
+  price_per_unit: number;
+  currency: string;
+  from: string;
+  to: string;
+  product_description: string;
+  admin_deal: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function ListingsModeration() {
+  // Helper to read JWT token from common storage keys. Adjust keys as needed.
+  const getAuthToken = () => {
+    // try several common storage keys; adjust to your app's actual key if different
+    return (
+      localStorage.getItem('token') ||
+      localStorage.getItem('adminToken') ||
+      localStorage.getItem('authToken') ||
+      ''
+    );
+  };
+
+  const getAuthHeaders = () => {
+    const token = getAuthToken();
+    if (!token) {
+      // optional: warn in dev when token missing
+      if (process.env.NODE_ENV !== 'production') console.warn('Auth token not found in localStorage');
+      return {};
+    }
+    return { Authorization: `Bearer ${token}` };
+  };
+  const [allListings, setAllListings] = useState<ProductListing[]>([]);
+  const [adminDealRequests, setAdminDealRequests] = useState<FarmerRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedListing, setSelectedListing] = useState<typeof mockListings[0] | null>(null);
+  const [selectedListing, setSelectedListing] = useState<ProductListing | FarmerRequest | null>(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'feature' | 'archive' | null>(null);
   const [actionReason, setActionReason] = useState('');
   const [adminDealFilter, setAdminDealFilter] = useState<'all' | 'requested' | 'accepted'>('all');
 
-  const filteredListings = mockListings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         listing.farmer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesAdminDeal =
-      adminDealFilter === 'all' ? true :
-      adminDealFilter === 'requested' ? listing.adminDealRequested === true :
-      listing.adminDeal === true; // accepted
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const headers = getAuthHeaders();
+        const [listingsRes, dealRequestsRes] = await Promise.all([
+          axios.get('http://127.0.0.1:8000/api/v1/admin/allList', { headers }),
+          axios.get('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', { headers })
+        ]);
+        setAllListings(listingsRes.data.data);
+        setAdminDealRequests(dealRequestsRes.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
 
-    return matchesSearch && matchesAdminDeal;
+  const filteredListings = allListings.filter(listing => {
+    const matchesSearch = listing.product_name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
   });
 
-  const pendingCount = mockListings.filter(l => l.status === 'pending').length;
-  const activeCount = mockListings.filter(l => l.status === 'active').length;
-  const rejectedCount = mockListings.filter(l => l.status === 'rejected').length;
-  const requestedDealCount = mockListings.filter(l => l.adminDealRequested).length;
-  const acceptedDealCount = mockListings.filter(l => l.adminDeal).length;
+  // Log the requests to see what verdicts we have
+  console.log('All admin deal requests (detailed):', JSON.stringify(adminDealRequests, null, 2));
 
-  const handleAction = (listing: typeof mockListings[0], type: 'approve' | 'reject' | 'feature' | 'archive') => {
+  const pendingRequests = adminDealRequests.filter(req => req && (!req.verdict || req.verdict === 'Pending'));
+  const acceptedRequests = adminDealRequests.filter(req => req && req.verdict === 'Accepted');
+
+  console.log('Pending requests (detailed):', JSON.stringify(pendingRequests, null, 2));
+  console.log('Accepted requests (detailed):', JSON.stringify(acceptedRequests, null, 2));
+
+  const pendingCount = pendingRequests.length;
+  const activeCount = allListings.length;
+  const acceptedDealCount = acceptedRequests.length;
+
+  const handleAction = async (listing: ProductListing | FarmerRequest, type: 'approve' | 'reject' | 'feature' | 'archive') => {
     setSelectedListing(listing);
     setActionType(type);
     setActionDialogOpen(true);
   };
 
-  const confirmAction = () => {
-    console.log(`Action: ${actionType} on listing ${selectedListing?.title} with reason: ${actionReason}`);
+  const confirmAction = async () => {
+    if (!selectedListing || !actionType) return;
+
+    try {
+      if ((actionType === 'approve' || actionType === 'reject') && 'id' in selectedListing) {
+        const headers = getAuthHeaders();
+        await axios.patch(
+          'http://127.0.0.1:8000/api/v1/admin/deal/farmerReq',
+          {
+            product_ID: selectedListing.id._id,
+            ID: selectedListing._id,
+            verdict: actionType === 'approve' ? 'Accepted' : 'Rejected'
+          },
+          { headers }
+        );
+        // Refresh the data
+        const dealRequestsRes = await axios.get('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', { headers });
+        setAdminDealRequests(dealRequestsRes.data.data);
+      }
+    } catch (error) {
+      console.error('Error performing action:', error);
+    }
+
     setActionDialogOpen(false);
     setActionReason('');
   };
@@ -71,19 +164,19 @@ export function ListingsModeration() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-card neon-border">
           <p className="text-sm text-muted-foreground mb-1">Total Listings</p>
-          <p className="text-foreground">{mockListings.length}</p>
+          <p className="text-foreground">{allListings.length}</p>
         </Card>
         <Card className="p-4 bg-card neon-border">
-          <p className="text-sm text-muted-foreground mb-1">Pending Review</p>
+          <p className="text-sm text-muted-foreground mb-1">Pending Admin Deals</p>
           <p className="text-secondary">{pendingCount}</p>
         </Card>
         <Card className="p-4 bg-card neon-border">
-          <p className="text-sm text-muted-foreground mb-1">Active</p>
+          <p className="text-sm text-muted-foreground mb-1">Total Listings</p>
           <p className="text-primary">{activeCount}</p>
         </Card>
         <Card className="p-4 bg-card neon-border">
-          <p className="text-sm text-muted-foreground mb-1">Rejected</p>
-          <p className="text-destructive">{rejectedCount}</p>
+          <p className="text-sm text-muted-foreground mb-1">Accepted Admin Deals</p>
+          <p className="text-primary">{acceptedDealCount}</p>
         </Card>
       </div>
 
@@ -113,7 +206,7 @@ export function ListingsModeration() {
               onClick={() => setAdminDealFilter('requested')}
               className={adminDealFilter === 'requested' ? 'neon-glow-sm' : ''}
             >
-              Requested Admin Deals ({requestedDealCount})
+              Requested Admin Deals ({pendingCount})
             </Button>
             <Button
               variant={adminDealFilter === 'accepted' ? 'default' : 'outline'}
@@ -128,105 +221,117 @@ export function ListingsModeration() {
 
       {/* Listings Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredListings.map((listing) => (
-          <Card key={listing.id} className="p-6 bg-card neon-border hover:neon-glow-sm transition-all duration-300">
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-foreground">{listing.title}</h3>
-                    {listing.adminDeal && (
-                      <Star className="w-5 h-5 text-primary fill-primary" />
-                    )}
-                    {!listing.adminDeal && listing.adminDealRequested && (
-                      <Badge className="bg-secondary/20 text-secondary border-secondary/30">Admin Deal Requested</Badge>
-                    )}
+        {adminDealFilter === 'all' ? (
+          // Show all listings
+          filteredListings.map((listing) => (
+            <Card key={listing._id} className="p-6 bg-card neon-border hover:neon-glow-sm transition-all duration-300">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-foreground">{listing.product_name}</h3>
+                      {listing.admin_deal && (
+                        <Star className="w-5 h-5 text-primary fill-primary" />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">ID: {listing.user_id}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">by {listing.farmer}</p>
                 </div>
-                <Badge className={
-                  listing.status === 'pending' ? 'bg-secondary/20 text-secondary' :
-                  listing.status === 'active' ? 'bg-primary/20 text-primary' :
-                  'bg-destructive/20 text-destructive'
-                }>
-                  {listing.status}
-                </Badge>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Category</p>
-                  <p className="text-sm text-foreground">{listing.category}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Price</p>
-                  <p className="text-sm text-foreground">${listing.price}/{listing.unit}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Quantity</p>
-                  <p className="text-sm text-foreground">{listing.quantity} {listing.unit}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Date Created</p>
-                  <p className="text-sm text-foreground">{listing.dateCreated}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Price</p>
+                    <p className="text-sm text-foreground">{listing.currency} {listing.price_per_unit}/{listing.quantity_unit}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Quantity</p>
+                    <p className="text-sm text-foreground">{listing.product_quantity} {listing.quantity_unit}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Available From</p>
+                    <p className="text-sm text-foreground">{new Date(listing.from).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Available To</p>
+                    <p className="text-sm text-foreground">{new Date(listing.to).toLocaleDateString()}</p>
+                  </div>
                 </div>
               </div>
+            </Card>
+          ))
+        ) : (
+          // Show admin deal requests based on filter
+          adminDealRequests
+            .filter(req => adminDealFilter === 'requested' ? (!req.verdict || req.verdict === 'Pending') : req.verdict === 'Accepted')
+            .map((request) => (
+              <Card key={request._id} className="p-6 bg-card neon-border hover:neon-glow-sm transition-all duration-300">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-foreground">
+                          {request.id ? request.id.product_name : 'Product Name Not Available'}
+                        </h3>
+                        <Badge className="bg-secondary/20 text-secondary border-secondary/30">
+                          {request.verdict || 'Pending'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{request.user_type}</p>
+                    </div>
+                  </div>
 
-              <div className="flex gap-2 pt-2">
-                {listing.status === 'pending' && (
-                  <>
-                    <Button
-                      size="sm"
-                      onClick={() => handleAction(listing, 'approve')}
-                      className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/30 neon-glow-sm"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAction(listing, 'reject')}
-                      className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
-                    >
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Reject
-                    </Button>
-                  </>
-                )}
-                {listing.status === 'active' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAction(listing, 'feature')}
-                      className="flex-1"
-                    >
-                      <Star className="w-4 h-4 mr-2" />
-                      {listing.adminDeal ? 'Unfeature' : 'Feature'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAction(listing, 'archive')}
-                      className="flex-1"
-                    >
-                      <Archive className="w-4 h-4 mr-2" />
-                      Archive
-                    </Button>
-                  </>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-border hover:border-primary/50"
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+                  {request.id ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Price</p>
+                        <p className="text-sm text-foreground">
+                          {request.id.currency} {request.id.price_per_unit}/{request.id.quantity_unit}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Quantity</p>
+                        <p className="text-sm text-foreground">
+                          {request.id.product_quantity} {request.id.quantity_unit}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Request Date</p>
+                        <p className="text-sm text-foreground">
+                          {new Date(request.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-muted-foreground">
+                      Product details not available
+                    </div>
+                  )}
+
+                  {(!request.verdict || request.verdict === 'Pending') && (
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleAction(request, 'approve')}
+                        className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/30 neon-glow-sm"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAction(request, 'reject')}
+                        className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
+                      >
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))
+        )}
       </div>
 
       {/* Action Dialog */}
@@ -240,10 +345,10 @@ export function ListingsModeration() {
               {actionType === 'archive' && 'Archive Listing'}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              {actionType === 'approve' && `Approve "${selectedListing?.title}"?`}
-              {actionType === 'reject' && `Reject "${selectedListing?.title}"? The farmer will be notified.`}
-              {actionType === 'feature' && `Feature "${selectedListing?.title}" as an admin deal?`}
-              {actionType === 'archive' && `Archive "${selectedListing?.title}"?`}
+              {actionType === 'approve' && `Approve "${selectedListing && 'id' in selectedListing ? selectedListing.id.product_name : selectedListing?.product_name}"?`}
+              {actionType === 'reject' && `Reject "${selectedListing && 'id' in selectedListing ? selectedListing.id.product_name : selectedListing?.product_name}"? The farmer will be notified.`}
+              {actionType === 'feature' && `Feature "${selectedListing && 'id' in selectedListing ? selectedListing.id.product_name : selectedListing?.product_name}" as an admin deal?`}
+              {actionType === 'archive' && `Archive "${selectedListing && 'id' in selectedListing ? selectedListing.id.product_name : selectedListing?.product_name}"?`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
