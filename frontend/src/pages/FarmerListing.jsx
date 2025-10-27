@@ -132,11 +132,11 @@ export default function FarmerListing() {
       if (response.ok) {
         await fetchFarmerListings();
         setError("");
-        alert(
-          isEditMode
-            ? "Listing updated successfully!"
-            : "Listing created successfully!"
-        );
+        // alert(
+        //   isEditMode
+        //     ? "Listing updated successfully!"
+        //     : "Listing created successfully!"
+        // );
       } else {
         const errorMessage =
           data.message ||

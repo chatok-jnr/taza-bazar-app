@@ -572,7 +572,7 @@ export default function ConsumerDashboard() {
         
         // Refresh the requests list
         await fetchConsumerRequests();
-        alert('Request updated successfully!');
+        // alert('Request updated successfully!');
       } else {
         const errorData = await response.json();
         console.error('Error updating request:', errorData);

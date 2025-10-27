@@ -521,11 +521,11 @@ export default function FarmerDashboard() {
         await fetchFarmerListings();
         setError("");
         // Show success message (you can replace this with a toast notification)
-        alert(
-          isEditMode
-            ? "Listing updated successfully!"
-            : "Listing created successfully!"
-        );
+        // alert(
+        //   isEditMode
+        //     ? "Listing updated successfully!"
+        //     : "Listing created successfully!"
+        // );
       } else {
         const errorMessage =
           data.message ||
