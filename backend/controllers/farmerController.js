@@ -1,9 +1,23 @@
 const Farmer_product = require('./../models/farmerModel');
+const Farmer_to_admin = require('./../models/farmerToAdminReqModel');
+
 // Create a new product
 exports.createProduct = async (req, res) => {
   try{
 
+    let adminDealReq = false;
+
+    if(req.body.admin_deal === true) {
+      req.body.admin_deal = false;
+      adminDealReq = true;
+    }
+
     const newProduct = await Farmer_product.create(req.body);
+
+    if(adminDealReq === true) {
+      const reqToAdmin = await Farmer_to_admin.create({id:newProduct._id});
+    }
+
     res.status(200).json({
       status:"success",
       data:{
