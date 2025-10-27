@@ -1,8 +1,8 @@
 const Farmer_product = require('./../models/farmerModel');
-
 // Create a new product
 exports.createProduct = async (req, res) => {
   try{
+
     const newProduct = await Farmer_product.create(req.body);
     res.status(200).json({
       status:"success",

@@ -31,4 +31,8 @@ router
 router 
   .route('/userStatus/:id')
   .patch(adminControll.userStatus)
+
+// router
+//   .route('/adminDeal/')
+//   .get(adminControll.adminDeal)
 module.exports = router;
