@@ -38,4 +38,13 @@ router
   .patch(adminControll.updateVerdict)
   .delete(adminControll.deleteProduct);
 
+router 
+  .route('/deal/consumerReq')
+  .get(adminControll.getAllConsumerReq)
+  .patch(adminControll.updateVerdictConsumer)
+  .delete(adminControll.deleteConsumerReq);
+
+router  
+  .route('/auditLogs')
+  .get(adminControll.auditLogs);
 module.exports = router;

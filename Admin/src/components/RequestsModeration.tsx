@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Search, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Search, CheckCircle, XCircle, Eye, Archive } from 'lucide-react';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import axios from 'axios';
 import {
   Dialog,
   DialogContent,
@@ -15,41 +16,198 @@ import {
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
-const mockRequests = [
-  { id: 1, title: 'Need Fresh Vegetables for Restaurant', consumer: 'Jane Consumer', category: 'Vegetables', quantity: 200, unit: 'kg', budget: 9000, deadline: '2025-11-01', status: 'pending', bidsCount: 5, dateCreated: '2025-10-23' },
-  { id: 2, title: 'Bulk Order: Dairy Products', consumer: 'Tom Market', category: 'Dairy', quantity: 500, unit: 'liter', budget: 17500, deadline: '2025-10-30', status: 'active', bidsCount: 12, dateCreated: '2025-10-22' },
-  { id: 3, title: 'Premium Rice for Export', consumer: 'Mike Buyer', category: 'Grains', quantity: 5000, unit: 'kg', budget: 600000, deadline: '2025-11-15', status: 'pending', bidsCount: 3, dateCreated: '2025-10-24' },
-  { id: 4, title: 'Organic Wheat Supply', consumer: 'Sarah Store', category: 'Grains', quantity: 1000, unit: 'kg', budget: 55000, deadline: '2025-11-05', status: 'active', bidsCount: 8, dateCreated: '2025-10-21' },
-  { id: 5, title: 'Fresh Eggs - Weekly Supply', consumer: 'Bob Restaurant', category: 'Poultry', quantity: 100, unit: 'dozen', budget: 800, deadline: '2025-10-28', status: 'rejected', bidsCount: 2, dateCreated: '2025-10-20' },
-];
+// Types reflecting API response for consumer admin-deal requests
+interface ConsumerRequestCore {
+  _id: string; // nested request id
+  user_id: string;
+  product_name: string;
+  product_quantity: number;
+  quantity_unit: string;
+  price_per_unit: number;
+  currency: string;
+  when: string;
+  request_description: string;
+  admin_deal: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ConsumerDealRequest {
+  _id: string; // admin-deal record id
+  id: ConsumerRequestCore; // original consumer request
+  verdict?: 'Pending' | 'Accepted' | 'Rejected' | string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function RequestsModeration() {
+  // Auth helpers copied to mirror ListingsModeration behavior
+  const getAuthToken = () => {
+    return (
+      localStorage.getItem('token') ||
+      localStorage.getItem('adminToken') ||
+      localStorage.getItem('authToken') ||
+      ''
+    );
+  };
+  const getAuthHeaders = () => {
+    const token = getAuthToken();
+    if (!token) {
+      if ((globalThis as any).process?.env?.NODE_ENV !== 'production') console.warn('Auth token not found in localStorage');
+      return {};
+    }
+    return { Authorization: `Bearer ${token}` };
+  };
+  // Resolve admin id to send alongside moderation actions
+  const parseJwt = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const getAdminInfo = (): string => {
+    const stored =
+      localStorage.getItem('adminId') ||
+      localStorage.getItem('userId') ||
+      localStorage.getItem('id') ||
+      '';
+    if (stored) return stored;
+
+    const token = getAuthToken();
+    if (token) {
+      const payload = parseJwt(token) as any;
+      const possibleKeys = ['admin_id', 'adminId', 'id', '_id', 'user_id', 'sub'];
+      for (const k of possibleKeys) {
+        if (payload && payload[k]) return String(payload[k]);
+      }
+    }
+    console.warn('Admin ID not found for moderation payload');
+    return '';
+  };
+
+  // All consumer requests (not wrapped by admin deal)
+  const [allRequests, setAllRequests] = useState<ConsumerRequestCore[]>([]);
+  // Admin-deal consumer requests (wrapping original request)
+  const [requests, setRequests] = useState<ConsumerDealRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedRequest, setSelectedRequest] = useState<typeof mockRequests[0] | null>(null);
+  const [adminDealFilter, setAdminDealFilter] = useState<'all' | 'requested' | 'accepted'>('all');
+  const [selectedRequest, setSelectedRequest] = useState<ConsumerDealRequest | null>(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null);
   const [actionReason, setActionReason] = useState('');
+  // Delete flow
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ConsumerDealRequest | ConsumerRequestCore | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteReason, setDeleteReason] = useState('');
 
-  const filteredRequests = mockRequests.filter(request => {
-    const matchesSearch = request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         request.consumer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || request.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const headers = getAuthHeaders();
+        const [allReqRes, dealReqRes] = await Promise.all([
+          axios.get('http://127.0.0.1:8000/api/v1/admin/allReq', { headers }),
+          axios.get('http://127.0.0.1:8000/api/v1/admin/deal/consumerReq', { headers }),
+        ]);
+        setAllRequests(allReqRes.data.data || []);
+        setRequests(dealReqRes.data.data || []);
+      } catch (error) {
+        console.error('Error fetching consumer requests:', error);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  // Search across the full requests list when in "All Requests" mode
+  const filteredAllRequests = allRequests.filter((req) => {
+    const name = req.product_name?.toLowerCase?.() || '';
+    const user = (req.user_id as unknown as string)?.toLowerCase?.() || '';
+    const q = searchQuery.toLowerCase();
+    return name.includes(q) || user.includes(q);
   });
 
-  const pendingCount = mockRequests.filter(r => r.status === 'pending').length;
-  const activeCount = mockRequests.filter(r => r.status === 'active').length;
-  const rejectedCount = mockRequests.filter(r => r.status === 'rejected').length;
+  const pendingRequests = requests.filter((r) => !r.verdict || r.verdict === 'Pending');
+  const acceptedRequests = requests.filter((r) => r.verdict === 'Accepted');
 
-  const handleAction = (request: typeof mockRequests[0], type: 'approve' | 'reject') => {
+  const pendingCount = pendingRequests.length;
+  const totalAllCount = allRequests.length;
+  const acceptedCount = acceptedRequests.length;
+
+  const handleAction = (request: ConsumerDealRequest, type: 'approve' | 'reject') => {
     setSelectedRequest(request);
     setActionType(type);
     setActionDialogOpen(true);
   };
 
-  const confirmAction = () => {
-    console.log(`Action: ${actionType} on request ${selectedRequest?.title} with reason: ${actionReason}`);
+  const handleDeleteClick = (request: ConsumerDealRequest | ConsumerRequestCore) => {
+    setDeleteTarget(request);
+    setDeleteReason('');
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const headers = getAuthHeaders();
+      await axios.delete('http://127.0.0.1:8000/api/v1/admin/deal/consumerReq', {
+        headers,
+        data: {
+          request_ID: 'id' in deleteTarget ? deleteTarget.id._id : deleteTarget._id,
+          // new audit fields
+          adminID: getAdminInfo(),
+          action_reasson: deleteReason || 'Admin initiated delete',
+        },
+      });
+      // Update UI
+      if ('id' in deleteTarget) {
+        setRequests((prev) => prev.filter((r) => r.id._id !== deleteTarget.id._id));
+      } else {
+        setAllRequests((prev) => prev.filter((r) => r._id !== deleteTarget._id));
+      }
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
+      setDeleteReason('');
+    } catch (error) {
+      console.error('Error deleting consumer request:', error);
+      alert('Failed to delete request. See console for details.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const confirmAction = async () => {
+    if (!selectedRequest || !actionType) return;
+    try {
+      const headers = getAuthHeaders();
+      await axios.patch(
+        'http://127.0.0.1:8000/api/v1/admin/deal/consumerReq',
+        {
+          request_ID: selectedRequest.id._id,
+          ID: selectedRequest._id,
+          verdict: actionType === 'approve' ? 'Accepted' : 'Rejected',
+          // new audit fields
+          adminID: getAdminInfo(),
+          action_reasson: actionReason || undefined,
+        },
+        { headers }
+      );
+      // refresh list
+      const res = await axios.get('http://127.0.0.1:8000/api/v1/admin/deal/consumerReq', { headers });
+      setRequests(res.data.data || []);
+    } catch (error) {
+      console.error('Error performing action:', error);
+    }
     setActionDialogOpen(false);
     setActionReason('');
   };
@@ -65,19 +223,19 @@ export function RequestsModeration() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-card neon-border">
           <p className="text-sm text-muted-foreground mb-1">Total Requests</p>
-          <p className="text-foreground">{mockRequests.length}</p>
+          <p className="text-foreground">{totalAllCount}</p>
         </Card>
         <Card className="p-4 bg-card neon-border">
-          <p className="text-sm text-muted-foreground mb-1">Pending Review</p>
+          <p className="text-sm text-muted-foreground mb-1">Pending Admin Deals</p>
           <p className="text-secondary">{pendingCount}</p>
         </Card>
         <Card className="p-4 bg-card neon-border">
-          <p className="text-sm text-muted-foreground mb-1">Active</p>
-          <p className="text-primary">{activeCount}</p>
+          <p className="text-sm text-muted-foreground mb-1">Accepted Admin Deals</p>
+          <p className="text-primary">{acceptedCount}</p>
         </Card>
         <Card className="p-4 bg-card neon-border">
-          <p className="text-sm text-muted-foreground mb-1">Rejected</p>
-          <p className="text-destructive">{rejectedCount}</p>
+          <p className="text-sm text-muted-foreground mb-1">Last Updated</p>
+          <p className="text-foreground">{new Date().toLocaleDateString()}</p>
         </Card>
       </div>
 
@@ -93,34 +251,27 @@ export function RequestsModeration() {
               className="pl-10 bg-input-background border-border"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 md:ml-auto">
             <Button
-              variant={selectedStatus === 'all' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('all')}
-              className={selectedStatus === 'all' ? 'neon-glow-sm' : ''}
+              variant={adminDealFilter === 'all' ? 'default' : 'outline'}
+              onClick={() => setAdminDealFilter('all')}
+              className={adminDealFilter === 'all' ? 'neon-glow-sm' : ''}
             >
-              All
+              All Requests
             </Button>
             <Button
-              variant={selectedStatus === 'pending' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('pending')}
-              className={selectedStatus === 'pending' ? 'neon-glow-sm' : ''}
+              variant={adminDealFilter === 'requested' ? 'default' : 'outline'}
+              onClick={() => setAdminDealFilter('requested')}
+              className={adminDealFilter === 'requested' ? 'neon-glow-sm' : ''}
             >
-              Pending ({pendingCount})
+              Requested Admin Deals ({pendingCount})
             </Button>
             <Button
-              variant={selectedStatus === 'active' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('active')}
-              className={selectedStatus === 'active' ? 'neon-glow-sm' : ''}
+              variant={adminDealFilter === 'accepted' ? 'default' : 'outline'}
+              onClick={() => setAdminDealFilter('accepted')}
+              className={adminDealFilter === 'accepted' ? 'neon-glow-sm' : ''}
             >
-              Active
-            </Button>
-            <Button
-              variant={selectedStatus === 'rejected' ? 'default' : 'outline'}
-              onClick={() => setSelectedStatus('rejected')}
-              className={selectedStatus === 'rejected' ? 'neon-glow-sm' : ''}
-            >
-              Rejected
+              Accepted Admin Deals ({acceptedCount})
             </Button>
           </div>
         </div>
@@ -128,84 +279,117 @@ export function RequestsModeration() {
 
       {/* Requests Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredRequests.map((request) => (
-          <Card key={request.id} className="p-6 bg-card neon-border hover:neon-glow-sm transition-all duration-300">
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-foreground mb-2">{request.title}</h3>
-                  <p className="text-sm text-muted-foreground">by {request.consumer}</p>
+        {adminDealFilter === 'all' ? (
+          filteredAllRequests.map((request) => (
+            <Card key={request._id} className="p-6 bg-card neon-border hover:neon-glow-sm transition-all duration-300">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-foreground">{request.product_name}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">User: {String(request.user_id)}</p>
+                  </div>
                 </div>
-                <Badge className={
-                  request.status === 'pending' ? 'bg-secondary/20 text-secondary' :
-                  request.status === 'active' ? 'bg-primary/20 text-primary' :
-                  'bg-destructive/20 text-destructive'
-                }>
-                  {request.status}
-                </Badge>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Price</p>
+                    <p className="text-sm text-foreground">{request.currency} {request.price_per_unit}/{request.quantity_unit}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Quantity</p>
+                    <p className="text-sm text-foreground">{request.product_quantity} {request.quantity_unit}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Needed By</p>
+                    <p className="text-sm text-foreground">{request.when ? new Date(request.when).toLocaleDateString() : '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Created</p>
+                    <p className="text-sm text-foreground">{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : '-'}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteClick(request as unknown as ConsumerDealRequest)}
+                    className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
+                  >
+                    <Archive className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Category</p>
-                  <p className="text-sm text-foreground">{request.category}</p>
+            </Card>
+          ))
+        ) : (
+          requests
+            .filter((req) => adminDealFilter === 'requested' ? (!req.verdict || req.verdict === 'Pending') : req.verdict === 'Accepted')
+            .map((request) => (
+              <Card key={request._id} className="p-6 bg-card neon-border hover:neon-glow-sm transition-all duration-300">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-foreground">{request.id?.product_name || 'Product Name'}</h3>
+                        <Badge className="bg-secondary/20 text-secondary border-secondary/30">{request.verdict || 'Pending'}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">User: {request.id?.user_id}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Price</p>
+                      <p className="text-sm text-foreground">{request.id?.currency} {request.id?.price_per_unit}/{request.id?.quantity_unit}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Quantity</p>
+                      <p className="text-sm text-foreground">{request.id?.product_quantity} {request.id?.quantity_unit}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Needed By</p>
+                      <p className="text-sm text-foreground">{request.id?.when ? new Date(request.id.when).toLocaleDateString() : '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Request Date</p>
+                      <p className="text-sm text-foreground">{new Date(request.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  {(!request.verdict || request.verdict === 'Pending') && (
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleAction(request, 'approve')}
+                        className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/30 neon-glow-sm"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAction(request, 'reject')}
+                        className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
+                      >
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Reject
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteClick(request)}
+                        className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
+                      >
+                        <Archive className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Budget</p>
-                  <p className="text-sm text-foreground">${request.budget.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Quantity</p>
-                  <p className="text-sm text-foreground">{request.quantity} {request.unit}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Deadline</p>
-                  <p className="text-sm text-foreground">{request.deadline}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Bids Received</p>
-                  <p className="text-sm text-primary">{request.bidsCount} bids</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Date Created</p>
-                  <p className="text-sm text-foreground">{request.dateCreated}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                {request.status === 'pending' && (
-                  <>
-                    <Button
-                      size="sm"
-                      onClick={() => handleAction(request, 'approve')}
-                      className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/30 neon-glow-sm"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAction(request, 'reject')}
-                      className="flex-1 bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30"
-                    >
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Reject
-                    </Button>
-                  </>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-border hover:border-primary/50"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  View Details
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+              </Card>
+            ))
+        )}
       </div>
 
       {/* Action Dialog */}
@@ -217,8 +401,8 @@ export function RequestsModeration() {
               {actionType === 'reject' && 'Reject Request'}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              {actionType === 'approve' && `Approve "${selectedRequest?.title}"?`}
-              {actionType === 'reject' && `Reject "${selectedRequest?.title}"? The consumer will be notified.`}
+              {actionType === 'approve' && `Approve "${selectedRequest?.id?.product_name}"?`}
+              {actionType === 'reject' && `Reject "${selectedRequest?.id?.product_name}"? The consumer will be notified.`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -243,6 +427,45 @@ export function RequestsModeration() {
               className="neon-glow-sm"
             >
               Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-card border-border neon-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">Delete Request</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {(() => {
+                const name = deleteTarget
+                  ? ('id' in deleteTarget
+                      ? deleteTarget.id?.product_name
+                      : deleteTarget.product_name)
+                  : '';
+                return `Are you sure you want to permanently delete "${name}"? This action cannot be undone.`;
+              })()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="delete-reason">Reason (optional)</Label>
+              <Textarea
+                id="delete-reason"
+                placeholder="Enter reason for deletion (optional)"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                className="bg-input-background border-border"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button onClick={confirmDelete} className="bg-destructive/80 text-white hover:bg-destructive/90" disabled={isDeleting}>
+              {isDeleting ? 'Deleting...' : 'Delete Request'}
             </Button>
           </DialogFooter>
         </DialogContent>

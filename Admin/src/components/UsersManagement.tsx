@@ -38,6 +38,52 @@ type AdminUser = {
 };
 
 export function UsersManagement() {
+  // Helpers to resolve admin ID for audit trail
+  const getAuthToken = () => {
+    return (
+      (typeof window !== 'undefined' &&
+        (localStorage.getItem('token') ||
+          localStorage.getItem('adminToken') ||
+          localStorage.getItem('authToken'))) || ''
+    );
+  };
+
+  const parseJwt = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const getAdminInfo = (): string => {
+    if (typeof window === 'undefined') return '';
+    const stored =
+      localStorage.getItem('adminId') ||
+      localStorage.getItem('adminID') ||
+      localStorage.getItem('userId') ||
+      localStorage.getItem('id') ||
+      '';
+    if (stored) return stored;
+
+    const token = getAuthToken();
+    if (token) {
+      const payload = parseJwt(token) as any;
+      const possibleKeys = ['admin_id', 'adminId', 'id', '_id', 'user_id', 'sub'];
+      for (const k of possibleKeys) {
+        if (payload && payload[k]) return String(payload[k]);
+      }
+    }
+    return '';
+  };
   const [searchQuery, setSearchQuery] = useState('');
   // Filter tags: all | verified | active | suspended
   const [selectedTag, setSelectedTag] = useState<'all' | 'verified' | 'active' | 'suspended'>('all');
@@ -113,6 +159,8 @@ export function UsersManagement() {
   const handleAction = (user: AdminUser, type: 'toggleStatus' | 'notify' | 'verify' | 'promote') => {
     setSelectedUser(user);
     setActionType(type);
+    // Reset reason each time an action is initiated
+    setActionReason('');
     setActionDialogOpen(true);
   };
 
@@ -126,6 +174,10 @@ export function UsersManagement() {
 
       try {
         setActionLoading(true);
+        const adminResolved = getAdminInfo();
+        if (!adminResolved) {
+          throw new Error('Admin ID not found. Please sign in again.');
+        }
         const token =
           typeof window !== 'undefined'
             ? localStorage.getItem('adminToken') || localStorage.getItem('token')
@@ -139,7 +191,12 @@ export function UsersManagement() {
               'Content-Type': 'application/json',
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ user_status: nextStatus }),
+            body: JSON.stringify({
+              user_status: nextStatus,
+              admin_info: adminResolved,
+              adminID: adminResolved,
+              action_reasson: actionReason.trim(),
+            }),
           }
         );
 
@@ -166,6 +223,10 @@ export function UsersManagement() {
       const nextVerified = !Boolean(selectedUser.verified);
       try {
         setActionLoading(true);
+        const adminResolved = getAdminInfo();
+        if (!adminResolved) {
+          throw new Error('Admin ID not found. Please sign in again.');
+        }
         const token =
           typeof window !== 'undefined'
             ? localStorage.getItem('adminToken') || localStorage.getItem('token')
@@ -179,7 +240,12 @@ export function UsersManagement() {
               'Content-Type': 'application/json',
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ verified: nextVerified }),
+            body: JSON.stringify({
+              verified: nextVerified,
+              admin_info: adminResolved,
+              adminID: adminResolved,
+              action_reasson: actionReason.trim(),
+            }),
           }
         );
 
@@ -395,16 +461,22 @@ export function UsersManagement() {
               {actionType === 'notify' && `Send a notification or warning to ${selectedUser?.user_name}.`}
             </DialogDescription>
           </DialogHeader>
-          {actionType !== 'toggleStatus' && actionType !== 'verify' && (
+          {actionType && (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="reason">
-                  {actionType === 'notify' ? 'Message (required)' : 'Reason (required for audit)'}
+                  {actionType === 'notify'
+                    ? 'Message (required)'
+                    : 'Reason (required)'}
                 </Label>
                 <Textarea
                   id="reason"
                   placeholder={
-                    actionType === 'notify'
+                    actionType === 'toggleStatus'
+                      ? `Enter reason for ${(selectedUser?.user_status || '').toLowerCase() === 'suspended' ? 'activating' : 'suspending'} this user...`
+                      : actionType === 'verify'
+                      ? `Enter reason for ${selectedUser?.verified ? 'unverifying' : 'verifying'} this user...`
+                      : actionType === 'notify'
                       ? 'Enter message to send to the user...'
                       : 'Enter reason for this action...'
                   }
@@ -422,7 +494,7 @@ export function UsersManagement() {
             {actionType === 'toggleStatus' ? (
               <Button
                 onClick={confirmAction}
-                disabled={actionLoading}
+                disabled={actionLoading || !actionReason.trim()}
                 className={`neon-glow-sm text-white ${
                   (selectedUser?.user_status || '').toLowerCase() === 'suspended'
                     ? 'bg-green-600 hover:bg-green-700'
@@ -435,7 +507,7 @@ export function UsersManagement() {
             ) : actionType === 'verify' ? (
               <Button
                 onClick={confirmAction}
-                disabled={actionLoading}
+                disabled={actionLoading || !actionReason.trim()}
                 className={`neon-glow-sm text-white ${
                   selectedUser?.verified ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
                 }`}

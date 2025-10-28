@@ -70,11 +70,49 @@ export function ListingsModeration() {
   const getAuthHeaders = () => {
     const token = getAuthToken();
     if (!token) {
-      // optional: warn in dev when token missing
-      if (process.env.NODE_ENV !== 'production') console.warn('Auth token not found in localStorage');
+      // optional: warn when token missing
+      console.warn('Auth token not found in localStorage');
       return {};
     }
     return { Authorization: `Bearer ${token}` };
+  };
+  // Resolve admin id to send as admin_info
+  const parseJwt = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const getAdminInfo = (): string => {
+    // Try common storage keys first
+    const stored =
+      localStorage.getItem('adminId') ||
+      localStorage.getItem('userId') ||
+      localStorage.getItem('id') ||
+      '';
+    if (stored) return stored;
+
+    // Then try to decode from JWT
+    const token = getAuthToken();
+    if (token) {
+      const payload = parseJwt(token) as any;
+      const possibleKeys = ['admin_id', 'adminId', 'id', '_id', 'user_id', 'sub'];
+      for (const k of possibleKeys) {
+        if (payload && payload[k]) return String(payload[k]);
+      }
+    }
+    console.warn('Admin ID not found for admin_info');
+    return '';
   };
   const [allListings, setAllListings] = useState<ProductListing[]>([]);
   const [adminDealRequests, setAdminDealRequests] = useState<FarmerRequest[]>([]);
@@ -149,6 +187,10 @@ export function ListingsModeration() {
           ID: deleteTarget._id,
           // include reason as an optional field; backend should ignore if not used
           Reason: deleteReason || undefined,
+          // new required fields
+          admin_info: getAdminInfo(),
+          adminID: getAdminInfo(),
+          action_reasson: deleteReason || 'Admin initiated delete',
         },
       });
 
@@ -187,7 +229,11 @@ export function ListingsModeration() {
           {
             product_ID: selectedListing.id._id,
             ID: selectedListing._id,
-            verdict: actionType === 'approve' ? 'Accepted' : 'Rejected'
+            verdict: actionType === 'approve' ? 'Accepted' : 'Rejected',
+            // new required fields
+            admin_info: getAdminInfo(),
+            adminID: getAdminInfo(),
+            action_reasson: actionReason || undefined,
           },
           { headers }
         );

@@ -1,9 +1,15 @@
 const Consumer_request = require('./../models/consumerModel');
+const Consumer_to_admin = require('./../models/consumerToAdminReqModel');
 
 // Create New Request
 exports.createReq = async (req, res) => {
   try{
+    let admin_deal = false;
+
+    [admin_deal, req.body.admin_deal] = [req.body.admin_deal, admin_deal];
     const newReq = await Consumer_request.create(req.body);
+
+    if(admin_deal) await Consumer_to_admin.create({'id':newReq._id});  
 
     res.status(201).json({
       status:"Success",

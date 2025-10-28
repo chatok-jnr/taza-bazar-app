@@ -71,6 +71,10 @@ export function Login({ onLogin }: LoginProps) {
         // Store the token in localStorage for future authenticated requests
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminData', JSON.stringify(data.data));
+        // Store admin ID explicitly for audit actions
+        if (data?.data?._id) {
+          localStorage.setItem('adminId', data.data._id);
+        }
         // Call the onLogin callback with the user data
         onLogin(data.data.email, data.token);
       } else {
