@@ -26,46 +26,41 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(
-  cors({
-    origin: function(origin, callback) {
-      const allowedOrigins = [
-        'https://taza-bazar-app-4l7i.onrender.com',
-        'https://taza-bazar-admin.onrender.com',
-        'http://localhost:5173',
-        'http://localhost:3000'
-      ];
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'x-access-token', 'x-refresh-token', 'x-client-id'],
-    exposedHeaders: ['Content-Range', 'X-Content-Range', 'Authorization'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-    maxAge: 86400 // Cache preflight request for 24 hours
-  })
-);
+const corsOptions = {
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'https://taza-bazar-app-4l7i.onrender.com',
+      'https://taza-bazar-admin.onrender.com',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'x-access-token', 'x-refresh-token', 'x-client-id'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204,
+  maxAge: 86400 // Cache preflight request for 24 hours
+};
 
-// Handle preflight requests
-app.options('*', cors());
+app.use(cors(corsOptions));
 
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
-// CORS error handler
+// Error handling middleware
 app.use((err, req, res, next) => {
-  if (err.message === 'The CORS policy for this site does not allow access from the specified Origin.') {
+  if (err.message === 'Not allowed by CORS') {
     res.status(403).json({
       status: 'error',
-      message: err.message,
+      message: 'CORS policy violation: Origin not allowed',
       allowedOrigins: [
         'https://taza-bazar-app-4l7i.onrender.com',
         'https://taza-bazar-admin.onrender.com',
