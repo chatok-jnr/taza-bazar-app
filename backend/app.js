@@ -68,6 +68,7 @@ app.use((err, req, res, next) => {
       message: 'CORS policy violation: Origin not allowed',
       allowedOrigins: [
         'https://taza-bazar-app-4l7i.onrender.com',
+        'https://taza-bazar-frontend.onrender.com',
         'https://taza-bazar-admin.onrender.com',
         'http://localhost:5173',
         'http://localhost:3000'
