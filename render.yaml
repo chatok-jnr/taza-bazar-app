@@ -36,7 +36,7 @@ services:
     env: static
     rootDir: Admin
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: ./build
     pullRequestPreviewsEnabled: true
     envVarGroups:
       - taza-bazar-env
