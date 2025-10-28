@@ -84,7 +84,7 @@ exports.getAllBid = async (req, res) => {
 }
 
 // Suspend | Active a user
-exports.userStatus = async(req, res) => {
+exports.userStatus = async (req, res) => {
   try{
 
     const {id} = req.params;
