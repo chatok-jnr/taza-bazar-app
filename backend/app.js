@@ -30,6 +30,7 @@ const corsOptions = {
   origin: function(origin, callback) {
     const allowedOrigins = [
       'https://taza-bazar-app-4l7i.onrender.com',
+      'https://taza-bazar-frontend.onrender.com',
       'https://taza-bazar-admin.onrender.com',
       'http://localhost:5173',
       'http://localhost:3000'
@@ -51,7 +52,9 @@ const corsOptions = {
   maxAge: 86400 // Cache preflight request for 24 hours
 };
 
+// CORS middleware and explicit preflight handling
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(morgan('dev'));
 app.use(express.json());

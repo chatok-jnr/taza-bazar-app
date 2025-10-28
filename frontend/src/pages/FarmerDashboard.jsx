@@ -20,6 +20,7 @@ import { useUser } from "../context/UserContext";
 import FarmerSidebar from "./FarmerSidebar";
 
 export default function FarmerDashboard() {
+  const API_BASE = import.meta.env.VITE_API_URL || "https://taza-bazar-backend.onrender.com";
   const location = useLocation();
   const navigate = useNavigate();
   const { user, getToken, isLoading: userLoading } = useUser();
@@ -122,7 +123,7 @@ export default function FarmerDashboard() {
       delete updateData.memberSince;
 
       const response = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+  `${API_BASE}/api/v1/users/${user.user_id}`,
         {
           method: "PATCH",
           headers: {
@@ -168,7 +169,7 @@ export default function FarmerDashboard() {
       if (!token) return;
 
       const response = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+  `${API_BASE}/api/v1/users/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -220,7 +221,7 @@ export default function FarmerDashboard() {
         return;
       }
 
-      const response = await fetch("https://taza-bazar-backend.onrender.com/api/v1/consumer", {
+      const response = await fetch(`${API_BASE}/api/v1/consumer`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -265,7 +266,7 @@ export default function FarmerDashboard() {
       }
 
       const response = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${user.user_id}`,
+  `${API_BASE}/api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -313,7 +314,7 @@ export default function FarmerDashboard() {
 
       // First API call - fetch farmer listings
       const farmerResponse = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${user.user_id}`,
+  `${API_BASE}/api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -341,7 +342,7 @@ export default function FarmerDashboard() {
 
       // Second API call - fetch user data for total revenue
       const userResponse = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+        `${API_BASE}/api/v1/users/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -561,7 +562,7 @@ export default function FarmerDashboard() {
       }
 
       const response = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${listingId}`,
+  `${API_BASE}/api/v1/farmer/${listingId}`,
         {
           method: "DELETE",
           headers: {

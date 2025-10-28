@@ -8,6 +8,7 @@ import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import ProductDetailsModal from "../components/ProductDetailsModal";
 
 export default function FarmerListing() {
+  const API_BASE = import.meta.env.VITE_API_URL || "https://taza-bazar-backend.onrender.com";
   const navigate = useNavigate();
   const { user, getToken, isLoading: userLoading } = useUser();
   const [farmerListings, setFarmerListings] = useState([]);
@@ -42,7 +43,7 @@ export default function FarmerListing() {
       }
 
       const response = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/farmer/${user.user_id}`,
+        `${API_BASE}/api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -106,7 +107,7 @@ export default function FarmerListing() {
           return;
         }
 
-  const url = `https://taza-bazar-admin.onrender.com/api/v1/farmer/${productId}`;
+  const url = `${API_BASE}/api/v1/farmer/${productId}`;
         response = await fetch(url, {
           method: "PATCH",
           headers: {
@@ -116,7 +117,7 @@ export default function FarmerListing() {
           body: JSON.stringify(dataToSubmit),
         });
       } else {
-  const url = "https://taza-bazar-admin.onrender.com/api/v1/farmer";
+  const url = `${API_BASE}/api/v1/farmer`;
         response = await fetch(url, {
           method: "POST",
           headers: {
@@ -177,7 +178,7 @@ export default function FarmerListing() {
       }
 
       const response = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${listingToDelete._id}`,
+  `${API_BASE}/api/v1/farmer/${listingToDelete._id}`,
         {
           method: "DELETE",
           headers: {
