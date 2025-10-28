@@ -17,12 +17,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: true, // Allow all origins
+    origin: ['https://taza-bazar-app-4l7i.onrender.com', 'http://localhost:5173', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: true,
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204,
+    maxAge: 86400 // Cache preflight request for 24 hours
   })
 );
 
