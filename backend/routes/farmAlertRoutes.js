@@ -7,7 +7,7 @@ router.use(protect);
 
 router
   .route("/")
-  .post(farmAlertController.createAlert); //http://127.0.0.1:8000/api/v1/farmAlert
+  .post(farmAlertController.createAlert); //https://taza-bazar-admin.onrender.com/api/v1/farmAlert
 
 router
   .route("/:id")

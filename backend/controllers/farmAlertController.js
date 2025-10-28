@@ -42,7 +42,7 @@ exports.allAlert = async(req, res) => {
 
 When a consumer select accept or reject on a bid
 then it will call on this api link with a post method
-http://127.0.0.1:8000/api/v1/farmAlert
+https://taza-bazar-admin.onrender.com/api/v1/farmAlert
 and the body will be look like this
 
   {
@@ -58,7 +58,7 @@ and the body will be look like this
 
 when someone will come to the notification page
 it will call on this api link with get method
-http://127.0.0.1:8000/api/v1/farmAlert/paste_the_user_id_here
+https://taza-bazar-admin.onrender.com/api/v1/farmAlert/paste_the_user_id_here
 
 and it will get a respone like this
 {

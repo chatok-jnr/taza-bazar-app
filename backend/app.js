@@ -31,7 +31,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/farmer', farmerRouter);
 app.use('/api/v1/consumer', consumerRouter);
 app.use('/api/v1/buyer', buyerRouter);
-app.use('/api/v1/farmerBid', farmerBidRouter); //http://127.0.0.1:8000/api/v1/farmerBid
+app.use('/api/v1/farmerBid', farmerBidRouter); //https://taza-bazar-admin.onrender.com/api/v1/farmerBid
 app.use('/api/v1/farmAlert', farmAlert);
 app.use('/api/v1/consumerAlert', consumerAlert);
 app.use('/api/v1/latestProducts', latestProducts)

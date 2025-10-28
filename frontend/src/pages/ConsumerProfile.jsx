@@ -82,7 +82,7 @@ export default function ConsumerProfile() {
 
         console.log('Fetching profile for user ID:', user.user_id);
 
-        const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+        const response = await fetch(`https://taza-bazar-admin.onrender.com//api/v1/users/${user.user_id}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -178,7 +178,7 @@ export default function ConsumerProfile() {
 
       console.log('Updating profile with data:', updateData);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${user.user_id}`, {
+      const response = await fetch(`https://taza-bazar-admin.onrender.com//api/v1/users/${user.user_id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

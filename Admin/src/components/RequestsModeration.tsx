@@ -116,8 +116,8 @@ export function RequestsModeration() {
       try {
         const headers = getAuthHeaders();
         const [allReqRes, dealReqRes] = await Promise.all([
-          axios.get('http://127.0.0.1:8000/api/v1/admin/allReq', { headers }),
-          axios.get('http://127.0.0.1:8000/api/v1/admin/deal/consumerReq', { headers }),
+          axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/allReq', { headers }),
+          axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq', { headers }),
         ]);
         setAllRequests(allReqRes.data.data || []);
         setRequests(dealReqRes.data.data || []);
@@ -160,7 +160,7 @@ export function RequestsModeration() {
     setIsDeleting(true);
     try {
       const headers = getAuthHeaders();
-      await axios.delete('http://127.0.0.1:8000/api/v1/admin/deal/consumerReq', {
+  await axios.delete('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq', {
         headers,
         data: {
           request_ID: 'id' in deleteTarget ? deleteTarget.id._id : deleteTarget._id,
@@ -191,7 +191,7 @@ export function RequestsModeration() {
     try {
       const headers = getAuthHeaders();
       await axios.patch(
-        'http://127.0.0.1:8000/api/v1/admin/deal/consumerReq',
+  'https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq',
         {
           request_ID: selectedRequest.id._id,
           ID: selectedRequest._id,
@@ -203,7 +203,7 @@ export function RequestsModeration() {
         { headers }
       );
       // refresh list
-      const res = await axios.get('http://127.0.0.1:8000/api/v1/admin/deal/consumerReq', { headers });
+  const res = await axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq', { headers });
       setRequests(res.data.data || []);
     } catch (error) {
       console.error('Error performing action:', error);

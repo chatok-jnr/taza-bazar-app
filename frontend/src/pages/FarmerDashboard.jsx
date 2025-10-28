@@ -122,7 +122,7 @@ export default function FarmerDashboard() {
       delete updateData.memberSince;
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+  `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
         {
           method: "PATCH",
           headers: {
@@ -168,7 +168,7 @@ export default function FarmerDashboard() {
       if (!token) return;
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+  `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -265,7 +265,7 @@ export default function FarmerDashboard() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${user.user_id}`,
+  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -313,7 +313,7 @@ export default function FarmerDashboard() {
 
       // First API call - fetch farmer listings
       const farmerResponse = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${user.user_id}`,
+  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -341,7 +341,7 @@ export default function FarmerDashboard() {
 
       // Second API call - fetch user data for total revenue
       const userResponse = await fetch(
-        `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+        `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -484,7 +484,7 @@ export default function FarmerDashboard() {
           throw new Error("Product ID is required for updating");
         }
 
-        const url = `http://127.0.0.1:8000/api/v1/farmer/${productId}`;
+  const url = `https://taza-bazar-admin.onrender.com/api/v1/farmer/${productId}`;
         console.log("PATCH URL:", url);
 
         response = await fetch(url, {
@@ -497,7 +497,7 @@ export default function FarmerDashboard() {
         });
       } else {
         // Create new listing
-        const url = "http://127.0.0.1:8000/api/v1/farmer";
+  const url = "https://taza-bazar-admin.onrender.com/api/v1/farmer";
         console.log("POST URL:", url);
 
         response = await fetch(url, {
@@ -561,7 +561,7 @@ export default function FarmerDashboard() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${listingId}`,
+  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${listingId}`,
         {
           method: "DELETE",
           headers: {

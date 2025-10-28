@@ -120,7 +120,7 @@ export default function ProductDetailsModal({
 
       // Update the bid status
       const bidStatusResponse = await fetch(
-        `http://127.0.0.1:8000/api/v1/buyer/bids`,
+  `https://taza-bazar-admin.onrender.com/api/v1/buyer/bids`,
         {
           method: "PATCH",
           headers: {
@@ -204,7 +204,7 @@ export default function ProductDetailsModal({
         // Update farmer's total revenue using the current user's ID
         // First get current revenue
         const farmerResponse = await fetch(
-          `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+          `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
           {
             method: "GET",
             headers: {
@@ -222,7 +222,7 @@ export default function ProductDetailsModal({
           
           // Now update with the combined revenue
           revenueUpdateResponse = await fetch(
-            `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+            `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
             {
               method: "PATCH",
               headers: {
@@ -238,7 +238,7 @@ export default function ProductDetailsModal({
         } else {
           // If we can't get current revenue info, still use the increment parameter
           revenueUpdateResponse = await fetch(
-            `http://127.0.0.1:8000/api/v1/users/${user.user_id}`,
+            `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
             {
               method: "PATCH",
               headers: {
@@ -265,7 +265,7 @@ export default function ProductDetailsModal({
           
           // First get consumer's current total_spent
           const consumerResponse = await fetch(
-            `http://127.0.0.1:8000/api/v1/users/${consumerId}`,
+            `https://taza-bazar-admin.onrender.com/api/v1/users/${consumerId}`,
             {
               method: "GET",
               headers: {
@@ -282,7 +282,7 @@ export default function ProductDetailsModal({
             
             // Now update with combined spent amount
             spentUpdateResponse = await fetch(
-              `http://127.0.0.1:8000/api/v1/users/${consumerId}`,
+              `https://taza-bazar-admin.onrender.com/api/v1/users/${consumerId}`,
               {
                 method: "PATCH",
                 headers: {
@@ -298,7 +298,7 @@ export default function ProductDetailsModal({
           } else {
             // If we can't get current spent, still use increment parameter
             spentUpdateResponse = await fetch(
-              `http://127.0.0.1:8000/api/v1/users/${consumerId}`,
+              `https://taza-bazar-admin.onrender.com/api/v1/users/${consumerId}`,
               {
                 method: "PATCH",
                 headers: {

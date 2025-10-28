@@ -42,7 +42,7 @@ export default function FarmerListing() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${user.user_id}`,
+        `https://taza-bazar-admin.onrender.com/api/v1/farmer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -106,7 +106,7 @@ export default function FarmerListing() {
           return;
         }
 
-        const url = `http://127.0.0.1:8000/api/v1/farmer/${productId}`;
+  const url = `https://taza-bazar-admin.onrender.com/api/v1/farmer/${productId}`;
         response = await fetch(url, {
           method: "PATCH",
           headers: {
@@ -116,7 +116,7 @@ export default function FarmerListing() {
           body: JSON.stringify(dataToSubmit),
         });
       } else {
-        const url = "http://127.0.0.1:8000/api/v1/farmer";
+  const url = "https://taza-bazar-admin.onrender.com/api/v1/farmer";
         response = await fetch(url, {
           method: "POST",
           headers: {
@@ -177,7 +177,7 @@ export default function FarmerListing() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/farmer/${listingToDelete._id}`,
+  `https://taza-bazar-admin.onrender.com/api/v1/farmer/${listingToDelete._id}`,
         {
           method: "DELETE",
           headers: {

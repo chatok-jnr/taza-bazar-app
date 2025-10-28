@@ -33,7 +33,7 @@ module.exports = Consumer_alert;
 
 /*
 When a farmer accept or reject a bid it will call on this api using a post method
-api link = http://127.0.0.1:8000/api/v1/consumerAlert
+api link = https://taza-bazar-admin.onrender.com/api/v1/consumerAlert
 with this body
 { 
   "user_id":paste_the_consumer_id_here,
@@ -47,7 +47,7 @@ if user select accepted the status will be accepted otherwise it will be rejecte
 
 when a user come to the notification page it will call on this api link
 with get method
-http://127.0.0.1:8000/api/v1/consumerAlert/paste_the_user_id_here
+https://taza-bazar-admin.onrender.com/api/v1/consumerAlert/paste_the_user_id_here
 
 and you will be get a response like this
 

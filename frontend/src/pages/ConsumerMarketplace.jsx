@@ -579,7 +579,7 @@ export default function MarketplacePage() {
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/farmer', {
+      const response = await fetch('https://taza-bazar-admin.onrender.com//api/v1/farmer', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -633,7 +633,7 @@ export default function MarketplacePage() {
       }
 
       // Assuming there's an endpoint to get user's bids
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/buyer/consumer/${user.user_id}`, {
+      const response = await fetch(`https://taza-bazar-admin.onrender.com//api/v1/buyer/consumer/${user.user_id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -669,7 +669,7 @@ export default function MarketplacePage() {
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/buyer/accepted', {
+      const response = await fetch('https://taza-bazar-admin.onrender.com//api/v1/buyer/accepted', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -852,7 +852,7 @@ export default function MarketplacePage() {
 
       console.log('Sending bid data:', bidData); // Debug log
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/buyer', {
+      const response = await fetch('https://taza-bazar-admin.onrender.com//api/v1/buyer', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

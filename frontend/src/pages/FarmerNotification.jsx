@@ -273,7 +273,7 @@ const FarmerNotification = () => {
         }
 
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/v1/farmAlert/${user.user_id}`,
+          `https://taza-bazar-admin.onrender.com/api/v1/farmAlert/${user.user_id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -315,7 +315,7 @@ const FarmerNotification = () => {
     // You could implement an API call here:
     // try {
     //   const token = getToken();
-    //   await axios.patch(`http://127.0.0.1:8000/api/v1/farmAlert/${id}/markAsRead`, {}, {
+  //   await axios.patch(`https://taza-bazar-admin.onrender.com/api/v1/farmAlert/${id}/markAsRead`, {}, {
     //     headers: {
     //       Authorization: `Bearer ${token}`,
     //       "Content-Type": "application/json",
@@ -335,7 +335,7 @@ const FarmerNotification = () => {
     // You could implement an API call here:
     // try {
     //   const token = getToken();
-    //   await axios.patch(`http://127.0.0.1:8000/api/v1/farmAlert/markAllAsRead`, 
+  //   await axios.patch(`https://taza-bazar-admin.onrender.com/api/v1/farmAlert/markAllAsRead`, 
     //     { userId: user.user_id },
     //     {
     //       headers: {

@@ -108,7 +108,7 @@ export function UsersManagement() {
             ? localStorage.getItem('adminToken') || localStorage.getItem('token')
             : null;
 
-        const res = await fetch('http://127.0.0.1:8000/api/v1/admin/allUser', {
+  const res = await fetch('https://taza-bazar-admin.onrender.com/api/v1/admin/allUser', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ export function UsersManagement() {
             : null;
 
         const res = await fetch(
-          `http://127.0.0.1:8000/api/v1/admin/userStatus/${selectedUser._id}`,
+          `https://taza-bazar-admin.onrender.com/api/v1/admin/userStatus/${selectedUser._id}`,
           {
             method: 'PATCH',
             headers: {
@@ -233,7 +233,7 @@ export function UsersManagement() {
             : null;
 
         const res = await fetch(
-          `http://127.0.0.1:8000/api/v1/admin/userStatus/${selectedUser._id}`,
+          `https://taza-bazar-admin.onrender.com/api/v1/admin/userStatus/${selectedUser._id}`,
           {
             method: 'PATCH',
             headers: {

@@ -89,7 +89,7 @@ const handleSubmit = async (e) => {
       
       try {
         // Make a login API call with the same credentials
-        const loginResponse = await fetch('http://127.0.0.1:8000/api/v1/users/login', {
+  const loginResponse = await fetch('https://taza-bazar-admin.onrender.com/api/v1/users/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

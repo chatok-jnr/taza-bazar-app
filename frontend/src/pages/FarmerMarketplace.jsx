@@ -51,7 +51,7 @@ export default function FarmerMarketplace() {
 
       console.log("Fetching consumer requests from API...");
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/consumer", {
+  const response = await fetch("https://taza-bazar-admin.onrender.com/api/v1/consumer", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -142,7 +142,7 @@ export default function FarmerMarketplace() {
 
       console.log("Submitting proposal:", proposalData);
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/farmerBid", {
+  const response = await fetch("https://taza-bazar-admin.onrender.com/api/v1/farmerBid", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

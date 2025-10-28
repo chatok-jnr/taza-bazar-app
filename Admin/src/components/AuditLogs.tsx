@@ -82,7 +82,7 @@ export function AuditLogs() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/v1/admin/auditLogs', {
+  const res = await fetch('https://taza-bazar-admin.onrender.com/api/v1/admin/auditLogs', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -225,7 +225,7 @@ export function ListingsModeration() {
       if ((actionType === 'approve' || actionType === 'reject') && 'id' in selectedListing) {
         const headers = getAuthHeaders();
         await axios.patch(
-          'http://127.0.0.1:8000/api/v1/admin/deal/farmerReq',
+          'https://taza-bazar-admin.onrender.com/api/v1/admin/deal/farmerReq',
           {
             product_ID: selectedListing.id._id,
             ID: selectedListing._id,
@@ -238,7 +238,7 @@ export function ListingsModeration() {
           { headers }
         );
         // Refresh the data
-        const dealRequestsRes = await axios.get('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', { headers });
+  const dealRequestsRes = await axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/farmerReq', { headers });
         setAdminDealRequests(dealRequestsRes.data.data);
       }
     } catch (error) {

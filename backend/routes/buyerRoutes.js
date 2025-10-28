@@ -8,14 +8,14 @@ router.use(protect);
 
 router  
   .route('/')
-  .post(alreadyBid.alreadyBid, buyerController.placeBid)  //http://127.0.0.1:8000/api/v1/buyer
+  .post(alreadyBid.alreadyBid, buyerController.placeBid)  //https://taza-bazar-admin.onrender.com/api/v1/buyer
 
 router
-  .route('/accepted') //http://127.0.0.1:8000/api/v1/buyer/accepted
+  .route('/accepted') //https://taza-bazar-admin.onrender.com/api/v1/buyer/accepted
   .post(buyerController.acceptedBid)
 
 router
-  .route('/bids') //http://127.0.0.1:8000/api/v1/buyer/bids
+  .route('/bids') //https://taza-bazar-admin.onrender.com/api/v1/buyer/bids
   .post(buyerController.bidPlaced)
   .patch(buyerController.updateBid)
 
