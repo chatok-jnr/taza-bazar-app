@@ -1,7 +1,8 @@
-# Render Blueprint for taza-bazar backend
+# Render Blueprint for taza-bazar applications
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
+  # Backend Service
   - type: web
     name: taza-bazar-backend
     env: node
@@ -11,6 +12,38 @@ services:
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
+    envVarGroups:
+      - taza-bazar-env
+
+  # Frontend Service
+  - type: static
+    name: taza-bazar-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: true
+    envVarGroups:
+      - taza-bazar-env
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Admin Service
+  - type: static
+    name: taza-bazar-admin
+    env: static
+    rootDir: Admin
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: true
+    envVarGroups:
+      - taza-bazar-env
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     # Render will inject PORT automatically. The app listens on process.env.PORT.
     # Set your environment variables in the Render Dashboard after creating the service
     # or create an env var group and attach it here via `envVarGroups`.
@@ -18,19 +51,18 @@ services:
     # envVarGroups:
     #   - taza-bazar-backend-env
 
-# Optionally define an env var group, then reference it above via `envVarGroups`.
-# envVarGroups:
-#   - name: taza-bazar-backend-env
-#     envVars:
-#       - key: NODE_ENV
-#         value: production
-#       - key: JWT_SECRET
-#         generateValue: true
-#       - key: JWT_EXPIRES_IN
-#         value: 30d
-#       - key: DATABASE
-#         value: ""
-#       - key: DATABASE_PASSWORD
-#         value: ""
-#       - key: ALLOWED_ORIGINS
-#         value: "https://your-frontend.com,https://www.your-frontend.com"
+envVarGroups:
+  - name: taza-bazar-env
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: DATABASE
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "https://taza-bazar-frontend.onrender.com,https://taza-bazar-admin.onrender.com"
