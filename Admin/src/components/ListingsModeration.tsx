@@ -133,8 +133,8 @@ export function ListingsModeration() {
       try {
         const headers = getAuthHeaders();
         const [listingsRes, dealRequestsRes] = await Promise.all([
-          axios.get('http://127.0.0.1:8000/api/v1/admin/allList', { headers }),
-          axios.get('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', { headers })
+          axios.get('https://taza-bazar-backend.onrender.com/api/v1/admin/allList', { headers }),
+          axios.get('https://taza-bazar-backend.onrender.com/api/v1/admin/deal/farmerReq', { headers })
         ]);
         setAllListings(listingsRes.data.data);
         setAdminDealRequests(dealRequestsRes.data.data);
@@ -181,7 +181,7 @@ export function ListingsModeration() {
     try {
       const headers = getAuthHeaders();
       // axios.delete accepts body data via config.data
-      await axios.delete('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', {
+      await axios.delete('https://taza-bazar-backend.onrender.com/api/v1/admin/deal/farmerReq', {
         headers,
         data: {
           ID: deleteTarget._id,
@@ -199,7 +199,7 @@ export function ListingsModeration() {
       // Optionally refresh deal requests if relevant
       const headersForRefresh = getAuthHeaders();
       try {
-        const dealRequestsRes = await axios.get('http://127.0.0.1:8000/api/v1/admin/deal/farmerReq', { headers: headersForRefresh });
+        const dealRequestsRes = await axios.get('https://taza-bazar-backend.onrender.com/api/v1/admin/deal/farmerReq', { headers: headersForRefresh });
         setAdminDealRequests(dealRequestsRes.data.data);
       } catch (e) {
         // non-fatal

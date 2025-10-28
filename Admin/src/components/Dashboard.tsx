@@ -126,7 +126,7 @@ export function Dashboard() {
         setLoading(true);
         setError(null);
 
-        const base = 'http://127.0.0.1:8000/api/v1/admin';
+        const base = 'https://taza-bazar-backend.onrender.com/api/v1/admin';
 
         const [usersRes, listRes, reqRes, bidsRes] = await Promise.all([
           fetch(`${base}/allUser`, { method: 'GET', signal }),

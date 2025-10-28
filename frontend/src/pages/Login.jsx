@@ -30,7 +30,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/users/login', {
+      const response = await fetch('https://taza-bazar-backend.onrender.com/api/v1/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

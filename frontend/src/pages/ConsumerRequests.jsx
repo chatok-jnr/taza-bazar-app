@@ -145,7 +145,7 @@ export default function ConsumerRequests() {
 
       console.log("Creating new request:", requestData);
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/consumer", {
+      const response = await fetch("https://taza-bazar-backend.onrender.com/api/v1/consumer", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

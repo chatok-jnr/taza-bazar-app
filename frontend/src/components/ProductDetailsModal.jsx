@@ -61,7 +61,7 @@ export default function ProductDetailsModal({
         return;
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/buyer/bids`, {
+      const response = await fetch(`https://taza-bazar-backend.onrender.com/api/v1/buyer/bids`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +141,7 @@ export default function ProductDetailsModal({
 
       // Send notification to consumer about bid acceptance/rejection
       const notificationResponse = await fetch(
-        "http://127.0.0.1:8000/api/v1/consumerAlert",
+        "https://taza-bazar-backend.onrender.com/api/v1/consumerAlert",
         {
           method: "POST",
           headers: {
@@ -183,7 +183,7 @@ export default function ProductDetailsModal({
 
         // Update product quantity
         const productUpdateResponse = await fetch(
-          `http://127.0.0.1:8000/api/v1/farmer/${listing._id}`,
+          `https://taza-bazar-backend.onrender.com/api/v1/farmer/${listing._id}`,
           {
             method: "PATCH",
             headers: {

@@ -41,7 +41,7 @@ export function Login({ onLogin }: LoginProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/signIn', {
+      const response = await fetch('https://taza-bazar-backend.onrender.com/api/v1/admin/signIn', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export function Login({ onLogin }: LoginProps) {
 
       if (!response.ok) {
         if (response.status === 500) {
-          setError('Server error. Please check if the server is running at http://127.0.0.1:8000');
+          setError('Server error. Please check if the server is running at https://taza-bazar-backend.onrender.com');
           console.error('Server error occurred');
         } else {
           const errorData = await response.json();

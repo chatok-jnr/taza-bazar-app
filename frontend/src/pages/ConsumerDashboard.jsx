@@ -95,7 +95,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching requests for user ID:', user.user_id);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/consumer/${user.user_id}`, {
+      const response = await fetch(`https://taza-bazar-backend.onrender.com/api/v1/consumer/${user.user_id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -220,7 +220,7 @@ export default function FarmerDashboard() {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/consumer", {
+      const response = await fetch("https://taza-bazar-backend.onrender.com/api/v1/consumer", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
