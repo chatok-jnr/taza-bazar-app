@@ -26,20 +26,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Build allowed origins from env and sensible defaults
+const defaultAllowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+const envAllowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...envAllowedOrigins]));
+
 const corsOptions = {
   origin: function(origin, callback) {
-    const allowedOrigins = [
-      'https://taza-bazar-app-4l7i.onrender.com',
-      'https://taza-bazar-frontend.onrender.com',
-      'https://taza-bazar-admin.onrender.com',
-      'http://localhost:5173',
-      'http://localhost:3000'
-    ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
       return callback(null, true);
     }
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     callback(new Error('Not allowed by CORS'));
@@ -52,9 +56,9 @@ const corsOptions = {
   maxAge: 86400 // Cache preflight request for 24 hours
 };
 
-// CORS middleware and explicit preflight handling
+// CORS middleware and explicit preflight handling (Express 5 requires valid path strings)
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options('/*', cors(corsOptions));
 
 app.use(morgan('dev'));
 app.use(express.json());
@@ -66,13 +70,7 @@ app.use((err, req, res, next) => {
     res.status(403).json({
       status: 'error',
       message: 'CORS policy violation: Origin not allowed',
-      allowedOrigins: [
-        'https://taza-bazar-app-4l7i.onrender.com',
-        'https://taza-bazar-frontend.onrender.com',
-        'https://taza-bazar-admin.onrender.com',
-        'http://localhost:5173',
-        'http://localhost:3000'
-      ]
+      allowedOrigins
     });
   } else {
     next(err);
