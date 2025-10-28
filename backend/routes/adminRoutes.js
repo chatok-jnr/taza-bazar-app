@@ -1,7 +1,7 @@
 const express = require('express');
 const adminControll = require('../controllers/adminController');
 const authAdmin = require('./../controllers/authAdmin');
-
+const { protect } = require('./../controllers/authAdmin');
 const router = express.Router();
 
 // router
@@ -12,6 +12,7 @@ router
   .route('/signIn')
   .post(authAdmin.signIn)
 
+router.use(protect);
 router 
   .route('/allUser')
   .get(adminControll.getAllUser)

@@ -1,0 +1,36 @@
+# Render Blueprint for taza-bazar backend
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: taza-bazar-backend
+    env: node
+    rootDir: backend
+    plan: free
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    # Render will inject PORT automatically. The app listens on process.env.PORT.
+    # Set your environment variables in the Render Dashboard after creating the service
+    # or create an env var group and attach it here via `envVarGroups`.
+    # Example:
+    # envVarGroups:
+    #   - taza-bazar-backend-env
+
+# Optionally define an env var group, then reference it above via `envVarGroups`.
+# envVarGroups:
+#   - name: taza-bazar-backend-env
+#     envVars:
+#       - key: NODE_ENV
+#         value: production
+#       - key: JWT_SECRET
+#         generateValue: true
+#       - key: JWT_EXPIRES_IN
+#         value: 30d
+#       - key: DATABASE
+#         value: ""
+#       - key: DATABASE_PASSWORD
+#         value: ""
+#       - key: ALLOWED_ORIGINS
+#         value: "https://your-frontend.com,https://www.your-frontend.com"

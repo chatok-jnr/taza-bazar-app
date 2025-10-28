@@ -39,4 +39,9 @@ app.use('/api/v1/latestRequest', latestRequest)
 
 //Admin Routes
 app.use('/api/v1/admin', adminRoutes);
+
+// Health check (useful for deployment platforms)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 module.exports = app;

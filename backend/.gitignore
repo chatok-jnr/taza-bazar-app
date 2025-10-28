@@ -1,0 +1,8 @@
+# Ignore local env files and logs
+config.env
+.env
+.env.*
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
