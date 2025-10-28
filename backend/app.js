@@ -15,9 +15,25 @@ const latestRequest = require('./routes/latestRequestRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 
+// Security Headers
+app.use((req, res, next) => {
+  res.set({
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'X-XSS-Protection': '1; mode=block'
+  });
+  next();
+});
+
 app.use(
   cors({
-    origin: ['https://taza-bazar-app-4l7i.onrender.com', 'http://localhost:5173', 'http://localhost:3000', '*'],
+    origin: [
+      'https://taza-bazar-app-4l7i.onrender.com',
+      'https://taza-bazar-admin.onrender.com',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
