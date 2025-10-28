@@ -109,7 +109,7 @@ export default function Landing() {
       try {
         setIsRequestsLoading(true);
         setRequestsError(null);
-        const res = await fetch('http://127.0.0.1:8000/api/v1/latestRequest', {
+        const res = await fetch('https://taza-bazar-backend.onrender.com/api/v1/latestRequest', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });
