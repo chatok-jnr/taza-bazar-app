@@ -85,11 +85,19 @@ export function AuditLogs() {
       setLoading(true);
       setError(null);
       try {
+  // include Authorization header when admin JWT exists in localStorage
+  const token =
+    (typeof window !== 'undefined' &&
+      (localStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('authToken'))) || '';
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
   const res = await fetch(`${API_BASE}/api/v1/admin/auditLogs`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers,
           // Note: credentials are omitted to avoid CORS issues with wildcard origin
         });
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);

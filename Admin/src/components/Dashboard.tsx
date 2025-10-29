@@ -128,11 +128,17 @@ export function Dashboard() {
 
         const base = 'https://taza-bazar-backend.onrender.com/api/v1/admin';
 
+        // Read JWT from common storage keys and add Authorization header when available
+        const token = (typeof window !== 'undefined' && (localStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('authToken'))) || '';
+        const headers: Record<string, string> = {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+
         const [usersRes, listRes, reqRes, bidsRes] = await Promise.all([
-          fetch(`${base}/allUser`, { method: 'GET', signal }),
-          fetch(`${base}/allList`, { method: 'GET', signal }),
-          fetch(`${base}/allReq`, { method: 'GET', signal }),
-          fetch(`${base}/allBid`, { method: 'GET', signal }),
+          fetch(`${base}/allUser`, { method: 'GET', signal, headers }),
+          fetch(`${base}/allList`, { method: 'GET', signal, headers }),
+          fetch(`${base}/allReq`, { method: 'GET', signal, headers }),
+          fetch(`${base}/allBid`, { method: 'GET', signal, headers }),
         ]);
 
         if (!usersRes.ok || !listRes.ok || !reqRes.ok || !bidsRes.ok) {
