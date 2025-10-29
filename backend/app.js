@@ -23,18 +23,23 @@ const allowedOrigins = [
   'http://localhost:5173',                    // Vite dev server
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman)
-    if (!origin) return callback(null, true);
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps, Postman)
+//     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true // ✅ Important if using cookies/sessions
+//     if (allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true // ✅ Important if using cookies/sessions
+// }));
+
+app.use(cors({
+  origin: true, // Allows any origin
+  credentials: true
 }));
 
 app.use(morgan('dev'));
