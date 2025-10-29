@@ -273,7 +273,7 @@ const FarmerNotification = () => {
         }
 
         const response = await axios.get(
-          `https://taza-bazar-admin.onrender.com/api/v1/farmAlert/${user.user_id}`,
+          `https://taza-bazar-backend.onrender.com/api/v1/farmAlert/${user.user_id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

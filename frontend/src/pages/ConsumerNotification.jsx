@@ -273,7 +273,7 @@ export default function ConsumerNotification() {
         }
 
         const userId = user._id || user.user_id;
-        const response = await fetch(`https://taza-bazar-admin.onrender.com//api/v1/consumerAlert/${userId}`, {
+  const response = await fetch(`https://taza-bazar-backend.onrender.com/api/v1/consumerAlert/${userId}`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -320,7 +320,7 @@ export default function ConsumerNotification() {
     // You could implement an API call here:
     // try {
     //   const token = getToken();
-  //   await fetch(`https://taza-bazar-admin.onrender.com/api/v1/consumerAlert/${id}/markAsRead`, {
+  //   await fetch(`https://taza-bazar-backend.onrender.com/api/v1/consumerAlert/${id}/markAsRead`, {
     //     method: "PATCH",
     //     headers: {
     //       Authorization: `Bearer ${token}`,
@@ -342,7 +342,7 @@ export default function ConsumerNotification() {
     // try {
     //   const token = getToken();
     //   const userId = user._id || user.user_id;
-  //   await fetch(`https://taza-bazar-admin.onrender.com/api/v1/consumerAlert/markAllAsRead`, {
+  //   await fetch(`https://taza-bazar-backend.onrender.com/api/v1/consumerAlert/markAllAsRead`, {
     //     method: "PATCH",
     //     headers: {
     //       Authorization: `Bearer ${token}`,

@@ -100,7 +100,7 @@ export default function FarmerProfile() {
         console.log("Fetching profile for user ID:", user.user_id);
 
         const response = await fetch(
-          `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+          `https://taza-bazar-backend.onrender.com/api/v1/users/${user.user_id}`,
           {
             method: "GET",
             headers: {
@@ -199,7 +199,7 @@ export default function FarmerProfile() {
       console.log("Updating profile with data:", updateData);
 
       const response = await fetch(
-  `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+  `https://taza-bazar-backend.onrender.com/api/v1/users/${user.user_id}`,
         {
           method: "PATCH",
           headers: {

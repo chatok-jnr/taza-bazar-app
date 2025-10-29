@@ -485,7 +485,7 @@ export default function FarmerDashboard() {
           throw new Error("Product ID is required for updating");
         }
 
-  const url = `https://taza-bazar-admin.onrender.com/api/v1/farmer/${productId}`;
+  const url = `https://taza-bazar-backend.onrender.com/api/v1/farmer/${productId}`;
         console.log("PATCH URL:", url);
 
         response = await fetch(url, {
@@ -498,7 +498,7 @@ export default function FarmerDashboard() {
         });
       } else {
         // Create new listing
-  const url = "https://taza-bazar-admin.onrender.com/api/v1/farmer";
+  const url = "https://taza-bazar-backend.onrender.com/api/v1/farmer";
         console.log("POST URL:", url);
 
         response = await fetch(url, {
