@@ -1,0 +1,14 @@
+# Admin app gitignore
+# Ignore build output and Vite assets
+dist/
+dist/assets/
+
+# Node modules
+node_modules/
+
+# Environment
+.env
+
+# Editor files
+.vscode/
+.DS_Store
