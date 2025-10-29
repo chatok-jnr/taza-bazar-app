@@ -4,7 +4,7 @@ const bidController = require('./../controllers/farmerBidController');
 const { protect } = require('./../middleware/authMiddleware');
 const router = express.Router();
 
-router.use(protect);
+//outer.use(protect);
 
 //https://taza-bazar-admin.onrender.com/api/v1/farmerBid
 router

@@ -3,7 +3,7 @@ const farmAlertController = require("./../controllers/farmAlertController");
 const { protect } = require("./../middleware/authMiddleware");
 
 const router = express.Router();
-router.use(protect);
+//router.use(protect);
 
 router
   .route("/")

@@ -12,7 +12,7 @@ router
   .route('/signIn')
   .post(authAdmin.signIn)
 
-router.use(protect);
+//router.use(protect);
 router 
   .route('/allUser')
   .get(adminControll.getAllUser)

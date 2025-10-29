@@ -14,7 +14,7 @@ router
   .route('/login')
   .post(authController.loginUser);
 
-router.use(protect);
+//router.use(protect);
 
 router
   .route('/')
