@@ -1,6 +1,5 @@
 import {
   ShoppingCart,
-  MessageSquare,
   Bell,
   User,
   FileText,
@@ -26,7 +25,6 @@ export default function ConsumerSidebar() {
     { name: "Dashboard", icon: Home, path: "/consumer" },
     { name: "My Requests", icon: FileText, path: "/consumer/requests" },
     { name: "Marketplace", icon: TrendingUp, path: "/consumer/marketplace" },
-    { name: "Messages", icon: MessageSquare, path: "/consumer/messages" },
     { name: "Notifications", icon: Bell, path: "/consumer/notifications" },
     { name: "Profile", icon: User, path: "/consumer/profile" },
   ];

@@ -6,7 +6,6 @@ import ConsumerDashboardSimple from "./pages/ConsumerDashboardSimple";
 import ConsumerRequests from "./pages/ConsumerRequests";
 import ConsumerMarketplace from "./pages/ConsumerMarketplace";
 import ConsumerProfile from "./pages/ConsumerProfile";
-import ConsumerMessage from "./pages/ConsumerMessaage";
 import ConsumerNotification from "./pages/ConsumerNotification";
 import AboutDeveloper from "./pages/AboutDeveloper";
 import FarmerDashboard from "./pages/FarmerDashboard";
@@ -17,7 +16,6 @@ import Signup from "./pages/Signup";
 import FarmerProfile from "./pages/FarmerProfile";
 import FarmerMarketPlace from "./pages/FarmerMarketplace";
 import FarmerListing from "./pages/FarmerListing";
-import FarmerMessage from "./pages/FarmerMessage";
 import FarmerNotification from "./pages/FarmerNotification";
 
 export default function App() {
@@ -39,7 +37,6 @@ export default function App() {
           <Route path="requests" element={<ConsumerRequests />} />
           <Route path="marketplace" element={<ConsumerMarketplace />} />
           <Route path="profile" element={<ConsumerProfile />} />
-          <Route path="messages" element={<ConsumerMessage />} />
           <Route path="notifications" element={<ConsumerNotification />} />
         </Route>
 
@@ -49,7 +46,6 @@ export default function App() {
           <Route path="profile" element={<FarmerProfile />} />
           <Route path="marketplace" element={<FarmerMarketPlace />} />
           <Route path="listings" element={<FarmerListing />} />
-          <Route path="messages" element={<FarmerMessage />} />
           <Route
             path="notifications"
             element={<FarmerNotification />}

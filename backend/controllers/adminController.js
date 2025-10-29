@@ -163,37 +163,41 @@ exports.getAllFarmerReq = async(req, res) => {
 //Accept or Reject Farmer Req
 exports.updateVerdict = async(req, res) => {
   try{
+    const desiredVerdict = req.body.verdict;
+    let admin_deal = desiredVerdict === 'Accepted';
 
-    let admin_deal = false;
-    if(req.body.verdict === 'Accepted') admin_deal = true;
+    // Idempotency guard: only update when the verdict actually changes
+    const updatedReq = await Farmer_to_admin.findOneAndUpdate(
+      { _id: req.body.ID, verdict: { $ne: desiredVerdict } },
+      { $set: { verdict: desiredVerdict } },
+      { new: true, runValidators: true }
+    );
 
-    console.log(`Debuging inside = ${req.body.product_ID}`);
+    // If nothing changed, skip side-effects and audit
+    if (!updatedReq) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'No changes applied',
+      });
+    }
 
-    const updProd = await Farmer_product.findByIdAndUpdate(req.body.product_ID, {
-      'admin_deal':admin_deal
-    }, {
-      new:true,
-      runValidators:true
-    });
+    // Keep product flag in sync but avoid unnecessary writes
+    await Farmer_product.findOneAndUpdate(
+      { _id: req.body.product_ID, admin_deal: { $ne: admin_deal } },
+      { $set: { admin_deal } },
+      { new: true, runValidators: true }
+    );
 
-    const updVar = await Farmer_to_admin.findByIdAndUpdate(req.body.ID,{
-      'verdict':req.body.verdict
-    }, {
-      new:true,
-      runValidators:true
-    })
+    // accept admin_info or adminID from client
+    let admin_info = req.body.admin_info || req.body.adminID;
+    let admin_action = admin_deal ? 'APPROVE LISTING' : 'REJECT LISTING';
 
-  // accept admin_info or adminID from client
-  let admin_info = req.body.admin_info || req.body.adminID;
-    let admin_action = "REJECT LISTING";
-    if(admin_deal === true) admin_action = "APPROVE LISTING";
-    
     if(req.body.action_reasson) await Admin_audit.create({admin_info, admin_action, 'action_reasson':req.body.action_reasson});
     else await Admin_audit.create({admin_info, admin_action}); 
 
     res.status(200).json({
       status:'success',
-      message:"Update Successfully"
+      message:'Update Successfully'
     });
 
   } catch(err) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import ConsumerSidebar from './ConsumerSidebar';
-import { ShoppingCart, Package, TrendingUp, Bell, MessageSquare, User } from 'lucide-react';
+import { ShoppingCart, Package, TrendingUp, Bell, User } from 'lucide-react';
 
 export default function ConsumerDashboardSimple() {
   const { user, isLoading, logout } = useUser();
@@ -62,13 +62,6 @@ export default function ConsumerDashboardSimple() {
       icon: Package,
       color: 'bg-green-500',
       path: '/consumer/marketplace'
-    },
-    {
-      title: 'Messages',
-      description: 'Chat with farmers and vendors',
-      icon: MessageSquare,
-      color: 'bg-purple-500',
-      path: '/consumer/messages'
     },
     {
       title: 'Profile',

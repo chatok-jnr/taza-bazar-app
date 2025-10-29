@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
   FileText,
-  MessageSquare,
   User,
   MapPin,
   Calendar,
@@ -29,7 +28,7 @@ export default function FarmerDashboard() {
   const getActiveTabFromURL = () => {
     const searchParams = new URLSearchParams(location.search);
     const tab = searchParams.get("tab");
-    const validTabs = ["Dashboard", "Notifications", "Messages", "Profile"];
+  const validTabs = ["Dashboard", "Notifications", "Profile"];
     return validTabs.includes(tab) ? tab : "Dashboard";
   };
 
@@ -696,13 +695,7 @@ export default function FarmerDashboard() {
                     color: "bg-purple-500",
                     action: () => handleTabChange("Marketplace"),
                   },
-                  {
-                    title: "Messages",
-                    description: "Chat with customers and respond to inquiries",
-                    icon: MessageSquare,
-                    color: "bg-indigo-500",
-                    action: () => handleTabChange("Messages"),
-                  },
+                  
                   {
                     title: "Profile",
                     description: "Update your account and farm information",
@@ -765,9 +758,7 @@ export default function FarmerDashboard() {
         navigate("/farmer/marketplace");
         return null;
 
-      case "Messages":
-        navigate("/farmer/messages");
-        return null;
+      
 
       case "Notifications":
         navigate("/farmer/notifications");

@@ -127,6 +127,7 @@ export function ListingsModeration() {
   const [deleteReason, setDeleteReason] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [adminDealFilter, setAdminDealFilter] = useState<'all' | 'requested' | 'accepted'>('all');
+  const [isActionSubmitting, setIsActionSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -219,7 +220,8 @@ export function ListingsModeration() {
   };
 
   const confirmAction = async () => {
-    if (!selectedListing || !actionType) return;
+    if (!selectedListing || !actionType || isActionSubmitting) return;
+    setIsActionSubmitting(true);
 
     try {
       if ((actionType === 'approve' || actionType === 'reject') && 'id' in selectedListing) {
@@ -238,15 +240,16 @@ export function ListingsModeration() {
           { headers }
         );
         // Refresh the data
-  const dealRequestsRes = await axios.get('https://taza-bazar-backend.onrender.com/api/v1/admin/deal/farmerReq', { headers });
+        const dealRequestsRes = await axios.get('https://taza-bazar-backend.onrender.com/api/v1/admin/deal/farmerReq', { headers });
         setAdminDealRequests(dealRequestsRes.data.data);
       }
     } catch (error) {
       console.error('Error performing action:', error);
+    } finally {
+      setIsActionSubmitting(false);
+      setActionDialogOpen(false);
+      setActionReason('');
     }
-
-    setActionDialogOpen(false);
-    setActionReason('');
   };
 
   return (
@@ -471,15 +474,15 @@ export function ListingsModeration() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setActionDialogOpen(false)} disabled={isActionSubmitting}>
               Cancel
             </Button>
             <Button 
               onClick={confirmAction} 
-              disabled={actionType === 'reject' && !actionReason.trim()}
+              disabled={isActionSubmitting || (actionType === 'reject' && !actionReason.trim())}
               className="neon-glow-sm"
             >
-              Confirm
+              {isActionSubmitting ? 'Processing...' : 'Confirm'}
             </Button>
           </DialogFooter>
         </DialogContent>

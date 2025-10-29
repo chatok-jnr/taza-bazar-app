@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, MessageSquare, User, FileText, Edit2, Trash2, MapPin, Calendar, Package, DollarSign, TrendingUp, Bell, X, Save, Mail, Phone } from 'lucide-react';
+import { ShoppingCart, User, FileText, Edit2, Trash2, MapPin, Calendar, Package, DollarSign, TrendingUp, Bell, X, Save, Mail, Phone } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ConsumerSidebar from './ConsumerSidebar';
 
@@ -18,7 +18,7 @@ export default function ConsumerDashboard() {
   const getActiveTabFromURL = () => {
     const searchParams = new URLSearchParams(location.search);
     const tab = searchParams.get('tab');
-    const validTabs = ['My Requests', 'Marketplace', 'Notifications', 'Messages', 'Profile'];
+  const validTabs = ['My Requests', 'Marketplace', 'Notifications', 'Profile'];
     return validTabs.includes(tab) ? tab : 'My Requests';
   };
   
@@ -653,7 +653,6 @@ export default function ConsumerDashboard() {
     { name: 'My Requests', icon: FileText },
     { name: 'Marketplace', icon: TrendingUp },
     { name: 'Notifications', icon: Bell },
-    { name: 'Messages', icon: MessageSquare },
     { name: 'Profile', icon: User }
   ];
 
@@ -672,9 +671,7 @@ export default function ConsumerDashboard() {
         navigate("/consumer/notifications");
         return null;
       
-      case 'Messages':
-        navigate("/consumer/messages");
-        return null;
+      
       
       case 'Profile':
         navigate("/consumer/profile");

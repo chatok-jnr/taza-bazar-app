@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import { Link, useLocation } from 'react-router-dom';
-import { FileText, TrendingUp, Bell, MessageSquare, User, MapPin, Calendar, Package, Search, Eye } from 'lucide-react';
+import { FileText, TrendingUp, Bell, User, MapPin, Calendar, Package, Search, Eye } from 'lucide-react';
 import ConsumerSidebar from './ConsumerSidebar';
 
 // Posts will be loaded from an API; start with an empty array
@@ -278,13 +278,7 @@ function ProductDetailsModal({ isOpen, onClose, post, onPlaceBid, onContactFarme
                           </div>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => onContactFarmer(post)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
-                      >
-                        <MessageSquare size={18} />
-                        <span>Contact Farmer</span>
-                      </button>
+                      {/* Message option removed */}
                     </div>
                   ) : (
                     <>
@@ -308,13 +302,7 @@ function ProductDetailsModal({ isOpen, onClose, post, onPlaceBid, onContactFarme
                         </button>
                       )}
                       
-                      <button 
-                        onClick={() => onContactFarmer(post)}
-                        className="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300 hover:border-gray-400 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md"
-                      >
-                        <MessageSquare size={16} />
-                        <span>Contact Farmer</span>
-                      </button>
+                      {/* Message option removed */}
                     </>
                   )}
                 </div>

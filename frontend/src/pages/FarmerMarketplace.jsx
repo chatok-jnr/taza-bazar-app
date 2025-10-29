@@ -11,7 +11,6 @@ import {
   TrendingUp,
   Bell,
   User,
-  MessageSquare,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import FarmerSidebar from "./FarmerSidebar";
@@ -593,16 +592,7 @@ export default function FarmerMarketplace() {
                         <span>Submit Proposal</span>
                       </button>
                       
-                      <button 
-                        onClick={() => {
-                          // TODO: Implement message functionality
-                          console.log("Message consumer clicked for request:", selectedRequest._id);
-                        }}
-                        className="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300 hover:border-gray-400 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md"
-                      >
-                        <MessageSquare size={16} />
-                        <span>Contact Consumer</span>
-                      </button>
+                      {/* Message option removed */}
                     </div>
                   </div>
 

@@ -1,7 +1,6 @@
 import {
   Home,
   FileText,
-  MessageSquare,
   Bell,
   User,
   LogOut,
@@ -27,7 +26,6 @@ export default function FarmerSidebar() {
     { name: "Dashboard", icon: Home, path: "/farmer" },
     { name: "My Listings", icon: FileText, path: "/farmer/listings" },
     { name: "Marketplace", icon: TrendingUp, path: "/farmer/marketplace" },
-    { name: "Messages", icon: MessageSquare, path: "/farmer/messages" },
     { name: "Notifications", icon: Bell, path: "/farmer/notifications" },
     { name: "Profile", icon: User, path: "/farmer/profile" },
   ];

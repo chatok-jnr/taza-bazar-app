@@ -74,15 +74,6 @@ export default function PurchaseModal({ isOpen, onClose, product, onSubmit }) {
             >
               Request for Deal
             </button>
-            <button
-              type="button"
-              onClick={() =>
-                (window.location.href = `/messages/${product.farmerId}`)
-              }
-              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
-            >
-              Message Farmer
-            </button>
           </div>
 
           <button

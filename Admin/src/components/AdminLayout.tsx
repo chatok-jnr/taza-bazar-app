@@ -7,7 +7,6 @@ import {
   Gavel, 
   AlertTriangle, 
   Megaphone, 
-  Settings, 
   FileCheck,
   Menu,
   X,
@@ -30,7 +29,6 @@ const navItems = [
   { id: 'bids', label: 'Bids', icon: Gavel },
   { id: 'reports', label: 'Reports', icon: AlertTriangle },
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
-  { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'audit', label: 'Audit Logs', icon: FileCheck },
 ];
 
