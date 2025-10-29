@@ -88,7 +88,7 @@ export default function ConsumerRequests() {
       }
 
       const response = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/consumer/${user.user_id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/consumer/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -203,7 +203,7 @@ export default function ConsumerRequests() {
       console.log("Deleting request with ID:", requestToDelete._id);
 
       const response = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/consumer/${requestToDelete._id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/consumer/${requestToDelete._id}`,
         {
           method: "DELETE",
           headers: {
@@ -283,7 +283,7 @@ export default function ConsumerRequests() {
       }
 
       const response = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/farmerBid/${requestId}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/farmerBid/${requestId}`,
         {
           method: "GET",
           headers: {
@@ -344,7 +344,7 @@ export default function ConsumerRequests() {
 
       // First, update the bid status to "Accepted"
       const bidResponse = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/farmerBid/${bid._id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/farmerBid/${bid._id}`,
         {
           method: "PATCH",
           headers: {
@@ -370,7 +370,7 @@ export default function ConsumerRequests() {
 
       // Send notification to farmer about bid acceptance using farmAlert endpoint
       const notificationResponse = await fetch(
-        "https://taza-bazar-admin.onrender.com/api/v1/farmAlert",
+        "https://taza-bazar-backend.onrender.com/api/v1/farmAlert",
         {
           method: "POST",
           headers: {
@@ -406,7 +406,7 @@ export default function ConsumerRequests() {
 
       // First, get current consumer data to get existing total_spent value
       const consumerResponse = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/users/${user.user_id}`,
         {
           method: "GET",
           headers: {
@@ -428,7 +428,7 @@ export default function ConsumerRequests() {
         // Since the backend directly replaces values with Object.assign
         // We need to send the calculated sum for total_spent 
         const consumerUpdateResponse = await fetch(
-          `https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`,
+          `https://taza-bazar-backend.onrender.com/api/v1/users/${user.user_id}`,
           {
             method: "PATCH",
             headers: {
@@ -454,7 +454,7 @@ export default function ConsumerRequests() {
 
       // Get current farmer data to get existing total_revenue value
       const farmerResponse = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/users/${bid.farmer_id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/users/${bid.farmer_id}`,
         {
           method: "GET",
           headers: {
@@ -474,7 +474,7 @@ export default function ConsumerRequests() {
         // Since the backend directly replaces values with Object.assign
         // We need to send the calculated sum for total_revenue
         const farmerUpdateResponse = await fetch(
-          `https://taza-bazar-admin.onrender.com/api/v1/users/${bid.farmer_id}`,
+          `https://taza-bazar-backend.onrender.com/api/v1/users/${bid.farmer_id}`,
           {
             method: "PATCH",
             headers: {
@@ -500,7 +500,7 @@ export default function ConsumerRequests() {
 
       // Update the request quantity
       const requestResponse = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/consumer/${selectedRequest._id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/consumer/${selectedRequest._id}`,
         {
           method: "PATCH",
           headers: {
@@ -568,7 +568,7 @@ export default function ConsumerRequests() {
       console.log("Updating bid status to Rejected for bid ID:", bid._id);
 
       const response = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/farmerBid/${bid._id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/farmerBid/${bid._id}`,
         {
           method: "PATCH",
           headers: {
@@ -594,7 +594,7 @@ export default function ConsumerRequests() {
 
       // Send notification to farmer about bid rejection using farmAlert endpoint
       const notificationResponse = await fetch(
-        "https://taza-bazar-admin.onrender.com/api/v1/farmAlert",
+        "https://taza-bazar-backend.onrender.com/api/v1/farmAlert",
         {
           method: "POST",
           headers: {
@@ -654,7 +654,7 @@ export default function ConsumerRequests() {
       console.log("Updating request:", requestData);
 
       const response = await fetch(
-        `https://taza-bazar-admin.onrender.com/api/v1/consumer/${editingRequest._id}`,
+        `https://taza-bazar-backend.onrender.com/api/v1/consumer/${editingRequest._id}`,
         {
           method: "PATCH",
           headers: {

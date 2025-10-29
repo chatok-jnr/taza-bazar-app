@@ -12,6 +12,9 @@ import {
   SelectValue,
 } from './ui/select';
 
+// Prefer Vite env var when available, fall back to the known backend URL
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'https://taza-bazar-backend.onrender.com';
+
 // API response types
 type AdminInfo = string | { _id?: string; name?: string; email?: string };
 type AuditLog = {
@@ -82,7 +85,7 @@ export function AuditLogs() {
       setLoading(true);
       setError(null);
       try {
-  const res = await fetch('https://taza-bazar-admin.onrender.com/api/v1/admin/auditLogs', {
+  const res = await fetch(`${API_BASE}/api/v1/admin/auditLogs`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

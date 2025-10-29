@@ -20,6 +20,9 @@ import {
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
+// Backend base (Vite env override supported)
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'https://taza-bazar-backend.onrender.com';
+
 // API user shape based on provided response
 type AdminUser = {
   _id: string;
@@ -108,7 +111,7 @@ export function UsersManagement() {
             ? localStorage.getItem('adminToken') || localStorage.getItem('token')
             : null;
 
-  const res = await fetch('https://taza-bazar-admin.onrender.com/api/v1/admin/allUser', {
+  const res = await fetch(`${API_BASE}/api/v1/admin/allUser`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -184,7 +187,7 @@ export function UsersManagement() {
             : null;
 
         const res = await fetch(
-          `https://taza-bazar-admin.onrender.com/api/v1/admin/userStatus/${selectedUser._id}`,
+          `${API_BASE}/api/v1/admin/userStatus/${selectedUser._id}`,
           {
             method: 'PATCH',
             headers: {
@@ -233,7 +236,7 @@ export function UsersManagement() {
             : null;
 
         const res = await fetch(
-          `https://taza-bazar-admin.onrender.com/api/v1/admin/userStatus/${selectedUser._id}`,
+          `${API_BASE}/api/v1/admin/userStatus/${selectedUser._id}`,
           {
             method: 'PATCH',
             headers: {

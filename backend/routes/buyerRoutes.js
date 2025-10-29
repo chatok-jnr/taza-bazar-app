@@ -4,7 +4,7 @@ const {protect} = require('./../middleware/authMiddleware');
 const alreadyBid = require('./../middleware/alreadyBid');
 const router = express.Router();
 
-//router.use(protect);
+router.use(protect);
 
 router  
   .route('/')

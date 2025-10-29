@@ -4,6 +4,9 @@ import { ShoppingCart, MessageSquare, User, FileText, Edit2, Trash2, MapPin, Cal
 import { useUser } from '../context/UserContext';
 import ConsumerSidebar from './ConsumerSidebar';
 
+// Central API base URL - use the backend for all API calls
+const API_BASE = 'https://taza-bazar-backend.onrender.com';
+
 export default function ConsumerDashboard() {
   console.log('ConsumerDashboard component mounted');
   
@@ -95,7 +98,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching requests for user ID:', user.user_id);
 
-      const response = await fetch(`https://taza-bazar-backend.onrender.com/api/v1/consumer/${user.user_id}`, {
+      const response = await fetch(`${API_BASE}/api/v1/consumer/${user.user_id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -149,7 +152,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching farmer products...');
 
-  const response = await fetch('https://taza-bazar-admin.onrender.com/api/v1/farmer', {
+  const response = await fetch(`${API_BASE}/api/v1/farmer`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -206,7 +209,7 @@ export default function ConsumerDashboard() {
 
       console.log('Fetching user profile for user ID:', user.user_id);
 
-  const response = await fetch(`https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`, {
+  const response = await fetch(`${API_BASE}/api/v1/users/${user.user_id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -297,7 +300,7 @@ export default function ConsumerDashboard() {
 
       console.log('Updating profile with data:', updateData);
 
-  const response = await fetch(`https://taza-bazar-admin.onrender.com/api/v1/users/${user.user_id}`, {
+  const response = await fetch(`${API_BASE}/api/v1/users/${user.user_id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -407,7 +410,7 @@ export default function ConsumerDashboard() {
 
       console.log('Creating new request:', requestData);
 
-  const response = await fetch('https://taza-bazar-admin.onrender.com/api/v1/consumer', {
+  const response = await fetch(`${API_BASE}/api/v1/consumer`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -483,7 +486,7 @@ export default function ConsumerDashboard() {
 
       console.log('Deleting request with ID:', requestToDelete);
 
-  const response = await fetch(`https://taza-bazar-admin.onrender.com/api/v1/consumer/${requestToDelete}`, {
+  const response = await fetch(`${API_BASE}/api/v1/consumer/${requestToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -544,7 +547,7 @@ export default function ConsumerDashboard() {
 
       console.log('Updating request:', requestData);
 
-  const response = await fetch(`https://taza-bazar-admin.onrender.com/api/v1/consumer/${editingRequest._id}`, {
+  const response = await fetch(`${API_BASE}/api/v1/consumer/${editingRequest._id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

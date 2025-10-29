@@ -16,6 +16,9 @@ import {
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
+// Backend base (Vite env override supported)
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'https://taza-bazar-backend.onrender.com';
+
 // Types reflecting API response for consumer admin-deal requests
 interface ConsumerRequestCore {
   _id: string; // nested request id
@@ -116,8 +119,8 @@ export function RequestsModeration() {
       try {
         const headers = getAuthHeaders();
         const [allReqRes, dealReqRes] = await Promise.all([
-          axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/allReq', { headers }),
-          axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq', { headers }),
+          axios.get(`${API_BASE}/api/v1/admin/allReq`, { headers }),
+          axios.get(`${API_BASE}/api/v1/admin/deal/consumerReq`, { headers }),
         ]);
         setAllRequests(allReqRes.data.data || []);
         setRequests(dealReqRes.data.data || []);
@@ -160,7 +163,7 @@ export function RequestsModeration() {
     setIsDeleting(true);
     try {
       const headers = getAuthHeaders();
-  await axios.delete('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq', {
+  await axios.delete(`${API_BASE}/api/v1/admin/deal/consumerReq`, {
         headers,
         data: {
           request_ID: 'id' in deleteTarget ? deleteTarget.id._id : deleteTarget._id,
@@ -190,8 +193,8 @@ export function RequestsModeration() {
     if (!selectedRequest || !actionType) return;
     try {
       const headers = getAuthHeaders();
-      await axios.patch(
-  'https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq',
+    await axios.patch(
+  `${API_BASE}/api/v1/admin/deal/consumerReq`,
         {
           request_ID: selectedRequest.id._id,
           ID: selectedRequest._id,
@@ -203,7 +206,7 @@ export function RequestsModeration() {
         { headers }
       );
       // refresh list
-  const res = await axios.get('https://taza-bazar-admin.onrender.com/api/v1/admin/deal/consumerReq', { headers });
+  const res = await axios.get(`${API_BASE}/api/v1/admin/deal/consumerReq`, { headers });
       setRequests(res.data.data || []);
     } catch (error) {
       console.error('Error performing action:', error);
