@@ -6,6 +6,10 @@
 **/build
 /.vite
 
+# Ignore Admin build output (Vite build artifacts)
+Admin/dist/
+Admin/dist/assets/
+
 # Log files
 npm-debug.log*
 yarn-debug.log*
