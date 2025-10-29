@@ -58,7 +58,16 @@ const corsOptions = {
 
 // CORS middleware and explicit preflight handling (Express 5 requires valid path strings)
 app.use(cors(corsOptions));
-app.options('/*', cors(corsOptions));
+
+// Manual preflight handler: some router/path-to-regexp versions reject '*' or '/*' when
+// registering options routes. Use a lightweight middleware that invokes the cors
+// middleware for OPTIONS requests and returns the configured success status.
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return cors(corsOptions)(req, res, () => res.sendStatus(corsOptions.optionsSuccessStatus || 204));
+  }
+  next();
+});
 
 app.use(morgan('dev'));
 app.use(express.json());
