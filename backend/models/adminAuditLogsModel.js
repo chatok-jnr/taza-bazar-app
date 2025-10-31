@@ -13,7 +13,7 @@ const auditSchema = new mongoose.Schema({
       'SUSPEND USER', 'ACTIVE USER', 'VERIFY USER', 'UNVERIFY USER',
       'APPROVE LISTING', 'REJECT LISTING', 'DELETE LISTING',
       'APPROVE REQUEST', 'REJECT REQUEST', 'DELETE REQUEST',
-      'SEND ANNOUNCEMENT'
+      'SENT ANNOUNCEMENT'
     ]
   },
   action_reasson:{

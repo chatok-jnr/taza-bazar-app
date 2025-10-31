@@ -7,7 +7,7 @@ const consumerBid = require('./../models/buyerModel');
 const Farmer_to_admin = require('./../models/farmerToAdminReqModel');
 const Consumer_to_admin = require('./../models/consumerToAdminReqModel');
 const Admin_audit = require('./../models/adminAuditLogsModel');
-const Announcement  = require('./../models/adminAnnouncementModel');
+const Announcement = require('./../models/adminAnnouncementModel');
 
 // Get list of all user
 exports.getAllUser = async (req, res) => {
@@ -329,14 +329,13 @@ exports.deleteConsumerReq = async (req, res) => {
 //Create Announcement
 exports.createAnnouncemnet = async (req, res) => {
   try{
-
     console.log(`Debug = ${req.body.announcement}`);
 
     const addAnnouncement = await Announcement.create(req.body);
 
     let admin_info = req.body.admin_id;
     let action_reasson = " ";
-    await Admin_audit.create({admin_info, 'admin_action':'Sent an Announcement', action_reasson})
+    await Admin_audit.create({admin_info, 'admin_action':'SENT ANNOUNCEMENT', action_reasson})
 
     res.status(201).json({
       status:'success',
