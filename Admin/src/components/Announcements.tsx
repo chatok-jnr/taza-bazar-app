@@ -26,7 +26,7 @@ type MyAnnouncementsResponse = {
 
 export function Announcements() {
   // Config
-  const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || '';
+  const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://taza-bazar-backend.onrender.com';
   const adminId = useMemo(() => {
     if (typeof window === 'undefined') return '';
     return localStorage.getItem('admin_id') || '';
