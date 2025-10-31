@@ -5,8 +5,6 @@ import { Dashboard } from './components/Dashboard';
 import { UsersManagement } from './components/UsersManagement';
 import { ListingsModeration } from './components/ListingsModeration';
 import { RequestsModeration } from './components/RequestsModeration';
-import { BidsControl } from './components/BidsControl';
-import { Reports } from './components/Reports';
 import { Announcements } from './components/Announcements';
 import { AuditLogs } from './components/AuditLogs';
 
@@ -37,10 +35,6 @@ export default function App() {
         return <ListingsModeration />;
       case 'requests':
         return <RequestsModeration />;
-      case 'bids':
-        return <BidsControl />;
-      case 'reports':
-        return <Reports />;
       case 'announcements':
         return <Announcements />;
       case 'audit':

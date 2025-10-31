@@ -275,53 +275,6 @@ export function Announcements() {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-card neon-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center neon-glow-sm">
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">All Users</p>
-              <p className="text-foreground">12,847</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4 bg-card neon-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center neon-glow-sm">
-              <UserCheck className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Farmers</p>
-              <p className="text-foreground">5,234</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4 bg-card neon-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center cyan-glow">
-              <ShoppingBag className="w-5 h-5 text-secondary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Consumers</p>
-              <p className="text-foreground">4,567</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4 bg-card neon-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center cyan-glow">
-              <ShoppingBag className="w-5 h-5 text-secondary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Buyers</p>
-              <p className="text-foreground">3,046</p>
-            </div>
-          </div>
-        </Card>
-      </div>
 
       {/* Content based on mode */}
       {mode === 'new' && (

@@ -1,5 +1,6 @@
 const Consumer_request = require('./../models/consumerModel');
 const Consumer_to_admin = require('./../models/consumerToAdminReqModel');
+const Announcement = require('./../models/adminAnnouncementModel');
 
 // Create New Request
 exports.createReq = async (req, res) => {
@@ -104,3 +105,27 @@ exports.deleteReq = async (req, res) => {
   }
 }
 
+//Get All announcement
+exports.getAnnouncement = async(req, res) => {
+  try{
+    const allAnnouncement = await Announcement.find()
+    .sort({'createdAt':-1});
+
+    if(!allAnnouncement) {
+      return res.status(404).josn({
+        status:'Not Found',
+        message:'Failed to fetch the announcement'
+      });
+    }
+
+    res.status(200).json({
+      status:'success',
+      allAnnouncement
+    });
+  } catch(err) {
+    res.status(400).json({
+      status:"failed",
+      message:err.message
+    });
+  }
+}

@@ -9,7 +9,11 @@ router.use(protect);
 router
   .route('/')
   .post(farmerController.createProduct)
-  .get(farmerController.getAllProduct)
+  .get(farmerController.getAllProduct);
+
+router
+  .route('/announcement')
+  .get(farmerController.getAnnouncement); // 127.0.0.1:8000/api/v1/farmer/announcement
 
 router
   .route('/:id')

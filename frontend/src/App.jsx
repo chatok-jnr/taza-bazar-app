@@ -8,6 +8,9 @@ import ConsumerMarketplace from "./pages/ConsumerMarketplace";
 import ConsumerProfile from "./pages/ConsumerProfile";
 import ConsumerNotification from "./pages/ConsumerNotification";
 import AboutDeveloper from "./pages/AboutDeveloper";
+import AboutUs from "./pages/AboutUs";
+import HowItWorks from "./pages/HowItWorks";
+import Announcements from "./pages/Announcements";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import ProductDetails from "./pages/ProductDetails";
 import RequestDetails from "./pages/RequestDetails";
@@ -30,6 +33,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/about-developer" element={<AboutDeveloper />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
 
         {/* Consumer Routes */}
         <Route path="/consumer/*">
@@ -38,6 +43,7 @@ export default function App() {
           <Route path="marketplace" element={<ConsumerMarketplace />} />
           <Route path="profile" element={<ConsumerProfile />} />
           <Route path="notifications" element={<ConsumerNotification />} />
+          <Route path="announcements" element={<Announcements />} />
         </Route>
 
         {/* Farmer Routes */}
@@ -46,10 +52,8 @@ export default function App() {
           <Route path="profile" element={<FarmerProfile />} />
           <Route path="marketplace" element={<FarmerMarketPlace />} />
           <Route path="listings" element={<FarmerListing />} />
-          <Route
-            path="notifications"
-            element={<FarmerNotification />}
-          />
+          <Route path="notifications" element={<FarmerNotification />} />
+          <Route path="announcements" element={<Announcements />} />
         </Route>
 
         {/* Legacy marketplace route - redirect to consumer marketplace */}

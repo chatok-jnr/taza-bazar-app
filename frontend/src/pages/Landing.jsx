@@ -138,7 +138,6 @@ export default function Landing() {
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               {/* <a href="#" className="text-gray-600 hover:text-gray-900 transition">Browse</a> */}
-              <a href="#" className="text-gray-600 hover:text-gray-900 transition">How it Works</a>
               {isAuthenticated ? (
                 <>
                   <span className="text-gray-600">Welcome, {user?.user_name}!</span>
@@ -226,26 +225,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Featured Categories</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {categories.map((category) => (
-              <div
-                key={category.name}
-                className="p-8 rounded-xl border-2 border-gray-200 hover:border-green-500 hover:shadow-lg transform hover:-translate-y-1 transition cursor-pointer"
-              >
-                <div className={`inline-flex p-4 rounded-lg ${category.color} mb-4`}>
-                  <category.icon className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">{category.name}</h3>
-                <p className="text-gray-600 mt-2">Fresh and quality {category.name.toLowerCase()}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Farmer Posts Section */}
       <section className="py-16 bg-gray-50">
@@ -391,7 +371,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
               <div className="flex items-center mb-4">
                 <Leaf className="h-8 w-8 text-green-500" />
@@ -400,27 +380,11 @@ export default function Landing() {
               <p className="text-gray-400">Connecting farmers and consumers for fresh, quality produce.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-4">About</h3>
+              <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition">About Us</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">How It Works</a></li>
+                <li><a href="/about-us" className="text-gray-400 hover:text-white transition">About Us</a></li>
+                <li><a href="/how-it-works" className="text-gray-400 hover:text-white transition">How It Works</a></li>
                 <li><a href="/about-developer" className="text-gray-400 hover:text-white transition">👨‍💻 About the Developer</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Support</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition">Contact</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">Help Center</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">FAQ</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Get Started</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition">Sign Up</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">Become a Farmer</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">Start Shopping</a></li>
               </ul>
             </div>
           </div>

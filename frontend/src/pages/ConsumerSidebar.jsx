@@ -26,6 +26,7 @@ export default function ConsumerSidebar() {
     { name: "My Requests", icon: FileText, path: "/consumer/requests" },
     { name: "Marketplace", icon: TrendingUp, path: "/consumer/marketplace" },
     { name: "Notifications", icon: Bell, path: "/consumer/notifications" },
+    { name: "Announcements", icon: () => <div className="w-5 h-5 flex items-center justify-center">📢</div>, path: "/consumer/announcements" },
     { name: "Profile", icon: User, path: "/consumer/profile" },
   ];
 

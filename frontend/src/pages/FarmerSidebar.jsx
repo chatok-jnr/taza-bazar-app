@@ -27,6 +27,7 @@ export default function FarmerSidebar() {
     { name: "My Listings", icon: FileText, path: "/farmer/listings" },
     { name: "Marketplace", icon: TrendingUp, path: "/farmer/marketplace" },
     { name: "Notifications", icon: Bell, path: "/farmer/notifications" },
+    { name: "Announcements", icon: () => <div className="w-5 h-5 flex items-center justify-center">📢</div>, path: "/farmer/announcements" },
     { name: "Profile", icon: User, path: "/farmer/profile" },
   ];
 

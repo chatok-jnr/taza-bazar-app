@@ -1,5 +1,6 @@
 const Farmer_product = require('./../models/farmerModel');
 const Farmer_to_admin = require('./../models/farmerToAdminReqModel');
+const Announcement = require('./../models/adminAnnouncementModel');
 
 // Create a new product
 exports.createProduct = async (req, res) => {
@@ -108,6 +109,27 @@ exports.deleteProduct = async (req, res) => {
       status:"Failed",
       message:err.message
     })
+  }
+}
+
+
+//Get All Announcement from the Admin
+exports.getAnnouncement = async(req, res) => {
+  try{
+
+    const allAnnouncement = await Announcement.find()
+    .populate('admin_id', 'name')
+    //.sort({'createdAt':-1});
+
+    res.status(200).json({
+      status:'success',
+      allAnnouncement
+    });
+  } catch(err) {
+    res.status(400).json({
+      status:"failed",
+      message:err.message
+    });
   }
 }
 

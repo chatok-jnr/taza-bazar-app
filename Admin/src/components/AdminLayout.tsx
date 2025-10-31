@@ -4,8 +4,6 @@ import {
   Users, 
   Package, 
   FileText, 
-  Gavel, 
-  AlertTriangle, 
   Megaphone, 
   FileCheck,
   Menu,
@@ -26,8 +24,6 @@ const navItems = [
   { id: 'users', label: 'Users', icon: Users },
   { id: 'listings', label: 'Listings', icon: Package },
   { id: 'requests', label: 'Requests', icon: FileText },
-  { id: 'bids', label: 'Bids', icon: Gavel },
-  { id: 'reports', label: 'Reports', icon: AlertTriangle },
   { id: 'announcements', label: 'Announcements', icon: Megaphone },
   { id: 'audit', label: 'Audit Logs', icon: FileCheck },
 ];

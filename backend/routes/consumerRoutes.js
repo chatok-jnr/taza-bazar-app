@@ -15,4 +15,8 @@ router
   .get(consumerController.getUserReq)
   .patch(consumerController.updateReq)
   .delete(consumerController.deleteReq)
+
+router
+  .route('/announcement') 
+  .get(consumerController.getAnnouncement);
 module.exports = router;
