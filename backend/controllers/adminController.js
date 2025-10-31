@@ -7,6 +7,7 @@ const consumerBid = require('./../models/buyerModel');
 const Farmer_to_admin = require('./../models/farmerToAdminReqModel');
 const Consumer_to_admin = require('./../models/consumerToAdminReqModel');
 const Admin_audit = require('./../models/adminAuditLogsModel');
+const Announcement  = require('./../models/adminAnnouncementModel');
 
 // Get list of all user
 exports.getAllUser = async (req, res) => {
@@ -325,6 +326,69 @@ exports.deleteConsumerReq = async (req, res) => {
   }
 }
 
+//Create Announcement
+exports.createAnnouncemnet = async (req, res) => {
+  try{
+
+    console.log(`Debug = ${req.body.announcement}`);
+
+    const addAnnouncement = await Announcement.create(req.body);
+
+    let admin_info = req.body.admin_id;
+    let action_reasson = " ";
+    await Admin_audit.create({admin_info, 'admin_action':'Sent an Announcement', action_reasson})
+
+    res.status(201).json({
+      status:'success',
+      message:'Announcement sent'
+    })
+  } catch(err) {
+    res.status(400).json({
+      status:'failed',
+      message:err.message
+    });
+  }
+}
+
+//Get All announcement
+exports.getAllAnnouncement = async (req, res) => {
+  try{
+    const allAnnouncemennt = await Announcement.find().sort({'createdAt':-1});
+    res.status(200).json({
+      status:success,
+      allAnnouncemennt
+    })
+  } catch(err) {
+    res.status(400).json({
+      status:'success',
+      message:err.message
+    });
+  }
+}
+
+// Get My Announcements
+exports.getMyAnnouncement = async (req, res) => {
+  try{
+
+    const myAnnouncement = await Announcement.find({'admin_info':req.params.id});
+    res.status(200).json({
+      status:'success',
+      myAnnouncement
+    });
+  } catch(err) {
+    res.status(400).json({
+      status:'failed',
+      message:err.message
+    });
+  }
+}
+
+/*
+All Announcement
+My Announcemnt
+Create Announcement
+Delete Announcement
+*/
 
 //Get all audit
 exports.auditLogs = async (req, res) => {

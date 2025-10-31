@@ -12,7 +12,7 @@ router
   .route('/signIn')
   .post(authAdmin.signIn)
 
-router.use(protect);
+//router.use(protect);
 router 
   .route('/allUser')
   .get(adminControll.getAllUser)
@@ -45,7 +45,17 @@ router
   .patch(adminControll.updateVerdictConsumer)
   .delete(adminControll.deleteConsumerReq);
 
+router
+  .route('/announcement')
+  .post(adminControll.createAnnouncemnet)
+  .get(adminControll.getAllAnnouncement);
+
+router
+  .route('/announcement/:id') 
+  .get(adminControll.getMyAnnouncement);
+
 router  
   .route('/auditLogs')
   .get(adminControll.auditLogs);
+
 module.exports = router;
