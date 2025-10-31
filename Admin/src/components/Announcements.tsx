@@ -29,7 +29,50 @@ export function Announcements() {
   const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://taza-bazar-backend.onrender.com';
   const adminId = useMemo(() => {
     if (typeof window === 'undefined') return '';
-    return localStorage.getItem('admin_id') || '';
+    // Try several common storage keys first
+    const idFromKeys =
+      localStorage.getItem('admin_id') ||
+      localStorage.getItem('adminId') ||
+      localStorage.getItem('adminID') ||
+      localStorage.getItem('userId') ||
+      localStorage.getItem('id') ||
+      '';
+    if (idFromKeys) return idFromKeys;
+
+    // Try extracting from persisted admin profile (set at login)
+    try {
+      const adminDataRaw = localStorage.getItem('adminData');
+      if (adminDataRaw) {
+        const parsed = JSON.parse(adminDataRaw);
+        const fromProfile = String(parsed?._id || parsed?.id || '');
+        if (fromProfile) return fromProfile;
+      }
+    } catch {
+      // ignore parsing errors
+    }
+
+    // Fallback: try to decode common JWT tokens stored in localStorage
+    const tok =
+      localStorage.getItem('adminToken') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('authToken') ||
+      '';
+    if (!tok) return '';
+    try {
+      const payload = JSON.parse(
+        decodeURIComponent(
+          atob(tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+      );
+      return (
+        String(payload?.admin_id || payload?.adminId || payload?.id || payload?._id || payload?.sub || '') || ''
+      );
+    } catch {
+      return '';
+    }
   }, []);
 
   // Auth token used for secured endpoints (common pattern across admin components)
@@ -68,7 +111,52 @@ export function Announcements() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/v1/admin/announcement`, {
+      // If asking for 'mine', ensure we have an admin id. Try to resolve from adminId memo or decode token as a fallback.
+      let effectiveAdminId = adminId;
+      if (kind === 'mine' && !effectiveAdminId) {
+        const tok =
+          localStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+        if (tok) {
+          try {
+            const payload = JSON.parse(
+              decodeURIComponent(
+                atob(tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+                  .split('')
+                  .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                  .join('')
+              )
+            );
+            effectiveAdminId = String(payload?.admin_id || payload?.adminId || payload?.id || payload?._id || payload?.sub || '') || '';
+          } catch {
+            // ignore, will handle below
+          }
+        }
+
+        // Try adminData as an additional fallback if token didn't help
+        if (!effectiveAdminId) {
+          try {
+            const adminDataRaw = localStorage.getItem('adminData');
+            if (adminDataRaw) {
+              const parsed = JSON.parse(adminDataRaw);
+              const fromProfile = String(parsed?._id || parsed?.id || '');
+              if (fromProfile) effectiveAdminId = fromProfile;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      if (kind === 'mine' && !effectiveAdminId) {
+        // Nothing to query for 'mine' — bail out with a helpful error
+        setError('Admin ID not found. Please sign in again.');
+        setLoading(false);
+        return;
+      }
+
+      const url = kind === 'mine' && effectiveAdminId ? `${API_BASE}/api/v1/admin/announcement/${effectiveAdminId}` : `${API_BASE}/api/v1/admin/announcement`;
+
+      const res = await fetch(url, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -101,6 +189,8 @@ export function Announcements() {
     if (!newMessage.trim()) return;
     setSending(true);
     setError(null);
+
+
     try {
       const res = await fetch(`${API_BASE}/api/v1/admin/announcement`, {
         method: 'POST',
@@ -111,6 +201,7 @@ export function Announcements() {
         }),
         credentials: 'include',
       });
+
       if (!res.ok) throw new Error(`Send failed: ${res.status}`);
       setNewMessage('');
       // After sending, show My Announcements to reflect the change
