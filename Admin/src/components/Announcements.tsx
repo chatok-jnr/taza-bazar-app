@@ -1,55 +1,187 @@
-import { useState } from 'react';
-import { Megaphone, Send, Users, UserCheck, ShoppingBag, Edit, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Megaphone, Send, Users, UserCheck, ShoppingBag, Trash2 } from 'lucide-react';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
+// Types for backend responses
+type Announcement = {
+  _id: string;
+  admin_id: string;
+  announcement: string;
+  __v?: number;
+};
 
-const mockAnnouncements = [
-  { id: 1, title: 'Platform Maintenance Scheduled', message: 'We will be performing maintenance on Oct 28 from 2-4 AM.', audience: 'all', sentBy: 'Admin A', sentDate: '2025-10-23 10:00', recipients: 12847 },
-  { id: 2, title: 'New Features for Farmers', message: 'We have added bulk listing upload and analytics dashboard.', audience: 'farmer', sentBy: 'Admin B', sentDate: '2025-10-22 14:30', recipients: 5234 },
-  { id: 3, title: 'Holiday Delivery Schedule', message: 'Please note adjusted delivery times during the holiday season.', audience: 'consumer', sentBy: 'Admin A', sentDate: '2025-10-21 09:15', recipients: 4567 },
-  { id: 4, title: 'Price Update Guidelines', message: 'New pricing transparency requirements for all sellers.', audience: 'farmer', sentBy: 'Admin C', sentDate: '2025-10-20 16:00', recipients: 5234 },
-];
+type AllAnnouncementsResponse = {
+  status: string;
+  data: Announcement[];
+};
+
+type MyAnnouncementsResponse = {
+  status: string;
+  myAnnouncement: Announcement[];
+};
 
 export function Announcements() {
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
-  const [audience, setAudience] = useState('all');
-  const [preview, setPreview] = useState(false);
+  // Config
+  const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || '';
+  const adminId = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem('admin_id') || '';
+  }, []);
 
-  const handleSend = () => {
-    console.log('Sending announcement:', { title, message, audience });
-    // Reset form
-    setTitle('');
-    setMessage('');
-    setAudience('all');
-    setPreview(false);
+  // Auth token used for secured endpoints (common pattern across admin components)
+  const token = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return (
+      localStorage.getItem('adminToken') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('authToken') ||
+      ''
+    );
+  }, []);
+
+  // UI mode: 'all' | 'mine' | 'new'
+  const [mode, setMode] = useState<'all' | 'mine' | 'new'>('all');
+
+  // Lists
+  const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
+  const [myAnnouncements, setMyAnnouncements] = useState<Announcement[]>([]);
+
+  // New announcement form
+  const [newMessage, setNewMessage] = useState('');
+  const [sending, setSending] = useState(false);
+
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<Announcement | null>(null);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  // UX
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch helpers
+  const fetchAnnouncements = async (kind: 'all' | 'mine') => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/announcement`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          // only include Authorization when token is available
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = (await res.json()) as AllAnnouncementsResponse & MyAnnouncementsResponse;
+      if (kind === 'all') {
+        const list = Array.isArray(data?.data) ? data.data : [];
+        setAllAnnouncements(list);
+      } else {
+        const list = Array.isArray(data?.myAnnouncement) ? data.myAnnouncement : [];
+        setMyAnnouncements(list);
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load announcements');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getAudienceCount = (aud: string) => {
-    switch (aud) {
-      case 'farmer': return 5234;
-      case 'consumer': return 4567;
-      case 'buyer': return 3046;
-      default: return 12847;
+  useEffect(() => {
+    if (mode === 'all') fetchAnnouncements('all');
+    if (mode === 'mine') fetchAnnouncements('mine');
+  }, [mode]);
+
+  const handleSend = async () => {
+    if (!newMessage.trim()) return;
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/announcement`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          admin_id: adminId,
+          announcement: newMessage,
+        }),
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`Send failed: ${res.status}`);
+      setNewMessage('');
+      // After sending, show My Announcements to reflect the change
+      setMode('mine');
+    } catch (e: any) {
+      setError(e?.message || 'Failed to send announcement');
+    } finally {
+      setSending(false);
     }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || !deleteReason.trim()) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/announcement/${deleteTarget._id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          admin_info: adminId,
+          action_reasson: deleteReason,
+        }),
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+      setMyAnnouncements((prev) => prev.filter((a) => a._id !== deleteTarget._id));
+      setDeleteTarget(null);
+      setDeleteReason('');
+    } catch (e: any) {
+      setError(e?.message || 'Failed to delete announcement');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteTarget(null);
+    setDeleteReason('');
   };
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-primary mb-2">Announcements</h1>
-        <p className="text-muted-foreground">Broadcast messages to platform users</p>
+        <p className="text-muted-foreground">Manage and broadcast announcements</p>
+      </div>
+
+      {/* Mode Switcher */}
+      <div className="flex gap-2">
+        <Button
+          variant={mode === 'all' ? 'default' : 'outline'}
+          className={mode === 'all' ? 'neon-glow-sm' : ''}
+          onClick={() => setMode('all')}
+        >
+          All Announcements
+        </Button>
+        <Button
+          variant={mode === 'mine' ? 'default' : 'outline'}
+          className={mode === 'mine' ? 'neon-glow-sm' : ''}
+          onClick={() => setMode('mine')}
+        >
+          My Announcements
+        </Button>
+        <Button
+          variant={mode === 'new' ? 'default' : 'outline'}
+          className={mode === 'new' ? 'neon-glow-sm' : ''}
+          onClick={() => setMode('new')}
+        >
+          New Announcement
+        </Button>
       </div>
 
       {/* Stats */}
@@ -100,133 +232,126 @@ export function Announcements() {
         </Card>
       </div>
 
-      {/* Create Announcement */}
-      <Card className="p-6 bg-card neon-border">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center neon-glow-sm">
-            <Megaphone className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-foreground">Create New Announcement</h2>
-            <p className="text-sm text-muted-foreground">Broadcast a message to selected user groups</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Announcement Title</Label>
-            <Input
-              id="title"
-              placeholder="Enter announcement title..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="bg-input-background border-border"
-            />
+      {/* Content based on mode */}
+      {mode === 'new' && (
+        <Card className="p-6 bg-card neon-border">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center neon-glow-sm">
+              <Megaphone className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-foreground">Create New Announcement</h2>
+              <p className="text-sm text-muted-foreground">Write your message and send it to users</p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="message">Message</Label>
-            <Textarea
-              id="message"
-              placeholder="Enter your announcement message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="bg-input-background border-border min-h-[120px]"
-            />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                id="message"
+                placeholder="Enter your announcement message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                className="bg-input-background border-border min-h-[120px]"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={() => setNewMessage('')}
+                variant="outline"
+                className="border-border hover:border-primary/50"
+                disabled={sending}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSend}
+                disabled={!newMessage.trim() || sending}
+                className="bg-primary/20 hover:bg-primary/30 text-primary border-primary/30 neon-glow-sm flex-1"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                {sending ? 'Sending...' : 'Send Announcement'}
+              </Button>
+            </div>
+
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {(mode === 'all' || mode === 'mine') && (
+        <Card className="p-6 bg-card neon-border">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-foreground">{mode === 'all' ? 'All Announcements' : 'My Announcements'}</h3>
+            <Badge>{loading ? 'Loading...' : mode === 'all' ? allAnnouncements.length : myAnnouncements.length}</Badge>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="audience">Target Audience</Label>
-            <Select value={audience} onValueChange={setAudience}>
-              <SelectTrigger className="bg-input-background border-border">
-                <SelectValue placeholder="Select audience" />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border neon-border">
-                <SelectItem value="all">All Users (12,847)</SelectItem>
-                <SelectItem value="farmer">Farmers Only (5,234)</SelectItem>
-                <SelectItem value="consumer">Consumers Only (4,567)</SelectItem>
-                <SelectItem value="buyer">Buyers Only (3,046)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {preview && (
-            <Card className="p-4 bg-muted/30 border-primary/30 neon-border">
-              <div className="flex items-start gap-3">
-                <Megaphone className="w-5 h-5 text-primary mt-1" />
-                <div className="flex-1">
-                  <h3 className="text-foreground mb-2">{title || 'Preview Title'}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{message || 'Your message will appear here...'}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>To: {audience === 'all' ? 'All Users' : audience.charAt(0).toUpperCase() + audience.slice(1) + 's'}</span>
-                    <span>•</span>
-                    <span>{getAudienceCount(audience)} recipients</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
+          {error && (
+            <p className="text-sm text-destructive mb-3">{error}</p>
           )}
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              onClick={() => setPreview(!preview)}
-              variant="outline"
-              className="border-border hover:border-primary/50"
-            >
-              {preview ? 'Hide Preview' : 'Show Preview'}
-            </Button>
-            <Button
-              onClick={handleSend}
-              disabled={!title.trim() || !message.trim()}
-              className="bg-primary/20 hover:bg-primary/30 text-primary border-primary/30 neon-glow-sm flex-1"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Send Announcement
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Past Announcements */}
-      <Card className="p-6 bg-card neon-border">
-        <h3 className="text-foreground mb-4">Past Announcements</h3>
-        <div className="space-y-3">
-          {mockAnnouncements.map((announcement) => (
-            <div key={announcement.id} className="p-4 rounded-xl bg-muted/30 border border-border hover:border-primary/50 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-foreground">{announcement.title}</h4>
-                    <Badge className={
-                      announcement.audience === 'all' ? 'bg-primary/20 text-primary' :
-                      announcement.audience === 'farmer' ? 'bg-secondary/20 text-secondary' :
-                      'bg-muted text-muted-foreground'
-                    }>
-                      {announcement.audience === 'all' ? 'All Users' : announcement.audience}
-                    </Badge>
+          <div className="space-y-3">
+            {(mode === 'all' ? allAnnouncements : myAnnouncements).map((a) => (
+              <div key={a._id} className="p-4 rounded-xl bg-muted/30 border border-border hover:border-primary/50 transition-all duration-300">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-foreground">Announcement</h4>
+                      <Badge className="bg-muted text-muted-foreground">ID: {a._id.slice(-6)}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{a.announcement}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{announcement.message}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Sent by {announcement.sentBy}</span>
-                    <span>•</span>
-                    <span>{announcement.sentDate}</span>
-                    <span>•</span>
-                    <span>{announcement.recipients.toLocaleString()} recipients</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" className="hover:bg-primary/10">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="ghost" className="hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+                  {mode === 'mine' && (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="ghost" className="hover:bg-destructive/10" onClick={() => setDeleteTarget(a)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
+            ))}
+
+            {!loading && (mode === 'all' ? allAnnouncements.length === 0 : myAnnouncements.length === 0) && (
+              <p className="text-sm text-muted-foreground">No announcements found.</p>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Delete Reason Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80">
+          <Card className="w-full max-w-md p-6 bg-card neon-border">
+            <h4 className="text-foreground mb-1">Delete Announcement</h4>
+            <p className="text-sm text-muted-foreground mb-4">Please provide a reason for deleting this announcement. This action cannot be undone.</p>
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason</Label>
+              <Textarea
+                id="reason"
+                placeholder="Enter reason..."
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                className="bg-input-background border-border min-h-[100px]"
+              />
             </div>
-          ))}
+            <div className="flex gap-3 pt-4">
+              <Button variant="outline" className="border-border" onClick={cancelDelete} disabled={deleting}>Cancel</Button>
+              <Button
+                className="bg-destructive/20 hover:bg-destructive/30 text-destructive border-destructive/30 flex-1"
+                onClick={confirmDelete}
+                disabled={!deleteReason.trim() || deleting}
+              >
+                {deleting ? 'Deleting...' : 'Confirm Delete'}
+              </Button>
+            </div>
+          </Card>
         </div>
-      </Card>
+      )}
     </div>
   );
 }

@@ -52,7 +52,8 @@ router
 
 router
   .route('/announcement/:id') 
-  .get(adminControll.getMyAnnouncement);
+  .get(adminControll.getMyAnnouncement)
+  .delete(adminControll.deleteAnnouncement); 
 
 router  
   .route('/auditLogs')

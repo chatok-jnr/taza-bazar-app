@@ -352,14 +352,16 @@ exports.createAnnouncemnet = async (req, res) => {
 //Get All announcement
 exports.getAllAnnouncement = async (req, res) => {
   try{
-    const allAnnouncemennt = await Announcement.find().sort({'createdAt':-1});
+    const allAnnouncemennt = await Announcement.find()
+    .sort({'createdAt':-1});
+
     res.status(200).json({
-      status:success,
-      allAnnouncemennt
+      status:'success',
+      data:allAnnouncemennt
     })
   } catch(err) {
     res.status(400).json({
-      status:'success',
+      status:'failed',
       message:err.message
     });
   }
@@ -369,7 +371,7 @@ exports.getAllAnnouncement = async (req, res) => {
 exports.getMyAnnouncement = async (req, res) => {
   try{
 
-    const myAnnouncement = await Announcement.find({'admin_info':req.params.id});
+    const myAnnouncement = await Announcement.find({'admin_id':req.params.id});
     res.status(200).json({
       status:'success',
       myAnnouncement
@@ -379,6 +381,27 @@ exports.getMyAnnouncement = async (req, res) => {
       status:'failed',
       message:err.message
     });
+  }
+}
+
+exports.deleteAnnouncement = async (req, res) => {
+  try{
+
+    await Announcement.findByIdAndDelete(req.params.id);
+    let admin_info = req.body.admin_info;
+    let action_reasson = req.body.action_reasson;
+    await Admin_audit.create({admin_info, 'admin_action':'DELETE ANNOUNCEMENT', action_reasson})
+  
+    res.status(204).json({
+      status:'success',
+      message:'The Annoucement has been Deleted Successfully'
+    })
+
+  } catch(err) {
+    res.status(400).json({
+      status:'failed',
+      message:err.message
+    })
   }
 }
 
