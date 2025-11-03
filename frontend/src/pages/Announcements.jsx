@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Megaphone, Calendar, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
