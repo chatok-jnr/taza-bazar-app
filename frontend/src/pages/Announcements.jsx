@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Calendar, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useUser } from '../context/UserContext';
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { getToken } = useUser();
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const token = localStorage.getItem('token');
+        // Prefer token from UserContext; fallback to stored key used across the app
+        const token = (typeof getToken === 'function' ? getToken() : null) || localStorage.getItem('jwtToken');
         if (!token) {
-          throw new Error('Authentication token not found');
+          throw new Error('Please log in to view announcements');
         }
 
         const response = await fetch('https://taza-bazar-backend.onrender.com/api/v1/farmer/announcement', {
@@ -25,6 +28,9 @@ export default function Announcements() {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Session expired or unauthorized. Please log in again.');
+          }
           throw new Error('Failed to fetch announcements');
         }
 
@@ -38,7 +44,7 @@ export default function Announcements() {
     };
 
     fetchAnnouncements();
-  }, []);
+  }, [getToken]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
