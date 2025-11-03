@@ -109,7 +109,8 @@ exports.deleteReq = async (req, res) => {
 exports.getAnnouncement = async(req, res) => {
   try{
     const allAnnouncement = await Announcement.find()
-    .sort({'createdAt':-1});
+    .sort({'createdAt':-1})
+    .populate('admin_id', 'name');
 
     if(!allAnnouncement) {
       return res.status(404).josn({

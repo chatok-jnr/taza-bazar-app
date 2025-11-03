@@ -119,7 +119,7 @@ exports.getAnnouncement = async(req, res) => {
 
     const allAnnouncement = await Announcement.find()
     .populate('admin_id', 'name')
-    //.sort({'createdAt':-1});
+    .sort({'createdAt':-1});
 
     res.status(200).json({
       status:'success',
