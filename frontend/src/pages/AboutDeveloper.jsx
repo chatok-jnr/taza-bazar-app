@@ -19,7 +19,7 @@ export default function AboutDeveloper() {
     {
       name: "Atik Shariar Opu",
       role: "Frontend Developer",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      image: "https://i.ibb.co.com/YFxLkdgh/Atik-Shahria-Opu.jpg",
       bio: "Creative frontend developer with expertise in React, modern CSS, and creating beautiful user experiences. I transform designs into responsive, interactive web applications.",
       skills: ["React", "Tailwind CSS", "JavaScript", "Responsive Design", "UI/UX"],
       links: {
