@@ -15,21 +15,6 @@ services:
     envVarGroups:
       - taza-bazar-env
 
-  # Frontend Service
-  - type: static
-    name: taza-bazar-frontend
-    env: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    pullRequestPreviewsEnabled: true
-    envVarGroups:
-      - taza-bazar-env
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-
   # Admin Service
   - type: static
     name: taza-bazar-admin
@@ -65,4 +50,4 @@ envVarGroups:
       - key: DATABASE_PASSWORD
         sync: false
       - key: ALLOWED_ORIGINS
-        value: "https://taza-bazar-frontend.onrender.com,https://taza-bazar-admin.onrender.com"
+        value: "https://taza-bazar-admin.onrender.com"
